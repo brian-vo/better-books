@@ -1,17 +1,22 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./index.css";
-import Navbar from "./Navbar";
+import NavBar from "./NavBar";
 import Home from "./Home";
+import Recommendations from "./Recommendations";
+import Wishlist from "./Wishlist";
+import LogIn from "./LogIn";
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Navbar />
+        <NavBar />
         <div className="content">
-          {/* Replaces <Switch><Switch /> in Router v5. This is needed to tell react to only display one element with the matching path*/}
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="" element={<Home />} />
+            <Route path="/recommendations" element={<Recommendations />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/login" element={<LogIn />} />
           </Routes>
         </div>
       </div>
