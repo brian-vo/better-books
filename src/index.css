@@ -37,23 +37,28 @@ nav {
   flex-grow: 1;
 }
 
-.nav-links {
-  display: inline-flex;
+.link-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.page-links {
   height: 46px;
 }
 
-.nav-links ul {
+.page-links ul {
   display: flex;
   flex-direction: row;
   text-align: left;
   margin-top: 10px;
 }
 
-.nav-links ul li {
+li {
   list-style: none;
+  color: white;
 }
 
-.nav-links ul li a {
+.page-links ul li a {
   padding-right: 30px;
   text-decoration: none;
   font-family: "Lato", Helvetica, sans-serif;
@@ -61,8 +66,26 @@ nav {
   font-weight: bold;
 }
 
-.nav-links ul li a:hover {
+.page-links ul li a:hover {
   text-decoration: underline;
+}
+
+.user-links {
+  margin-left: auto;
+}
+
+.user-links ul {
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  margin-top: 16px;
+}
+
+.user-links ul li a {
+  padding-right: 10px;
+  font-family: "Lato", Helvetica, sans-serif;
+  color: white;
+  font-weight: bold;
 }
 
 .search-bar {
