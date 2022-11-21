@@ -1,17 +1,86 @@
 * {
   margin: 0;
   padding: 0;
-  list-style: none;
+  border: 0;
+	font-size: 100%;
+	font: inherit;
+  box-sizing: border-box;
 }
 
 nav {
+  display: flex;
   width: 100%;
   height: 110px;
-  background-color: green;
+  background-color: #225799;
+}
+
+.nav-right {
+  width: 400px;
+  text-align: center;
+}
+
+.nav-logo {
+  float: left;
+  background-color: #225799;
+  width: calc(100% - 20px);
+  height: 100%;
+  font-family: "Lato", Helvetica, sans-serif;
+  font-size: 20px;
+  color: white;
+}
+
+.nav-left {
+  display: block;
+  flex-direction: column;
+  margin-left: 60px;
+  margin-right: 60px;
+  flex-grow: 1;
 }
 
 .nav-links {
+  display: inline-flex;
+  height: 46px;
+}
+
+.nav-links ul {
+  display: flex;
+  flex-direction: row;
+  text-align: left;
+  margin-top: 10px;
+}
+
+.nav-links ul li {
+  list-style: none;
+}
+
+.nav-links ul li a {
+  padding-right: 30px;
+  text-decoration: none;
+  font-family: "Lato", Helvetica, sans-serif;
+  color: white;
+  font-weight: bold;
+}
+
+.nav-links ul li a:hover {
+  text-decoration: underline;
+}
+
+.search-bar {
+  background-color: white;
   height: 40px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.search-input {
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  margin-top: 10px;
+  outline: none;
+}
+
+/* .nav-links {
+  height: 50px;
   text-align: center;
 }
 
@@ -23,53 +92,51 @@ nav {
   height: calc(100% - 10px);
 }
 
+.nav-links ul li {
+  list-style: none;
+}
+
 .nav-links ul li a {
-  margin-right: 20px;
+  padding-right: 20px;
   text-decoration: none;
   font-family: "Lato", Helvetica, sans-serif;
   color: white;
+  font-weight: bold;
 }
 
-/* .nav-item {
-  height: 100%;
-}
-
-.nav-logo {
-  min-width: 0px;
+.nav-bottom {
+  height: calc(100% - 50px);
   text-align: center;
 }
 
-.nav-content {
-  margin: 0 auto;
+.nav-bottom div {
+  transform: translateX(-140px);
+  height: calc();
 }
 
-.nav-links {
-  display: flex;
-}
-
-.nav-links li {
-  margin-top: 10px;
-}
-
-.nav-links li a {
+.logo-container {
   display: inline-block;
-  color: black;
-  box-sizing: border-box;
-  color: white;
-  margin-right: 30px;
-  text-decoration: none;
-  font-family: Lato, Helvetica, sans-serif;
+  width: 380px;
+  margin-bottom: 10px;
+}
+
+.nav-logo {
+  display: block;
+  width: calc(100% - 50px);
+  height: 100%;
+  background-color: white;
 }
 
 .search-bar {
-  display: block;
-  width: 400px;
-  height: 20px;
+  display: inline-block;
+  width: 520px;
+  background-color: white;
 }
 
-.search-bar input {
-  margin-top: 10px;
-  width: 100%;
+.search-input {
+  width: calc(100% - 20px);
+  height: 100%;
+  outline: none;
   height: 100%;
 } */
 
