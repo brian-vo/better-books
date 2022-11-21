@@ -1,12 +1,19 @@
-const BookIcon = ({ title, price }) => {
+import { Link } from "react-router-dom";
+
+const BookIcon = ({ title, price, imageUrl }) => {
   return (
     <li className="book-icon">
-      <img src="" alt="" />
-      <div className="book-info">
-        {title}
-        <br />
-        {price}
-      </div>
+      <Link to="/books">
+        <div className="icon-container">
+          <img src={imageUrl} alt="book" />
+        </div>
+        <div className="icon-info">
+          <a href="/books" className="icon-title">
+            {title}
+          </a>
+          <div className="icon-price">{price}</div>
+        </div>
+      </Link>
     </li>
   );
 };

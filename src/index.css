@@ -11,6 +11,10 @@
     transform: translateY(110px);
 }
 
+.book-purchase {
+    transform: translateY(110px);
+}
+
 .recommendations {
     transform: translateY(110px);
 }
@@ -26,7 +30,7 @@
 .banner {
     text-align: center;
     height: 130px;
-    background: #f0f1f5;
+    background: #e8ebed;
     color: #030e4b;
 }
 
@@ -55,38 +59,72 @@
     color: maroon;
 }
 
-.featured-container h1 {
-    padding: 20px;
-    font-family: Helvetica, sans-serif;
-    font-size: 32px;
-}
-
 .featured-container {
+    margin-top: 44px;
     margin-left: 10%;
     margin-right: 10%;
 }
 
+.featured-container h1 {
+    font-family: Helvetica, sans-serif;
+    margin-left: 40px;
+    margin-bottom: 4px;
+    font-size: 32px;
+}
+
 .featured {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, max-content));
+    grid-template-columns: repeat(auto-fit, minmax(260px, max-content));
     grid-gap: 20px;
     justify-content: center;
     height: 100%;
 }
 
 .book-icon {
-    height: 360px;
+    width: 260px;
+    height: 400px;
     list-style-type: none;
-    padding: 10px;
-    background-color: white;
+    color: black;
+    text-align: center;
 }
 
-.book-info {
+/* Source: https://stackoverflow.com/questions/6821295/add-css-box-shadow-around-the-whole-div */
+.book-icon:hover {
+    -moz-box-shadow: 0 0 10px #bbb;
+    -webkit-box-shadow: 0 0 10px #bbb;
+    box-shadow: 0 0 10px #bbb;
+}
+
+.book-icon a {
+    text-decoration: none;
+}
+
+.icon-container {
+    height: calc(100% - 80px);
+    padding: 30px;
+    padding-bottom: 0;
+}
+
+.icon-container img {
+    float: left;
+    background-color: #e8ebed;
+    width: 100%;
+    height: 100%;
+}
+
+.icon-info {
+    padding: 14px;
+    height: 80px;
+}
+
+.icon-title {
     color: black;
 }
 
-.book-icon img {
-    width: 100%;
-    height: calc(100% - 50px);
-    background-color: lightgray;
+.icon-title:hover {
+    text-decoration: underline;
+}
+
+.icon-price {
+    color: maroon;
 }

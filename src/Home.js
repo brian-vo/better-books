@@ -1,5 +1,6 @@
 import Banner from "./Banner";
 import BookIcon from "./BookIcon";
+import example_cover from "./img/example-cover.jpg";
 
 const Home = () => {
   return (
@@ -11,18 +12,56 @@ const Home = () => {
       <div className="featured-container">
         <h1 className="featured-header">Featured Books</h1>
         <ul className="featured">
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
-          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
+          <BookIcon
+            title="Book title here"
+            price="$24.99"
+            imageUrl={example_cover}
+          />
         </ul>
       </div>
     </div>
