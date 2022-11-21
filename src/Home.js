@@ -11,21 +11,18 @@ const Home = () => {
       <div className="featured-container">
         <h1 className="featured-header">Featured Books</h1>
         <ul className="featured">
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
-          <BookIcon />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
+          <BookIcon title="Book title here" price="$24.99" />
         </ul>
       </div>
     </div>

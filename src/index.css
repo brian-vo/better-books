@@ -71,14 +71,22 @@
     grid-template-columns: repeat(auto-fit, minmax(210px, max-content));
     grid-gap: 20px;
     justify-content: center;
-    padding: initial;
     height: 100%;
 }
 
 .book-icon {
     height: 360px;
     list-style-type: none;
-    border: 1px solid gray;
-    padding: 20px;
-    background-color: gray;
+    padding: 10px;
+    background-color: white;
+}
+
+.book-info {
+    color: black;
+}
+
+.book-icon img {
+    width: 100%;
+    height: calc(100% - 50px);
+    background-color: lightgray;
 }
