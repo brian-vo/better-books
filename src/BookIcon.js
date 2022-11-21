@@ -1,5 +1,5 @@
 const BookIcon = () => {
-  return <div className="book-icon"></div>;
+  return <li className="book-icon"></li>;
 };
 
 export default BookIcon;

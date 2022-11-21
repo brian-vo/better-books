@@ -10,7 +10,7 @@ const Home = () => {
       ></Banner>
       <div className="featured-container">
         <h1 className="featured-header">Featured Books</h1>
-        <div className="featured">
+        <ul className="featured">
           <BookIcon />
           <BookIcon />
           <BookIcon />
@@ -26,7 +26,7 @@ const Home = () => {
           <BookIcon />
           <BookIcon />
           <BookIcon />
-        </div>
+        </ul>
       </div>
     </div>
   );

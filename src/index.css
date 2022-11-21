@@ -67,15 +67,18 @@
 }
 
 .featured {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, max-content));
+    grid-gap: 20px;
     justify-content: center;
-    gap: 20px;
+    padding: initial;
     height: 100%;
 }
 
 .book-icon {
-    width: 240px;
     height: 360px;
+    list-style-type: none;
+    border: 1px solid gray;
+    padding: 20px;
     background-color: gray;
 }
