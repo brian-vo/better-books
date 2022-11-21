@@ -10,7 +10,7 @@ const Home = () => {
         subtitle="We offer a wide selection of books"
       ></Banner>
       <div className="featured-container">
-        <h1 className="featured-header">Featured Books</h1>
+        <h1>Featured Books</h1>
         <ul className="featured">
           <BookIcon
             title="Book title here"
