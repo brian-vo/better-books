@@ -23,7 +23,11 @@
     transform: translateY(110px);
 }
 
-.login {
+.log-in {
+    transform: translateY(110px);
+}
+
+.sign-up {
     transform: translateY(110px);
 }
 

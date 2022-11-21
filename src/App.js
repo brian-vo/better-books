@@ -6,6 +6,7 @@ import BookPurchase from "./BookPurchase";
 import Recommendations from "./Recommendations";
 import Wishlist from "./Wishlist";
 import LogIn from "./LogIn";
+import SignUp from "./SignUp";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="/recommendations" element={<Recommendations />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/login" element={<LogIn />} />
+            <Route path="/signup" element={<SignUp />} />
           </Routes>
         </div>
       </div>
