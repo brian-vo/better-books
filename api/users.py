@@ -48,6 +48,24 @@ def books_specific(book_isbn):
     else:
         return 'Book does not exist', 404
 
+# return a specific book stock by isbn, specified in url
+@main.route('/book/<book_isbn>/stock')
+def book_stock(book_isbn):
+    books = []
+    exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
+
+    if exists:
+        isbn = {'isbn' : book_isbn}
+        sql = text("SELECT * FROM book WHERE isbn = :isbn")
+        book_list = db.session.execute(sql, isbn)
+        for book in book_list:
+            books.append({'stock' : book.stock})      
+
+        return jsonify({'books' : books})
+  
+    else:
+        return 'Book does not exist', 404
+
 # add a book with data from flask HTTP method
 @main.route('/add_book/', methods=['POST'])
 def add_book():
@@ -79,22 +97,28 @@ def add_cart(user_id):
         db.session.add(new_cart)
         db.session.commit()
 
-        add_item_cart(user_id)
-        return 'Added', 200
+        status, value = add_item_cart(user_id)
+        return status, value
     else:
-        add_item_cart(user_id)
-        return 'Added', 200
+        status, value = add_item_cart(user_id)
+        return status, value
 
 # adds item to stores relationship relative to cart
 def add_item_cart(user_id):
     cart_data = request.get_json()
-
     cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-    new_stores = Stores(cart_id = cart.cart_id, isbn = cart_data['isbn'] )
-    db.session.add(new_stores)
+
+    item_exists_cart = db.session.query(db.exists().where(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn'])).scalar()
+
+    if not item_exists_cart:
+        new_stores = Stores(cart_id = cart.cart_id, isbn = cart_data['isbn'], amount = 1 )
+        db.session.add(new_stores)
+    else:
+        current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).one()
+        current.amount+=1
     db.session.commit()
 
-    return ''
+    return 'APPROVED', 200
 
 # get existing shopping cart data                                                                                                    UNFINISHED
 @main.route('/shopping_cart/<user_id>/data')
