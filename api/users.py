@@ -359,11 +359,21 @@ def add_recommendation():
 
     return 'Created New Recommendation', 201
 
+# delete recommendation + associated tables
+@main.route('/recommendation/delete', methods = ['POST'])
+def recommend_delete():
+    recommendation_data = request.get_json()
+    recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommendation_data['recommend_id'])).scalar()
 
-# add new user to customer relation
-def add_customer(email):
-     user = db.session.query(User).filter(User.email == email).one()
-     return Customer(user_id = user.user_id)
+    if recommendation_exists:
+        db.session.query(Sends).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
+        db.session.query(Author_Names).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
+        db.session.query(Recommendation).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
+        db.session.commit()
+        
+        return 'DELETED', 200
+    else:
+        return 'RECOMMENDATION DOES NOT EXIST', 404
 
 # ===========================================================
 # customer FUNCTIONS
