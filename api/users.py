@@ -336,6 +336,7 @@ def user_orders(user_id):
 # Recommendation FUNCTIONS
 # ===========================================================
 
+# add new recommendation
 @main.route('/recommendation/new', methods=['POST'])
 def add_recommendation():
     recommendation_data = request.get_json()
@@ -374,6 +375,22 @@ def recommend_delete():
         return 'DELETED', 200
     else:
         return 'RECOMMENDATION DOES NOT EXIST', 404
+
+# return all recommendation to specific user_id
+@main.route('/recommendation/<user_id>/')
+def recieved_recommendations(user_id):
+    exists = db.session.query(db.exists().where(Recommendation.recipient_id == user_id)).scalar()
+
+    if exists:
+        recommendations = []
+        recommendations_list = db.session.query(Recommendation).filter(Recommendation.recipient_id == user_id)
+        for recommendation in recommendations_list:
+            recommendations.append({'recommend_id' : recommendation.recommend_id, 'sender_id' : recommendation.user_id })      
+
+        return jsonify({'recommendations' : recommendations})
+  
+    else:
+        return 'User has no recommendations', 404
 
 # ===========================================================
 # customer FUNCTIONS
