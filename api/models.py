@@ -2,28 +2,61 @@ from . import db
 from sqlalchemy.ext.automap import automap_base
 
 Base = automap_base()
-
-
-class User(Base):
-        __tablename__ = 'user'
-
 Base.prepare(db.engine, reflect=True)
 
-admin = Base.classes.admin
-author = Base.classes.author
-author_names = Base.classes.author_names
-book = Base.classes.book
-book_order = Base.classes.book_order
-customer = Base.classes.customer
-derived_from = Base.classes.derived_from
-genres = Base.classes.genres
-includes = Base.classes.includes
-isbns = Base.classes.isbns
-recommendation = Base.classes.recommendation
-review =    Base.classes.review
-sends = Base.classes.sends
-shopping_cart = Base.classes.shopping_cart
-stores = Base.classes.stores
-wishlist = Base.classes.wishlist
-writes = Base.classes.writes
+
+
+class Admin(Base):
+    __tablename__ = 'admin'
+
+class Author(Base):
+    __tablename__ = 'author'
+
+class Author_Names(Base):
+    __tablename__ = 'author_names'
+
+class Book(Base):
+    __tablename__ = 'book'
+
+class Book_Order(Base):
+    __tablename__ = 'book_order'
+
+class Customer(Base):
+    __tablename__ = 'customer'
+
+class Derived_From(Base):
+    __tablename__ = 'derived_from'
+
+class Genres(Base):
+    __tablename__ = 'Genres'
+
+class Includes(Base):
+    __tablename__ = 'includes'
+
+class Isbns(Base):
+    __tablename__ = 'isbns'
+
+class Recommendation(Base):
+     __tablename__ = 'recommendation'
+
+class Review(Base):
+     __tablename__ = 'review'
+
+class Sends(Base):
+     __tablename__ = 'sends'
+
+class Shopping_Cart(Base):
+     __tablename__ = 'shopping_cart'
+
+class Stores(Base):
+     __tablename__ = 'stores'
+
+class User(Base):
+    __tablename__ = 'user'
+
+class Wishlist(Base):
+     __tablename__ = 'wishlist'
+
+class Writes(Base):
+     __tablename__ = 'writes'
 
