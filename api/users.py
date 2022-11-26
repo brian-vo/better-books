@@ -138,7 +138,7 @@ def cart_delete(user_id):
         if derived_exists:
             db.session.query(Derived_From).filter_by(cart_id = cart.cart_id).delete()
 
-        db.session.query(Stores).filter_by(Stores.cart_id = cart.cart_id).delete()
+        db.session.query(Stores).filter_by(cart_id = cart.cart_id).delete()
         db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).delete()
         db.session.commit()
         
@@ -150,9 +150,9 @@ def cart_delete(user_id):
 # wishhlist FUNCTIONS
 # ===========================================================
 
-# add an item to shopping_cart - NOT SURE HOW TO HANDLE USER_ID yet
+# add an item to wishlist - NOT SURE HOW TO HANDLE USER_ID yet
 @main.route('/wishlist/add/<user_id>', methods=['POST'])
-# checks if cart exists for that user, and creates if does not 
+# checks if wishlist exists for that user, and creates if does not 
 def add_wishlist(user_id):
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
 
@@ -167,13 +167,63 @@ def add_wishlist(user_id):
         add_item_wishlist(user_id)
         return 'Added', 200
 
-# adds item to stores relationship relative to cart
+# adds item to stores relationship relative to wishlist
 def add_item_wishlist(user_id):
     wishlist_data = request.get_json()
 
     wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
-    new_stores = Includes(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn'] )
-    db.session.add(new_stores)
-    db.session.commit()
+    wishlist_exists = db.session.query(db.exists().where(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == wishlist_data['isbn'])).scalar()
 
+    if not wishlist_exists:
+        new_stores = Includes(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn'] )
+        db.session.add(new_stores)
+        db.session.commit()
+    else:
+        print('failed')
+    
     return ''
+
+# get existing shopping cart data                                                                                                    UNFINISHED
+@main.route('/wishlist/<user_id>/data')
+def wishlist_data(user_id):
+    wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+
+    if wishlist_exists:
+        cart = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
+        sql = text("FROM shopping_cart AS c, stores AS s, book AS b WHERE c.cart_id = :cart AND :cart= s.cart_id AND s.isbn = b.isbn GROUP BY b.isbn")
+        cart_list = db.session.execute(sql, cart.cart_id, cart.cart_id)
+
+        return jsonify({'books' : cart_list})
+    else:
+        return 'NO CART', 404
+
+# delete book from wishlist
+@main.route('/wishlist/<user_id>/delete_item', methods=['POST'])
+def wishlist_delete_item(user_id):
+    wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+
+    if wishlist_exists:
+        wishlist_data = request.get_json()
+        wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
+        db.session.query(Wishlist).filter_by(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn']).delete()
+        db.session.commit()
+        
+        return 'DELETED', 200
+    else:
+        return 'NO CART', 404
+
+# delete wishlist + associated stores
+@main.route('/wishlist/<user_id>/delete')
+def wishlist_delete(user_id):
+    wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+
+    if wishlist_exists:
+        wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
+
+        db.session.query(Includes).filter_by(wishlist_id = wishlist.wishlist_id).delete()
+        db.session.query(Wishlist).filter_by(user_id = wishlist.user_id).delete()
+        db.session.commit()
+        
+        return 'DELETED', 200
+    else:
+        return 'NO CART', 404
