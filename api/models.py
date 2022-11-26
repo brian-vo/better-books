@@ -2,9 +2,6 @@ from . import db
 from sqlalchemy.ext.automap import automap_base
 
 Base = automap_base()
-Base.prepare(db.engine, reflect=True)
-
-
 
 class Admin(Base):
     __tablename__ = 'admin'
@@ -28,7 +25,7 @@ class Derived_From(Base):
     __tablename__ = 'derived_from'
 
 class Genres(Base):
-    __tablename__ = 'Genres'
+    __tablename__ = 'genres'
 
 class Includes(Base):
     __tablename__ = 'includes'
@@ -60,3 +57,4 @@ class Wishlist(Base):
 class Writes(Base):
      __tablename__ = 'writes'
 
+Base.prepare(db.engine, reflect=True)
