@@ -8,7 +8,11 @@ from .models import Stores
 
 from .models import Wishlist
 from .models import Includes
+
 from .models import User
+from .models import Customer
+from .models import Admin
+from .models import Book_Order
 
 from sqlalchemy.sql import text
 
@@ -110,15 +114,18 @@ def add_item_cart(user_id):
 
     item_exists_cart = db.session.query(db.exists().where(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn'])).scalar()
 
+    # if cart doesnt already store product, create stores
     if not item_exists_cart:
         new_stores = Stores(cart_id = cart.cart_id, isbn = cart_data['isbn'], amount = 1 )
         db.session.add(new_stores)
+        
+    # if cart does already contain, amount+=1
     else:
         current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).one()
         current.amount+=1
     db.session.commit()
 
-    return 'APPROVED', 200
+    return 'ADDED ISBN'  + cart_data['isbn'] + 'TO USER ' + user_id + ' CART', 200
 
 # get existing shopping cart data                                                                                                    UNFINISHED
 @main.route('/shopping_cart/<user_id>/data')
@@ -185,11 +192,11 @@ def add_wishlist(user_id):
         db.session.add(new_wishlist)
         db.session.commit()
 
-        add_item_wishlist(user_id)
-        return 'Added', 200
+        status, code = add_item_wishlist(user_id)
+        return status, code
     else:
-        add_item_wishlist(user_id)
-        return 'Added', 200
+        status, code = add_item_wishlist(user_id)
+        return status, code
 
 # adds item to stores relationship relative to wishlist
 def add_item_wishlist(user_id):
@@ -202,24 +209,27 @@ def add_item_wishlist(user_id):
         new_stores = Includes(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn'] )
         db.session.add(new_stores)
         db.session.commit()
+        return 'Book ' + wishlist_data['isbn'] + ' added to wishlist', 200 
     else:
-        print('failed')
+        return 'Book ' + wishlist_data['isbn'] + ' already exists in wishlist', 400 
     
-    return ''
 
-# get existing shopping cart data                                                                                                    UNFINISHED
+# get existing wishlist data                                                                                                    
 @main.route('/wishlist/<user_id>/data')
 def wishlist_data(user_id):
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
 
     if wishlist_exists:
-        cart = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
-        sql = text("FROM shopping_cart AS c, stores AS s, book AS b WHERE c.cart_id = :cart AND :cart= s.cart_id AND s.isbn = b.isbn GROUP BY b.isbn")
-        cart_list = db.session.execute(sql, cart.cart_id, cart.cart_id)
+        wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
+        all_includes = db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id)
+        wishlist_items = []
 
-        return jsonify({'books' : cart_list})
+        for items in all_includes:
+            wishlist_items.append({'isbn' : items.isbn})        
+
+        return jsonify({'wishlist_items' : wishlist_items})
     else:
-        return 'NO CART', 404
+        return 'USER DOES NOT HAVE A WISHLIST', 404
 
 # delete book from wishlist
 @main.route('/wishlist/<user_id>/delete_item', methods=['POST'])
@@ -227,7 +237,6 @@ def wishlist_delete_item(user_id):
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
 
     if wishlist_exists:
-        wishlist_data = request.get_json()
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
         db.session.query(Wishlist).filter_by(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn']).delete()
         db.session.commit()
@@ -251,3 +260,126 @@ def wishlist_delete(user_id):
         return 'DELETED', 200
     else:
         return 'NO CART', 404
+
+# ===========================================================
+# user FUNCTIONS
+# ===========================================================
+
+# add a user with data from flask HTTP method
+@main.route('/register/new', methods=['POST'])
+def add_user():
+    user_data = request.get_json()
+
+    exists = db.session.query(db.exists().where(User.email == user_data['email'])).scalar()
+
+    if not exists:
+        new_user = User(fname=user_data['fname'], lname=user_data['lname'], email=user_data['email'], pass_word=user_data['password'])
+        db.session.add(new_user)
+        db.session.commit()
+
+        db.session.add(add_customer(user_data['email']))
+        db.session.commit()
+
+        return 'Registered new user', 201
+    else:
+        return 'User with this email already exists', 400
+
+# add new user to customer relation
+def add_customer(email):
+     user = db.session.query(User).filter(User.email == email).one()
+     return Customer(user_id = user.user_id)
+     
+# return a specific user by id, specified in url
+@main.route('/<user_id>/data')
+def user_data(user_id):
+    exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
+
+    if exists:
+        users = []
+        id = {'user_id' : str(user_id)}
+        sql = text("SELECT * FROM user WHERE user_id = :user_id")
+        user_list = db.session.execute(sql, id)
+        for user in user_list:
+            users.append({'fname' : user.fname, 'lname' : user.lname, 'email' : user.email})      
+
+        return jsonify({'user' : users})
+  
+    else:
+        return 'User does not exist', 404
+
+# return all orders from specific user_id
+@main.route('/<user_id>/orders/')
+def user_orders(user_id):
+    exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
+
+    if exists:
+        orders = []
+        order_list = db.session.query(Book_Order).filter(Book_Order.user_id == user_id)
+        for order in order_list:
+            if order.prepared_date != None:
+                order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
+            if order.shipped_date != None:
+                order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
+            if order.delivered_date != None:
+                order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
+            orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method})      
+
+        return jsonify({'orders' : orders})
+  
+    else:
+        return 'User does not exist', 404
+
+# ===========================================================
+# customer FUNCTIONS
+# ===========================================================
+
+# return a specific user's points by id, specified in url
+@main.route('/<user_id>/points/data')
+def user_points_data(user_id):
+    exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
+
+    if exists:
+        users = []
+        customer_list = db.session.query(Customer).filter(Customer.user_id == user_id).one()
+        users.append({'points' : customer_list.loyalty_points})      
+
+        return jsonify({'user' : users})
+  
+    else:
+        return 'User does not exist', 404
+
+# updates loyalty points
+@main.route('/<user_id>/points/update', methods = ['POST'])
+def update_points(user_id):
+    points_data = request.get_json()
+    customer_exists = db.session.query(db.exists().where(Customer.user_id == user_id)).scalar()
+
+
+    # if customer exists, update points
+    if customer_exists:
+        customer = db.session.query(Customer).filter(Customer.user_id == user_id).one()
+        customer.loyalty_points+=int(points_data['points'])
+        db.session.commit()
+        return 'UPDATED POINTS', 200
+    # if customer does not exist
+    else:
+        return 'CUSTOMER DOES NOT EXIST', 404
+
+# ===========================================================
+# admin FUNCTIONS
+# ===========================================================
+
+# return a specific user's points by id, specified in url
+@main.route('/<user_id>/admin')
+def start_date(user_id):
+    exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
+
+    if exists:
+        admins = []
+        admin = db.session.query(Admin).filter(Admin.user_id == user_id).one()
+        admins.append({'start_date' : admin.Start_date.strftime('%Y-%m-%d')})      
+
+        return jsonify({'admin' : admins})
+  
+    else:
+        return 'Admin does not exist', 404
