@@ -14,6 +14,9 @@ from .models import Customer
 from .models import Admin
 from .models import Book_Order
 
+from .models import Recommendation
+from .models import Sends
+from .models import Author_Names
 from sqlalchemy.sql import text
 
 
@@ -328,6 +331,39 @@ def user_orders(user_id):
   
     else:
         return 'User does not exist', 404
+
+# ===========================================================
+# Recommendation FUNCTIONS
+# ===========================================================
+
+@main.route('/recommendation/new', methods=['POST'])
+def add_recommendation():
+    recommendation_data = request.get_json()
+
+    new_recommendation = Recommendation(recipient_id=recommendation_data['recipient_id'], user_id=recommendation_data['user_id'])
+    db.session.add(new_recommendation)
+    db.session.commit()
+
+    recommend = db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).one()
+
+    if(recommendation_data['isbns'] != None):
+        for isbns in recommendation_data['isbns']:
+            new_sends = Sends(recommend_id = recommend.recommend_id, isbn = isbns )
+            db.session.add(new_sends)
+            db.session.commit()
+    if(recommendation_data['author_names'] != None):
+        for authors in recommendation_data['author_names']:
+            new_author = Author_Names(recommend_id = recommend.recommend_id, author_id = authors)
+            db.session.add(new_author)
+            db.session.commit()
+
+    return 'Registered new user', 201
+
+
+# add new user to customer relation
+def add_customer(email):
+     user = db.session.query(User).filter(User.email == email).one()
+     return Customer(user_id = user.user_id)
 
 # ===========================================================
 # customer FUNCTIONS
