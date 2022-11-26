@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from . import db
 from .models import Book
 from .models import Shopping_Cart
+from .models import Derived_From
 from .models import Stores
 from .models import User
 
@@ -67,9 +68,9 @@ def add_book():
 @main.route('/shopping_cart/add/<user_id>', methods=['POST'])
 # checks if cart exists for that user, and creates if does not 
 def add_cart(user_id):
-    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
+    cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
-    if not exists:
+    if not cart_exists:
         new_cart = Shopping_Cart(user_id= user_id)
         db.session.add(new_cart)
         db.session.commit()
@@ -91,12 +92,12 @@ def add_item(user_id):
 
     return ''
 
-# get existing shopping cart data
+# get existing shopping cart data                                                                                                    UNFINISHED
 @main.route('/shopping_cart/<user_id>/data')
 def cart_data(user_id):
-    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
+    cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
-    if exists:
+    if cart_exists:
         cart = db.session.query(Shopping_Cart).filter(user_id == user_id).first()
         sql = text("FROM shopping_cart AS c, stores AS s, book AS b WHERE c.cart_id = :cart AND :cart= s.cart_id AND s.isbn = b.isbn GROUP BY b.isbn")
         cart_list = db.session.execute(sql, cart.cart_id, cart.cart_id)
@@ -108,9 +109,9 @@ def cart_data(user_id):
 # delete book from cart
 @main.route('/shopping_cart/<user_id>/delete_item', methods=['POST'])
 def cart_delete_item(user_id):
-    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
+    cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
-    if exists:
+    if cart_exists:
         cart_data = request.get_json()
         cart = db.session.query(Shopping_Cart).filter(user_id == user_id).first()
         db.session.query(Stores).filter_by(cart_id = cart.cart_id, isbn = cart_data['isbn']).delete()
@@ -123,10 +124,16 @@ def cart_delete_item(user_id):
 # delete cart + associated stores
 @main.route('/shopping_cart/<user_id>/delete')
 def cart_delete(user_id):
-    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
+    cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
-    if exists:
+
+    if cart_exists:
         cart = db.session.query(Shopping_Cart).filter(user_id == user_id).first()
+        derived_exists = db.session.query(db.exists().where(Derived_From.cart_id == cart.user_id)).scalar()
+        
+        if derived_exists:
+            db.session.query(Derived_From).filter_by(cart_id = cart.cart_id).delete()
+        
         db.session.query(Stores).filter_by(cart_id = cart.cart_id).delete()
         db.session.query(Shopping_Cart).filter(user_id == user_id).delete()
         db.session.commit()
@@ -134,3 +141,7 @@ def cart_delete(user_id):
         return 'DELETED', 200
     else:
         return 'NO CART', 404
+
+# ===========================================================
+# book_order FUNCTIONS
+# ===========================================================
