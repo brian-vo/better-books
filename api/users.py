@@ -357,7 +357,7 @@ def add_recommendation():
             db.session.add(new_author)
             db.session.commit()
 
-    return 'Registered new user', 201
+    return 'Created New Recommendation', 201
 
 
 # add new user to customer relation
