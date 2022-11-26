@@ -1,12 +1,18 @@
 from flask import Blueprint, jsonify, request
 from . import db
 from .models import Book
+from .models import Shopping_Cart
+from .models import Stores
 from .models import User
 
 from sqlalchemy.sql import text
 
 
 main = Blueprint('main', __name__)
+
+# ===========================================================
+# BOOK FUNCTIONS
+# ===========================================================
 
 # return all books
 @main.route('/book/all_data')
@@ -53,33 +59,78 @@ def add_book():
     else:
         return 'Book already exists', 400
 
+# ===========================================================
+# SHOPPING_CART FUNCTIONS
+# ===========================================================
 
+# add an item to shopping_cart - NOT SURE HOW TO HANDLE USER_ID yet
+@main.route('/shopping_cart/add/<user_id>', methods=['POST'])
+# checks if cart exists for that user, and creates if does not 
+def add_cart(user_id):
+    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
+    if not exists:
+        new_cart = Shopping_Cart(user_id= user_id)
+        db.session.add(new_cart)
+        db.session.commit()
 
+        add_item(user_id)
+        return 'Added', 200
+    else:
+        add_item(user_id)
+        return 'Added', 200
 
+# adds item to stores relationship relative to cart
+def add_item(user_id):
+    cart_data = request.get_json()
 
-# @main.route('/user_test/', methods=['POST'])
-# def query_user():
-#    user_data = request.get_json()
-#    users = []
+    cart = db.session.query(Shopping_Cart).filter(user_id == user_id).first()
+    new_stores = Stores(cart_id = cart.cart_id, isbn = cart_data['isbn'] )
+    db.session.add(new_stores)
+    db.session.commit()
 
-#    name = {'fname' : str(user_data['fname'])}
-#    sql = text("SELECT * FROM user WHERE fname = :fname")
-#    users_list = db.session.execute(sql, name)
+    return ''
 
-#    for user in users_list:
-#            users.append({'fname' : user.fname, 'lname' : user.lname, 'email' : user.email, 'pass_word' : user.pass_word})        
+# get existing shopping cart data
+@main.route('/shopping_cart/<user_id>/data')
+def cart_data(user_id):
+    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
-#    return jsonify({'users' : users})
+    if exists:
+        cart = db.session.query(Shopping_Cart).filter(user_id == user_id).first()
+        sql = text("FROM shopping_cart AS c, stores AS s, book AS b WHERE c.cart_id = :cart AND :cart= s.cart_id AND s.isbn = b.isbn GROUP BY b.isbn")
+        cart_list = db.session.execute(sql, cart.cart_id, cart.cart_id)
 
+        return jsonify({'books' : cart_list})
+    else:
+        return 'NO CART', 404
 
-# @main.route('/users/')
-# def users():
-#        # users_list = db.session.query(Book).all()
-#        users_list = db.session.execute('select * from user where fname = "antony" ')
-#        users = []
-#
-#        for user in users_list:
-#            users.append({'fname' : user.fname, 'lname' : user.lname, 'email' : user.email, 'pass_word' : user.pass_word})        
+# delete book from cart
+@main.route('/shopping_cart/<user_id>/delete_item', methods=['POST'])
+def cart_delete_item(user_id):
+    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
-#       return jsonify({'users' : users})
+    if exists:
+        cart_data = request.get_json()
+        cart = db.session.query(Shopping_Cart).filter(user_id == user_id).first()
+        db.session.query(Stores).filter_by(cart_id = cart.cart_id, isbn = cart_data['isbn']).delete()
+        db.session.commit()
+        
+        return 'DELETED', 200
+    else:
+        return 'NO CART', 404
+
+# delete cart + associated stores
+@main.route('/shopping_cart/<user_id>/delete')
+def cart_delete(user_id):
+    exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
+
+    if exists:
+        cart = db.session.query(Shopping_Cart).filter(user_id == user_id).first()
+        db.session.query(Stores).filter_by(cart_id = cart.cart_id).delete()
+        db.session.query(Shopping_Cart).filter(user_id == user_id).delete()
+        db.session.commit()
+        
+        return 'DELETED', 200
+    else:
+        return 'NO CART', 404
