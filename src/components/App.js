@@ -4,7 +4,7 @@ import Home from "../pages/Home";
 import BookPurchase from "../pages/BookPurchase";
 import Recommendations from "../pages/Recommendations";
 import Wishlist from "../pages/Wishlist";
-import LogIn from "../pages/LogIn";
+import LogIn from "../pages/Login";
 import SignUp from "../pages/SignUp";
 import Search from "../pages/Search";
 

@@ -4,35 +4,20 @@
     border: 0;
     font-size: 100%;
     font: inherit;
+    font-family: "Roboto", Helvetica, Arial, sans-serif;
     box-sizing: border-box;
 }
 
-.home {
-    transform: translateY(110px);
-}
-
-.search {
-    transform: translateY(110px);
-}
-
-.book-purchase {
-    transform: translateY(110px);
-}
-
-.recommendations {
-    transform: translateY(110px);
-}
-
-.wishlist {
+.content {
     transform: translateY(110px);
 }
 
 .log-in {
-    transform: translateY(110px);
-}
-
-.sign-up {
-    transform: translateY(110px);
+    width: 50%;
+    max-width: 1000px;
+    min-width: 400px;
+    padding-top: 100px;
+    margin: 0 auto;
 }
 
 .banner {
