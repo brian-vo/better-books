@@ -1,6 +1,6 @@
-import Banner from "./components/Banner";
-import BookIcon from "./components/BookIcon";
-import example_cover from "./img/example-cover.jpg";
+import Banner from "../components/Banner";
+import BookIcon from "../components/BookIcon";
+import example_cover from "../img/example-cover.jpg";
 
 const Home = () => {
   return (
