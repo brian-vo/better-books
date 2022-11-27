@@ -481,6 +481,37 @@ def user_orders(user_id):
     else:
         return 'User does not exist', 404
 
+@main.route('/user/data/<user_id>/update', methods=['POST'])
+def update_order(user_id):
+    update_data = request.get_json()
+    
+    user  = db.session.query(User).filter(User.user_id == user_id).one()
+    fname = user.fname
+    lname = user.lname
+    email = user.email
+    address = user.address
+    password = user.pass_word
+
+    if (update_data['fname'] != None):
+        fname = update_data['fname']
+    if (update_data['lname'] != None):
+        lname = update_data['lname']
+    if (update_data['email'] != None):
+        email = update_data['email'] 
+    if (update_data['address'] != None):
+        address = update_data['address']
+    if (update_data['password'] != None):
+        password = update_data['password']
+
+    user.fname = fname
+    user.lname = lname
+    user.email = email
+    user.address = address
+    user.pass_word = password
+    db.session.commit()
+
+    return 'UPDATED USER', 201
+
 # ===========================================================
 # Recommendation FUNCTIONS
 # ===========================================================
