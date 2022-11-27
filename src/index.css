@@ -12,7 +12,15 @@
     transform: translateY(110px);
 }
 
-.log-in {
+.login-container {
+    width: 50%;
+    max-width: 1000px;
+    min-width: 400px;
+    padding-top: 100px;
+    margin: 0 auto;
+}
+
+.signup-container {
     width: 50%;
     max-width: 1000px;
     min-width: 400px;
