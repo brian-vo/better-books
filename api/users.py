@@ -51,7 +51,7 @@ def books_specific(book_isbn):
         sql = text("SELECT * FROM book WHERE isbn = :isbn")
         book_list = db.session.execute(sql, isbn)
         for book in book_list:
-            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'image_location' : book.image_location})      
+            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location})      
 
         return jsonify({'books' : books})
   
@@ -84,7 +84,7 @@ def add_book():
     exists = db.session.query(db.exists().where(Book.isbn == book_data['isbn'])).scalar()
 
     if not exists:
-        new_book = Book(isbn=book_data['isbn'], title=book_data['title'], description=book_data['description'], stock=book_data['stock'], price=book_data['price'] )
+        new_book = Book(isbn=book_data['isbn'], title=book_data['title'], description=book_data['description'], stock=book_data['stock'], price=book_data['price'], cover_type=book_data['cover_type'])
         db.session.add(new_book)
         db.session.commit()
 
@@ -96,7 +96,7 @@ def add_book():
 # SHOPPING_CART FUNCTIONS
 # ===========================================================
 
-# add an item to shopping_cart - NOT SURE HOW TO HANDLE USER_ID yet
+# add an item to shopping_cart
 @main.route('/shopping_cart/add/<user_id>', methods=['POST'])
 # checks if cart exists for that user, and creates if does not 
 def add_cart(user_id):
@@ -128,20 +128,31 @@ def add_item_cart(user_id):
     # if cart does already contain, amount+=1
     else:
         current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).one()
+        book = db.session.query(Book).filter(Book.isbn == cart_data['isbn']).one()
+        if current.amount+1 > book.stock:
+            return 'Unable to add product to cart, not enough stock', 307
         current.amount+=1
     db.session.commit()
 
     return 'ADDED ISBN'  + str(cart_data['isbn']) + ' TO USER ' + str(user_id) + ' CART', 200
 
-# get existing shopping cart data                                                                                                    UNFINISHED
-@main.route('/shopping_cart/data/<user_id>')
+# get existing shopping cart data                                                                                                    
+@main.route('/shopping_cart/<user_id>/data')
 def cart_data(user_id):
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
     if cart_exists:
+        cart_list = []
+        items = []
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-        sql = text("FROM shopping_cart AS c, stores AS s, book AS b WHERE c.cart_id = :cart AND :cart= s.cart_id AND s.isbn = b.isbn GROUP BY b.isbn")
-        cart_list = db.session.execute(sql, cart.cart_id, cart.cart_id)
+
+        items_order = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id)
+        for item in items_order:
+            book = db.session.query(Book).filter(Book.isbn == item.isbn).one()
+            items.append({'isbn' : item.isbn, 'title' : book.title, 'isbn' : book.isbn, 'price' : book.price, 'quantity' : item.amount})
+
+        total = cart.getTotal(cart.cart_id)
+        cart_list.append({'sum' : total, 'items' : items})
 
         return jsonify({'books' : cart_list})
     else:
@@ -201,6 +212,8 @@ def new_order():
     cart_items = db.session.query(Stores).filter(Stores.cart_id == order_data['cart_id']).all()
     for items in cart_items:
         new_isbns = Isbns(order_id = new_order.order_id, isbn = items.isbn, amount = items.amount)
+        book = db.session.query(Book).filter(Book.isbn == items.isbn).one()
+        book.stock -= items.amount
         db.session.add(new_isbns)
     db.session.commit()
 
