@@ -334,6 +334,19 @@ def specific_review(isbn, user_id):
     else:
         return 'This review does not exist', 404
 
+# delete review
+@main.route('/book/<isbn>/review/<user_id>/delete')
+def review_delete(isbn, user_id):
+    exists = db.session.query(db.exists().where(Review.isbn == isbn, Review.user_id == user_id )).scalar()
+
+    if exists:
+        db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id).delete()
+        db.session.commit()
+        
+        return 'DELETED', 200
+    else:
+        return 'Review does not exist', 404
+
 # ===========================================================
 # user FUNCTIONS
 # ===========================================================
