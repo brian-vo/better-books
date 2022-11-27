@@ -62,7 +62,23 @@ class Sends(Base):
      __tablename__ = 'sends'
 
 class Shopping_Cart(Base):
-     __tablename__ = 'shopping_cart'
+    __tablename__ = 'shopping_cart'
+
+    @classmethod
+    def getTotal(self, cart_id):
+        stores = db.session.query(Stores).filter(Stores.cart_id == cart_id)
+
+        sum = 0 
+
+        for isbn in stores:
+            book = db.session.query(Book).filter(Book.isbn == isbn.isbn).one()
+            if(isbn.amount > 1):
+                for x in range(isbn.amount):
+                    sum+=book.price
+            else:
+                sum+=book.price
+
+        return sum
 
 class Stores(Base):
      __tablename__ = 'stores'
