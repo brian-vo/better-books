@@ -17,6 +17,8 @@ from .models import Book_Order
 from .models import Recommendation
 from .models import Sends
 from .models import Author_Names
+
+from .models import Review
 from sqlalchemy.sql import text
 
 
@@ -74,7 +76,7 @@ def book_stock(book_isbn):
         return 'Book does not exist', 404
 
 # add a book with data from flask HTTP method
-@main.route('/add_book/', methods=['POST'])
+@main.route('/book/new', methods=['POST'])
 def add_book():
     book_data = request.get_json()
 
@@ -268,6 +270,21 @@ def wishlist_delete(user_id):
 # review FUNCTIONS
 # ===========================================================
 
+# add a review with data from flask HTTP method
+@main.route('/review/new', methods=['POST'])
+def add_review():
+    review_data = request.get_json()
+
+    exists = db.session.query(db.exists().where(Review.user_id == review_data['user_id'], Review.isbn == review_data['isbn'] )).scalar()
+
+    if not exists:
+        new_review = Review(user_id=review_data['user_id'], isbn=review_data['isbn'], message_title=review_data['message_title'], message_body=review_data['message_body'], rating=review_data['rating'])
+        db.session.add(new_review)
+        db.session.commit()
+
+        return 'Done', 201
+    else:
+        return 'User already has review on this product', 400
 # ===========================================================
 # user FUNCTIONS
 # ===========================================================
