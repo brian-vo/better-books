@@ -271,20 +271,69 @@ def wishlist_delete(user_id):
 # ===========================================================
 
 # add a review with data from flask HTTP method
-@main.route('/review/new', methods=['POST'])
-def add_review():
+@main.route('/book/<isbn_input>/review/new', methods=['POST'])
+def add_review(isbn):
     review_data = request.get_json()
 
-    exists = db.session.query(db.exists().where(Review.user_id == review_data['user_id'], Review.isbn == review_data['isbn'] )).scalar()
+    exists = db.session.query(db.exists().where(Review.user_id == review_data['user_id'], Review.isbn == isbn )).scalar()
 
     if not exists:
-        new_review = Review(user_id=review_data['user_id'], isbn=review_data['isbn'], message_title=review_data['message_title'], message_body=review_data['message_body'], rating=review_data['rating'])
+        new_review = Review(user_id=review_data['user_id'], isbn=isbn, message_title=review_data['message_title'], message_body=review_data['message_body'], rating=review_data['rating'])
         db.session.add(new_review)
         db.session.commit()
 
         return 'Done', 201
     else:
         return 'User already has review on this product', 400
+
+# return all reviews created by user_id
+@main.route('/<user_id>/reviews')
+def all_review(user_id):
+    exists = db.session.query(db.exists().where(Review.user_id == user_id)).scalar()
+
+    if exists:
+        reviews = []
+        reviews_list = db.session.query(Review).filter(Review.user_id == user_id)
+        for review in reviews_list:
+            reviews.append({'isbn' : review.isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
+
+        return jsonify({'recommendations' : reviews})
+  
+    else:
+        return 'User has no reviews', 404
+
+# return all reviews created on isbn
+@main.route('/book/<isbn>/review_all')
+def all_review_book(isbn):
+    exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
+
+    if exists:
+        reviews = []
+        reviews_list = db.session.query(Review).filter(Review.isbn == isbn)
+        for review in reviews_list:
+            reviews.append({'user_id' : review.user_id, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
+
+        return jsonify({'recommendations' : reviews})
+  
+    else:
+        return 'Book has no reviews', 404
+
+# return specific review data
+@main.route('/book/<isbn>/review/<user_id>')
+def specific_review(isbn, user_id):
+    exists = db.session.query(db.exists().where(Review.isbn == isbn, Review.user_id == user_id )).scalar()
+
+    if exists:
+        reviews = []
+        reviews_list = db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id)
+        for review in reviews_list:
+            reviews.append({'user_id' : user_id, 'isbn' : isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
+
+        return jsonify({'recommendations' : reviews})
+  
+    else:
+        return 'This review does not exist', 404
+
 # ===========================================================
 # user FUNCTIONS
 # ===========================================================
