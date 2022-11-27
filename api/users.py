@@ -13,6 +13,7 @@ from .models import User
 from .models import Customer
 from .models import Admin
 from .models import Book_Order
+from .models import Isbns
 
 from .models import Recommendation
 from .models import Sends
@@ -28,14 +29,14 @@ main = Blueprint('main', __name__)
 # BOOK FUNCTIONS
 # ===========================================================
 
-# return all books
+# return all books 
 @main.route('/book/all_data')
 def books_all():
     book_list = db.session.query(Book).all()
     books = []
 
     for book in book_list:
-        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price})        
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'image_location' : book.image_location})        
 
     return jsonify({'books' : books})
 
@@ -50,7 +51,7 @@ def books_specific(book_isbn):
         sql = text("SELECT * FROM book WHERE isbn = :isbn")
         book_list = db.session.execute(sql, isbn)
         for book in book_list:
-            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price})      
+            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'image_location' : book.image_location})      
 
         return jsonify({'books' : books})
   
@@ -130,7 +131,7 @@ def add_item_cart(user_id):
         current.amount+=1
     db.session.commit()
 
-    return 'ADDED ISBN'  + cart_data['isbn'] + 'TO USER ' + user_id + ' CART', 200
+    return 'ADDED ISBN'  + str(cart_data['isbn']) + ' TO USER ' + str(user_id) + ' CART', 200
 
 # get existing shopping cart data                                                                                                    UNFINISHED
 @main.route('/shopping_cart/data/<user_id>')
@@ -185,37 +186,53 @@ def cart_delete(user_id):
 # book_order FUNCTIONS
 # ===========================================================
 
-# return all reviews created by user_id
-@main.route('/<user_id>/orders/all')
-def all_orders(user_id):
-    exists = db.session.query(db.exists().where(Order.user_id == user_id)).scalar()
+# create a new order - {"user_id": user_id, "cart_id" : cart_id, "shipping_address": address, "payment_method" : method}
+@main.route('/order/create/', methods=['POST'])
+def new_order():
+    order_data = request.get_json()
+
+    new_order = Book_Order(user_id=order_data['user_id'], shipping_address=order_data['shipping_address'], payment_method=order_data['payment_method'])
+    db.session.add(new_order)
+    db.session.commit()
+
+    new_deriv_from = Derived_From(cart_id = order_data['cart_id'], order_id = new_order.order_id)
+    db.session.add(new_deriv_from)
+
+    cart_items = db.session.query(Stores).filter(Stores.cart_id == order_data['cart_id']).all()
+    for items in cart_items:
+        new_isbns = Isbns(order_id = new_order.order_id, isbn = items.isbn, amount = items.amount)
+        db.session.add(new_isbns)
+    db.session.commit()
+
+    return 'ORDER CREATED', 200
+
+
+# return data of single order
+@main.route('/order/<order_id>/data')
+def order_data(order_id):
+    exists = db.session.query(db.exists().where(Book_Order.order_id == order_id)).scalar()
 
     if exists:
         orders = []
-        order_list = db.session.query(Order).filter(Order.user_id == user_id)
-        for order in order_list:
-            orders.append({'order_id' : order.isbn, 'order_id' : order.isbn, 'order_id' : order.isbn, 'order_id' : order.isbn,   })      
+        items = []
+        order = db.session.query(Book_Order).filter(Book_Order.order_id == order_id).one()
+        items_order = db.session.query(Isbns).filter(Isbns.order_id == order_id)
+        for item in items_order:
+            items.append(item.isbn)
+        sum = order.getTotal(order.order_id)
+        if order.prepared_date != None:
+            order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
+        if order.shipped_date != None:
+            order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
+        if order.delivered_date != None:
+            order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
+        orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum, 'items' : items})      
+ 
 
-        return jsonify({'orders' : orders})
+        return jsonify({'order' : orders})
   
     else:
-        return 'User has no orders', 404
-
-# return all reviews created on isbn
-@main.route('/book/<isbn>/reviasew_all')
-def all_reviesaw_book(isbn):
-    exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
-
-    if exists:
-        reviews = []
-        reviews_list = db.session.query(Review).filter(Review.isbn == isbn)
-        for review in reviews_list:
-            reviews.append({'user_id' : review.user_id, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
-
-        return jsonify({'reviews' : reviews})
-  
-    else:
-        return 'Book has no reviews', 404
+        return 'Order does not exist', 404
 
 # ===========================================================
 # wishhlist FUNCTIONS
