@@ -1,5 +1,7 @@
 from . import db
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.sql import func
+
 
 Base = automap_base()
 
@@ -17,6 +19,23 @@ class Book(Base):
 
 class Book_Order(Base):
     __tablename__ = 'book_order'
+
+    @classmethod
+    def getTotal(self, order_id):
+        isbns = db.session.query(Isbns).filter(Isbns.order_id == order_id)
+
+        sum = 0 
+
+        for isbn in isbns:
+            book = db.session.query(Book).filter(Book.isbn == isbn.isbn).one()
+            if(isbn.amount > 1):
+                for x in range(isbn.amount):
+                    sum+=book.price
+            else:
+                sum+=book.price
+
+        return sum
+
 
 class Customer(Base):
     __tablename__ = 'customer'

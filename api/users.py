@@ -133,7 +133,7 @@ def add_item_cart(user_id):
     return 'ADDED ISBN'  + cart_data['isbn'] + 'TO USER ' + user_id + ' CART', 200
 
 # get existing shopping cart data                                                                                                    UNFINISHED
-@main.route('/shopping_cart/<user_id>/data')
+@main.route('/shopping_cart/data/<user_id>')
 def cart_data(user_id):
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
@@ -147,7 +147,7 @@ def cart_data(user_id):
         return 'NO CART', 404
 
 # delete book from cart
-@main.route('/shopping_cart/<user_id>/delete_item', methods=['POST'])
+@main.route('/shopping_cart/delete/<user_id>', methods=['POST'])
 def cart_delete_item(user_id):
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
@@ -162,7 +162,7 @@ def cart_delete_item(user_id):
         return 'NO CART', 404
 
 # delete cart + associated stores
-@main.route('/shopping_cart/<user_id>/delete')
+@main.route('/shopping_cart/delete/<user_id>/all')
 def cart_delete(user_id):
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
@@ -181,6 +181,41 @@ def cart_delete(user_id):
         return 'DELETED', 200
     else:
         return 'NO CART', 404
+# ===========================================================
+# book_order FUNCTIONS
+# ===========================================================
+
+# return all reviews created by user_id
+@main.route('/<user_id>/orders/all')
+def all_orders(user_id):
+    exists = db.session.query(db.exists().where(Order.user_id == user_id)).scalar()
+
+    if exists:
+        orders = []
+        order_list = db.session.query(Order).filter(Order.user_id == user_id)
+        for order in order_list:
+            orders.append({'order_id' : order.isbn, 'order_id' : order.isbn, 'order_id' : order.isbn, 'order_id' : order.isbn,   })      
+
+        return jsonify({'orders' : orders})
+  
+    else:
+        return 'User has no orders', 404
+
+# return all reviews created on isbn
+@main.route('/book/<isbn>/reviasew_all')
+def all_reviesaw_book(isbn):
+    exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
+
+    if exists:
+        reviews = []
+        reviews_list = db.session.query(Review).filter(Review.isbn == isbn)
+        for review in reviews_list:
+            reviews.append({'user_id' : review.user_id, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
+
+        return jsonify({'reviews' : reviews})
+  
+    else:
+        return 'Book has no reviews', 404
 
 # ===========================================================
 # wishhlist FUNCTIONS
@@ -297,7 +332,7 @@ def all_review(user_id):
         for review in reviews_list:
             reviews.append({'isbn' : review.isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
 
-        return jsonify({'recommendations' : reviews})
+        return jsonify({'reviews' : reviews})
   
     else:
         return 'User has no reviews', 404
@@ -313,7 +348,7 @@ def all_review_book(isbn):
         for review in reviews_list:
             reviews.append({'user_id' : review.user_id, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
 
-        return jsonify({'recommendations' : reviews})
+        return jsonify({'reviews' : reviews})
   
     else:
         return 'Book has no reviews', 404
@@ -329,7 +364,7 @@ def specific_review(isbn, user_id):
         for review in reviews_list:
             reviews.append({'user_id' : user_id, 'isbn' : isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
 
-        return jsonify({'recommendations' : reviews})
+        return jsonify({'reviews' : reviews})
   
     else:
         return 'This review does not exist', 404
@@ -376,7 +411,7 @@ def add_customer(email):
      return Customer(user_id = user.user_id)
      
 # return a specific user by id, specified in url
-@main.route('/<user_id>/data')
+@main.route('/user/data/<user_id>')
 def user_data(user_id):
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
@@ -394,7 +429,7 @@ def user_data(user_id):
         return 'User does not exist', 404
 
 # return all orders from specific user_id
-@main.route('/<user_id>/orders/')
+@main.route('/orders/<user_id>')
 def user_orders(user_id):
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
@@ -402,13 +437,14 @@ def user_orders(user_id):
         orders = []
         order_list = db.session.query(Book_Order).filter(Book_Order.user_id == user_id)
         for order in order_list:
+            sum = order.getTotal(order.order_id)
             if order.prepared_date != None:
                 order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
             if order.shipped_date != None:
                 order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
             if order.delivered_date != None:
                 order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
-            orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method})      
+            orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum})      
 
         return jsonify({'orders' : orders})
   
@@ -460,7 +496,7 @@ def recommend_delete():
         return 'RECOMMENDATION DOES NOT EXIST', 404
 
 # return all recommendation to specific user_id
-@main.route('/recommendation/<user_id>/')
+@main.route('/recommendation/user/<user_id>/')
 def recieved_recommendations(user_id):
     exists = db.session.query(db.exists().where(Recommendation.recipient_id == user_id)).scalar()
 
@@ -499,7 +535,7 @@ def recommendation_data(user_id, recommend_id):
 # ===========================================================
 
 # return a specific user's points by id, specified in url
-@main.route('/<user_id>/points/data')
+@main.route('/points/<user_id>/data')
 def user_points_data(user_id):
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
@@ -514,7 +550,7 @@ def user_points_data(user_id):
         return 'User does not exist', 404
 
 # updates loyalty points
-@main.route('/<user_id>/points/update', methods = ['POST'])
+@main.route('/points/<user_id>/update', methods = ['POST'])
 def update_points(user_id):
     points_data = request.get_json()
     customer_exists = db.session.query(db.exists().where(Customer.user_id == user_id)).scalar()
@@ -535,7 +571,7 @@ def update_points(user_id):
 # ===========================================================
 
 # return a specific user's points by id, specified in url
-@main.route('/<user_id>/admin')
+@main.route('/admin/<user_id>')
 def start_date(user_id):
     exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
 
