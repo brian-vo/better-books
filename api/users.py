@@ -36,7 +36,7 @@ def books_all():
     books = []
 
     for book in book_list:
-        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'image_location' : book.image_location})        
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})        
 
     return jsonify({'books' : books})
 
@@ -49,7 +49,7 @@ def books_specific(book_isbn):
     if exists:
         book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
         for book in book_list:
-            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location})      
+            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
 
         return jsonify({'books' : books})
   
@@ -643,3 +643,13 @@ def start_date(user_id):
   
     else:
         return 'Admin does not exist', 404
+
+# ===========================================================
+# search FUNCTIONS
+# ===========================================================
+
+# return a specific admin start date
+@main.route('/search/')
+def search():
+
+    pass
