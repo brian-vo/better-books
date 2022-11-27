@@ -1,12 +1,12 @@
-import Banner from "./Banner";
-import BookIcon from "./BookIcon";
+import Banner from "./components/Banner";
+import BookIcon from "./components/BookIcon";
 import example_cover from "./img/example-cover.jpg";
 
 const Home = () => {
   return (
     <div className="home">
       <Banner
-        title="Welcome to [company name]!"
+        title="Welcome to BetterBooks"
         subtitle="We offer a wide selection of books"
       ></Banner>
       <div className="featured-container">
