@@ -265,6 +265,10 @@ def wishlist_delete(user_id):
         return 'NO CART', 404
 
 # ===========================================================
+# review FUNCTIONS
+# ===========================================================
+
+# ===========================================================
 # user FUNCTIONS
 # ===========================================================
 
@@ -391,6 +395,25 @@ def recieved_recommendations(user_id):
   
     else:
         return 'User has no recommendations', 404
+
+# get existing recommendation data                                                                                                    
+@main.route('/recommendation/view/<recommend_id>')
+def recommendation_data(user_id, recommend_id):
+    recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id)).scalar()
+
+    if recommendation_exists:
+        recommendation_info = []
+        all_sends = db.session.query(Sends).filter(Sends.recommend_id == recommend_id)
+        all_authors = db.session.query(Author_Names).filter(Author_Names.recommend_id == recommend_id)
+
+        for send in all_sends:
+            recommendation_info.append({'isbn' : send.isbn})       
+        for author in  all_authors:
+            recommendation_info.append({'author_ids' : author.author_id})       
+
+        return jsonify({'wishlist_items' : recommendation_info})
+    else:
+        return 'RECOMMENDATION DOES NOT EXIST', 404
 
 # ===========================================================
 # customer FUNCTIONS
