@@ -47,9 +47,7 @@ def books_specific(book_isbn):
     exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
 
     if exists:
-        isbn = {'isbn' : book_isbn}
-        sql = text("SELECT * FROM book WHERE isbn = :isbn")
-        book_list = db.session.execute(sql, isbn)
+        book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
         for book in book_list:
             books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location})      
 
@@ -65,9 +63,7 @@ def book_stock(book_isbn):
     exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
 
     if exists:
-        isbn = {'isbn' : book_isbn}
-        sql = text("SELECT * FROM book WHERE isbn = :isbn")
-        book_list = db.session.execute(sql, isbn)
+        book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
         for book in book_list:
             books.append({'stock' : book.stock})      
 
@@ -451,11 +447,8 @@ def user_data(user_id):
 
     if exists:
         users = []
-        id = {'user_id' : str(user_id)}
-        sql = text("SELECT * FROM user WHERE user_id = :user_id")
-        user_list = db.session.execute(sql, id)
-        for user in user_list:
-            users.append({'fname' : user.fname, 'lname' : user.lname, 'email' : user.email})      
+        user_list = db.session.query(User).filter(User.user_id == user_id).one()
+        users.append({'fname' : user_list.fname, 'lname' : user_list.lname, 'email' : user_list.email})      
 
         return jsonify({'user' : users})
   
@@ -636,7 +629,7 @@ def update_points(user_id):
 # admin FUNCTIONS
 # ===========================================================
 
-# return a specific user's points by id, specified in url
+# return a specific admin start date
 @main.route('/admin/<user_id>')
 def start_date(user_id):
     exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
