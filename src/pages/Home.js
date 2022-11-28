@@ -9,7 +9,7 @@ const Home = () => {
         title="Welcome to BetterBooks"
         subtitle="We offer a wide selection of books"
       ></Banner>
-      <div className="featured-container">
+      <div className="content-container">
         <h1>Featured Books</h1>
         <ul className="featured">
           <BookIcon
