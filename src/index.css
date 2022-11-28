@@ -37,7 +37,6 @@ h1 {
 
 .login-container {
     width: 100%;
-    height: 100%;
     -webkit-transform: translateY(100px);
     -ms-transform: translateY(100px);
     transform: translateY(100px);
@@ -69,11 +68,35 @@ h1 {
 }
 
 .signup-container {
+    width: 100%;
+    -webkit-transform: translateY(100px);
+    -ms-transform: translateY(100px);
+    transform: translateY(100px);
+}
+
+.signup-form {
     width: 50%;
-    max-width: 1000px;
-    min-width: 400px;
-    padding-top: 100px;
+    min-width: 300px;
+    border-radius: 20px;
+    -moz-box-shadow: 0 0 10px #bbb;
+    -webkit-box-shadow: 0 0 10px #bbb;
+    box-shadow: 0 0 10px #bbb;
+    padding-top: 30px;
+    padding-bottom: 30px;
     margin: 0 auto;
+}
+
+.signup-items {
+    width: 80%;
+    max-width: 1000px;
+    min-width: 250px;
+    margin: 0 auto;
+}
+
+.signup-items h1 {
+    margin: 0 auto;
+    margin-bottom: 50px;
+    text-align: center;
 }
 
 .banner {
