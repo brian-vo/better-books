@@ -19,8 +19,12 @@ from .models import Recommendation
 from .models import Sends
 from .models import Author_Names
 
+from .models import Author
+from .models import Writes
+
 from .models import Review
 from sqlalchemy.sql import text
+
 
 
 main = Blueprint('main', __name__)
@@ -34,9 +38,13 @@ main = Blueprint('main', __name__)
 def books_all():
     book_list = db.session.query(Book).all()
     books = []
-
     for book in book_list:
-        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})        
+        authors = []
+        book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
+        for auth in book_writes:
+            author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
+            authors.append({'fname' : author.fname, 'lname' : author.lname})
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})        
 
     return jsonify({'books' : books})
 
@@ -49,7 +57,12 @@ def books_specific(book_isbn):
     if exists:
         book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
         for book in book_list:
-            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
+            authors = []
+            book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
+            for auth in book_writes:
+                author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
+                authors.append({'fname' : author.fname, 'lname' : author.lname})
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})          
 
         return jsonify({'books' : books})
   
@@ -649,7 +662,33 @@ def start_date(user_id):
 # ===========================================================
 
 # return a specific admin start date
-@main.route('/search/')
+@main.route('/search/', methods=['POST'])
 def search():
+    search_input = (request.get_json())["search"]
 
-    pass
+    authors = []
+    
+    books = []
+    sim_auth_fname = db.session.query(Author).filter(Author.fname.ilike(f'%{search_input}%')).all()
+    sim_auth_lname = db.session.query(Author).filter(Author.lname.ilike(f'%{search_input}%')).all()
+    sim_auth = list(dict.fromkeys(sim_auth_fname + sim_auth_lname))
+    for authors in sim_auth:
+        written_author = db.session.query(Writes).filter(Writes.author_id == authors.author_id)
+        for written in written_author:
+            book = db.session.query(Book).filter(Book.isbn == written.isbn).one()
+            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
+
+
+    book_list_title = db.session.query(Book).filter(Book.title.ilike(f'%{search_input}%')).all()
+
+    for book in book_list_title:
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
+
+    book_no_dup = []
+    [book_no_dup.append(x) for x in books if x not in book_no_dup]
+
+
+    return jsonify({'books' : book_no_dup})
+  
+    
+    
