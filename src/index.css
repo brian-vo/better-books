@@ -36,6 +36,7 @@ h1 {
 }
 
 .login-container {
+    width: 100%;
     height: 100%;
     -webkit-transform: translateY(100px);
     -ms-transform: translateY(100px);
@@ -43,9 +44,6 @@ h1 {
 }
 
 .login-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     width: 50%;
     min-width: 300px;
     border-radius: 20px;
@@ -57,19 +55,17 @@ h1 {
     margin: 0 auto;
 }
 
-.login-form div {
+.login-items {
     width: 80%;
+    max-width: 1000px;
+    min-width: 250px;
     margin: 0 auto;
 }
 
-.login-form h1 {
+.login-items h1 {
     margin: 0 auto;
     margin-bottom: 50px;
     text-align: center;
-}
-
-.login-input {
-    width: 100%;
 }
 
 .signup-container {
