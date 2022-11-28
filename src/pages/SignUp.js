@@ -2,7 +2,7 @@ import { MDBBtn, MDBInput, MDBCheckbox } from "mdb-react-ui-kit";
 
 const SignUp = () => {
   return (
-    <div className="login-container">
+    <div className="login">
       <div className="login-form">
         <div className="login-items">
           <h1>Create an account</h1>

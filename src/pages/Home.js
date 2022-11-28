@@ -1,5 +1,5 @@
 import Banner from "../components/Banner";
-import BookIcon from "../components/BookIcon";
+import BookIcon from "../components/FeaturedBook";
 import example_cover from "../img/example-cover.jpg";
 
 const Home = () => {

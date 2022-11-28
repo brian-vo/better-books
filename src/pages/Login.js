@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const LogIn = () => {
   return (
-    <div className="login-container">
+    <div className="login">
       <div className="login-form">
         <div className="login-items">
           <h1>Login</h1>

@@ -13,6 +13,11 @@ const Recommendations = () => {
             sender_id="Brian Vo"
             recommend_num="1"
           ></Recommendation>
+          <Recommendation
+            id="1"
+            sender_id="Brian Vo"
+            recommend_num="2"
+          ></Recommendation>
         </div>
         <h1>Recommended Authors</h1>
         <div className="recommended-authors">
@@ -20,6 +25,11 @@ const Recommendations = () => {
             id="0"
             sender_id="Mirich Tenny" /* TODO: get user name from id */
             recommend_num="1"
+          ></Recommendation>
+          <Recommendation
+            id="1"
+            sender_id="Mirich Tenny" /* TODO: get user name from id */
+            recommend_num="2"
           ></Recommendation>
         </div>
       </div>
