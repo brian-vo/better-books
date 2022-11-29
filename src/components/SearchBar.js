@@ -5,13 +5,14 @@ const SearchBar = ({ placeholder, data }) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleSearch(e.target.value.toLowerCase());
+      e.target.blur();
     }
   };
 
   const navigate = useNavigate();
 
   const handleSearch = (searchQuery) => {
-    navigate("/search/" + searchQuery);
+    navigate("/search?query=" + searchQuery);
   };
 
   return (
@@ -20,6 +21,7 @@ const SearchBar = ({ placeholder, data }) => {
         type="text"
         className="search-input"
         placeholder={placeholder}
+        onFocus={(e) => (e.target.value = "")}
         onKeyPress={(e) => handleKeyPress(e)}
       />
       <div className="searchIcon"></div>
