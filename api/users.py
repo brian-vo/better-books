@@ -1,28 +1,10 @@
 from flask import Blueprint, jsonify, request
 from . import db
-from .models import Book
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user, login_required, logout_user
 
-from .models import Shopping_Cart
-from .models import Derived_From
-from .models import Stores
+from .models import *
 
-from .models import Wishlist
-from .models import Includes
-
-from .models import User
-from .models import Customer
-from .models import Admin
-from .models import Book_Order
-from .models import Isbns
-
-from .models import Recommendation
-from .models import Sends
-from .models import Author_Names
-
-from .models import Author
-from .models import Writes
-
-from .models import Review
 
 main = Blueprint('main', __name__)
 
@@ -434,7 +416,7 @@ def add_user():
     exists = db.session.query(db.exists().where(User.email == user_data['email'])).scalar()
 
     if not exists:
-        new_user = User(fname=user_data['fname'], lname=user_data['lname'], email=user_data['email'], pass_word=user_data['password'])
+        new_user = User(fname=user_data['fname'], lname=user_data['lname'], email=user_data['email'], pass_word=generate_password_hash(user_data['pass_word'], method='sha256'))
         db.session.add(new_user)
         db.session.commit()
 
@@ -464,6 +446,25 @@ def user_data(user_id):
   
     else:
         return 'User does not exist', 404
+
+# retrieve the email and password of a user and see if it matches user inputs
+@main.route('/login', methods = ['POST'])
+def log_in():
+    user_data = request.get_json()
+    user = db.session.query(User).filter(User.email == user_data['email']).one()
+
+    if not user or not check_password_hash(user.pass_word, user_data['pass_word']):
+        return 'Incorrect username or password', 401
+
+    login_user(user)
+    return 'LOGGED IN', 200
+
+# logout user
+@main.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return 'LOGGED OUT', 200
 
 # return all orders from specific user_id
 @main.route('/orders/<user_id>')

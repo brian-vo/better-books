@@ -1,7 +1,7 @@
 from . import db
 from sqlalchemy.ext.automap import automap_base
-from statistics import mean 
-
+from statistics import mean
+from flask_login import UserMixin
 
 Base = automap_base()
 
@@ -97,8 +97,11 @@ class Shopping_Cart(Base):
 class Stores(Base):
      __tablename__ = 'stores'
 
-class User(Base):
+class User(Base, UserMixin):
     __tablename__ = 'user'
+
+    def get_id(self):
+        return self.user_id
 
 class Wishlist(Base):
      __tablename__ = 'wishlist'
