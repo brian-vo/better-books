@@ -1,6 +1,6 @@
 from . import db
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.sql import func
+from statistics import mean 
 
 
 Base = automap_base()
@@ -16,6 +16,20 @@ class Author_Names(Base):
 
 class Book(Base):
     __tablename__ = 'book'
+
+    @classmethod
+    def getAverageRating(self, isbn):
+        exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
+        if exists:
+            reviews = db.session.query(Review).filter(Review.isbn == isbn)
+
+            ratings = []
+
+            for review in reviews:
+                ratings.append(review.rating)
+
+            return round((mean(ratings)), 1)
+        return None
 
 class Book_Order(Base):
     __tablename__ = 'book_order'

@@ -19,9 +19,10 @@ from .models import Recommendation
 from .models import Sends
 from .models import Author_Names
 
-from .models import Review
-from sqlalchemy.sql import text
+from .models import Author
+from .models import Writes
 
+from .models import Review
 
 main = Blueprint('main', __name__)
 
@@ -34,9 +35,13 @@ main = Blueprint('main', __name__)
 def books_all():
     book_list = db.session.query(Book).all()
     books = []
-
     for book in book_list:
-        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'image_location' : book.image_location})        
+        authors = []
+        book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
+        for auth in book_writes:
+            author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
+            authors.append({'fname' : author.fname, 'lname' : author.lname})
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})        
 
     return jsonify({'books' : books})
 
@@ -47,11 +52,14 @@ def books_specific(book_isbn):
     exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
 
     if exists:
-        isbn = {'isbn' : book_isbn}
-        sql = text("SELECT * FROM book WHERE isbn = :isbn")
-        book_list = db.session.execute(sql, isbn)
+        book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
         for book in book_list:
-            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location})      
+            authors = []
+            book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
+            for auth in book_writes:
+                author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
+                authors.append({'fname' : author.fname, 'lname' : author.lname})
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})          
 
         return jsonify({'books' : books})
   
@@ -65,9 +73,7 @@ def book_stock(book_isbn):
     exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
 
     if exists:
-        isbn = {'isbn' : book_isbn}
-        sql = text("SELECT * FROM book WHERE isbn = :isbn")
-        book_list = db.session.execute(sql, isbn)
+        book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
         for book in book_list:
             books.append({'stock' : book.stock})      
 
@@ -137,7 +143,7 @@ def add_item_cart(user_id):
     return 'ADDED ISBN'  + str(cart_data['isbn']) + ' TO USER ' + str(user_id) + ' CART', 200
 
 # get existing shopping cart data                                                                                                    
-@main.route('/shopping_cart/<user_id>/data')
+@main.route('/shopping_cart/data/<user_id>')
 def cart_data(user_id):
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
@@ -163,10 +169,15 @@ def cart_data(user_id):
 def cart_delete_item(user_id):
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
+
     if cart_exists:
         cart_data = request.get_json()
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-        db.session.query(Stores).filter_by(cart_id = cart.cart_id, isbn = cart_data['isbn']).delete()
+        stores =  db.session.query(Stores).filter_by(cart_id = cart.cart_id, isbn = cart_data['isbn']).one()
+        if stores.amount-1 == 0:
+            db.session.query(Stores).filter_by(cart_id = cart.cart_id, isbn = cart_data['isbn']).delete()
+        else:
+            stores.amount-=1
         db.session.commit()
         
         return 'DELETED', 200
@@ -177,7 +188,6 @@ def cart_delete_item(user_id):
 @main.route('/shopping_cart/delete/<user_id>/all')
 def cart_delete(user_id):
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
-
 
     if cart_exists:
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
@@ -197,7 +207,7 @@ def cart_delete(user_id):
 # book_order FUNCTIONS
 # ===========================================================
 
-# create a new order - {"user_id": user_id, "cart_id" : cart_id, "shipping_address": address, "payment_method" : method}
+# create a new order -
 @main.route('/order/create/', methods=['POST'])
 def new_order():
     order_data = request.get_json()
@@ -251,7 +261,7 @@ def order_data(order_id):
 # wishhlist FUNCTIONS
 # ===========================================================
 
-# add an item to wishlist - NOT SURE HOW TO HANDLE USER_ID yet
+# add an item to wishlist 
 @main.route('/wishlist/add/<user_id>', methods=['POST'])
 # checks if wishlist exists for that user, and creates if does not 
 def add_wishlist(user_id):
@@ -352,7 +362,7 @@ def add_review(isbn):
         return 'User already has review on this product', 400
 
 # return all reviews created by user_id
-@main.route('/<user_id>/reviews')
+@main.route('/reviews/<user_id>/all')
 def all_review(user_id):
     exists = db.session.query(db.exists().where(Review.user_id == user_id)).scalar()
 
@@ -360,7 +370,7 @@ def all_review(user_id):
         reviews = []
         reviews_list = db.session.query(Review).filter(Review.user_id == user_id)
         for review in reviews_list:
-            reviews.append({'isbn' : review.isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
+            reviews.append({'isbn' : review.isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
 
         return jsonify({'reviews' : reviews})
   
@@ -376,7 +386,7 @@ def all_review_book(isbn):
         reviews = []
         reviews_list = db.session.query(Review).filter(Review.isbn == isbn)
         for review in reviews_list:
-            reviews.append({'user_id' : review.user_id, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
+            reviews.append({'user_id' : review.user_id, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
 
         return jsonify({'reviews' : reviews})
   
@@ -392,7 +402,7 @@ def specific_review(isbn, user_id):
         reviews = []
         reviews_list = db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id)
         for review in reviews_list:
-            reviews.append({'user_id' : user_id, 'isbn' : isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date, 'rating' : review.rating })      
+            reviews.append({'user_id' : user_id, 'isbn' : isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
 
         return jsonify({'reviews' : reviews})
   
@@ -447,11 +457,8 @@ def user_data(user_id):
 
     if exists:
         users = []
-        id = {'user_id' : str(user_id)}
-        sql = text("SELECT * FROM user WHERE user_id = :user_id")
-        user_list = db.session.execute(sql, id)
-        for user in user_list:
-            users.append({'fname' : user.fname, 'lname' : user.lname, 'email' : user.email})      
+        user_list = db.session.query(User).filter(User.user_id == user_id).one()
+        users.append({'fname' : user_list.fname, 'lname' : user_list.lname, 'email' : user_list.email})      
 
         return jsonify({'user' : users})
   
@@ -480,6 +487,38 @@ def user_orders(user_id):
   
     else:
         return 'User does not exist', 404
+
+# update user
+@main.route('/user/data/<user_id>/update', methods=['POST'])
+def update_order(user_id):
+    update_data = request.get_json()
+    
+    user  = db.session.query(User).filter(User.user_id == user_id).one()
+    fname = user.fname
+    lname = user.lname
+    email = user.email
+    address = user.address
+    password = user.pass_word
+
+    if (update_data['fname'] != None):
+        fname = update_data['fname']
+    if (update_data['lname'] != None):
+        lname = update_data['lname']
+    if (update_data['email'] != None):
+        email = update_data['email'] 
+    if (update_data['address'] != None):
+        address = update_data['address']
+    if (update_data['password'] != None):
+        password = update_data['password']
+
+    user.fname = fname
+    user.lname = lname
+    user.email = email
+    user.address = address
+    user.pass_word = password
+    db.session.commit()
+
+    return 'UPDATED USER', 201
 
 # ===========================================================
 # Recommendation FUNCTIONS
@@ -543,7 +582,7 @@ def recieved_recommendations(user_id):
 
 # get existing recommendation data                                                                                                    
 @main.route('/recommendation/view/<recommend_id>')
-def recommendation_data(user_id, recommend_id):
+def recommendation_data(recommend_id):
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id)).scalar()
 
     if recommendation_exists:
@@ -565,7 +604,7 @@ def recommendation_data(user_id, recommend_id):
 # ===========================================================
 
 # return a specific user's points by id, specified in url
-@main.route('/points/<user_id>/data')
+@main.route('/user/points/<user_id>')
 def user_points_data(user_id):
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
@@ -600,7 +639,7 @@ def update_points(user_id):
 # admin FUNCTIONS
 # ===========================================================
 
-# return a specific user's points by id, specified in url
+# return a specific admin start date
 @main.route('/admin/<user_id>')
 def start_date(user_id):
     exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
@@ -614,3 +653,39 @@ def start_date(user_id):
   
     else:
         return 'Admin does not exist', 404
+
+# ===========================================================
+# search FUNCTIONS
+# ===========================================================
+
+# return a specific admin start date
+@main.route('/search/', methods=['POST'])
+def search():
+    search_input = (request.get_json())["search"]
+
+    authors = []
+    
+    books = []
+    sim_auth_fname = db.session.query(Author).filter(Author.fname.ilike(f'%{search_input}%')).all()
+    sim_auth_lname = db.session.query(Author).filter(Author.lname.ilike(f'%{search_input}%')).all()
+    sim_auth = list(dict.fromkeys(sim_auth_fname + sim_auth_lname))
+    for authors in sim_auth:
+        written_author = db.session.query(Writes).filter(Writes.author_id == authors.author_id)
+        for written in written_author:
+            book = db.session.query(Book).filter(Book.isbn == written.isbn).one()
+            books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
+
+
+    book_list_title = db.session.query(Book).filter(Book.title.ilike(f'%{search_input}%')).all()
+
+    for book in book_list_title:
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
+
+    book_no_dup = []
+    [book_no_dup.append(x) for x in books if x not in book_no_dup]
+
+
+    return jsonify({'books' : book_no_dup})
+  
+    
+    
