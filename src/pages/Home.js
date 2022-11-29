@@ -1,5 +1,5 @@
 import Banner from "../components/Banner";
-import BookIcon from "../components/FeaturedBook";
+import FeaturedBook from "../components/FeaturedBook";
 import example_cover from "../img/example-cover.jpg";
 
 const Home = () => {
@@ -12,52 +12,52 @@ const Home = () => {
       <div className="content-container">
         <h1>Featured Books</h1>
         <ul className="featured">
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
