@@ -23,9 +23,6 @@ from .models import Author
 from .models import Writes
 
 from .models import Review
-from sqlalchemy.sql import text
-
-
 
 main = Blueprint('main', __name__)
 

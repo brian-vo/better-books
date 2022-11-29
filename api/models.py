@@ -1,6 +1,5 @@
 from . import db
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.sql import func
 from statistics import mean 
 
 
