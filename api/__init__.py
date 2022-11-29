@@ -11,10 +11,6 @@ def create_app():
         app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:kQ4xei6b^@localhost:3306/bookshopdb'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = 'q3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C'
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
         db.init_app(app)
 
