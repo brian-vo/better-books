@@ -1,11 +1,17 @@
-import BookSearchResult from "../components/BookSearchResult";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
+import BookSearchResult from "../components/BookSearchResult";
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query");
 
-  console.log(query);
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log("Location changed");
+  }, [location]);
 
   return (
     <div className="wishlist">
