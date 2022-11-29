@@ -10,7 +10,7 @@ const Home = () => {
         subtitle="We offer a wide selection of books"
       ></Banner>
       <div className="content-container">
-        <h1>Featured Books</h1>
+        <h1 className="home-title">Featured Books</h1>
         <ul className="featured">
           <FeaturedBook
             title="Book title here"
