@@ -9,11 +9,13 @@ const Recommendations = () => {
         <h1>Recommended Books</h1>
         <div className="recommended-books">
           <Recommendation
+            type="1"
             id="0"
             sender_id="Brian Vo"
             recommend_num="1"
           ></Recommendation>
           <Recommendation
+            type="1"
             id="1"
             sender_id="Brian Vo"
             recommend_num="2"
@@ -22,11 +24,13 @@ const Recommendations = () => {
         <h1>Recommended Authors</h1>
         <div className="recommended-authors">
           <Recommendation
+            type="0"
             id="0"
             sender_id="Mirich Tenny" /* TODO: get user name from id */
             recommend_num="1"
           ></Recommendation>
           <Recommendation
+            type="0"
             id="1"
             sender_id="Mirich Tenny" /* TODO: get user name from id */
             recommend_num="2"

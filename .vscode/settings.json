@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "BookShop",
+            "username": "root",
+            "password": "lemons1470",
+            "database": "bookshopdb"
+        }
+    ]
+}
