@@ -5,8 +5,8 @@ const Wishlist = () => {
     <div className="wishlist">
       <div className="wishlist-container">
         <h1>Wishlist</h1>
-        <WishlistItem></WishlistItem>
-        <WishlistItem></WishlistItem>
+        <WishlistItem isbn={"0"}></WishlistItem>
+        <WishlistItem isbn={"0"}></WishlistItem>
       </div>
     </div>
   );

@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 
 const FeaturedBook = ({ title, price, imageUrl }) => {
   return (
-    <li className="book-icon">
+    <li className="book-icon-small">
       <Link to="/book">
-        <div className="icon-container">
+        <div className="icon-container-small">
           <img src={imageUrl} alt="book" />
         </div>
         <div className="icon-info">
