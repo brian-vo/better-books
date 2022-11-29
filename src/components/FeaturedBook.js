@@ -8,9 +8,7 @@ const FeaturedBook = ({ title, price, imageUrl }) => {
           <img src={imageUrl} alt="book" />
         </div>
         <div className="icon-info">
-          <a href="/book" className="icon-title">
-            {title}
-          </a>
+          <div className="icon-title">{title}</div>
           <div className="icon-price">{price}</div>
         </div>
       </Link>
