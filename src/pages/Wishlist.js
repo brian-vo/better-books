@@ -4,7 +4,7 @@ const Wishlist = () => {
   return (
     <div className="wishlist">
       <div className="wishlist-container">
-        <h1>Wishlist</h1>
+        <h1>My Wishlist</h1>
         <WishlistItem isbn={"0"}></WishlistItem>
         <WishlistItem isbn={"0"}></WishlistItem>
       </div>

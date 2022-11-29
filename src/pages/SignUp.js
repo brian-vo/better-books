@@ -5,7 +5,7 @@ const SignUp = () => {
     <div className="login">
       <div className="login-form">
         <div className="login-items">
-          <h1>Create an account</h1>
+          <h1>Create an Account</h1>
           <MDBInput wrapperClass="mb-4" label="Name" id="form1" type="text" />
           <MDBInput
             wrapperClass="mb-4"

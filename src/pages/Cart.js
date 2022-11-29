@@ -4,7 +4,7 @@ const Cart = () => {
   return (
     <div className="wishlist">
       <div className="wishlist-container">
-        <h1>My Cart</h1>
+        <h1>Shopping Cart</h1>
         <CartItem isbn={"0"}></CartItem>
         <CartItem isbn={"0"}></CartItem>
       </div>
