@@ -265,3 +265,7 @@ h1 {
 .order-table tr:nth-child(even) {
     background-color: #f2f2f2;
 }
+
+.order-table td {
+    padding-left: 10px;
+}

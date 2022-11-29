@@ -1,12 +1,8 @@
 const OrderItem = ({ order_id }) => {
-  function twoDigits(num) {
-    return num.toString().padStart(2, "0");
-  }
-
   function formatDate(date) {
     return [
-      twoDigits(date.getDate()),
-      twoDigits(date.getMonth()),
+      date.getDate().toString().padStart(2, "0"),
+      date.getMonth().toString().padStart(2, "0"),
       date.getFullYear(),
     ].join("/");
   }
