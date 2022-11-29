@@ -11,7 +11,7 @@ nav {
   display: flex;
   position: fixed;
   width: 100%;
-  height: 110px;
+  height: 94px;
   background-color: #225799;
   z-index: 1;
 }
@@ -49,10 +49,11 @@ nav {
 .link-container {
   display: flex;
   flex-direction: row;
+  height: 46px;
 }
 
 .page-links {
-  height: 46px;
+  height: 100%;
 }
 
 .page-links ul {
@@ -60,6 +61,7 @@ nav {
   flex-direction: row;
   text-align: left;
   margin-top: 10px;
+  margin-bottom: 0;
 }
 
 li {
@@ -95,11 +97,12 @@ li {
   font-family: Helvetica, sans-serif;
   color: white;
   font-weight: bold;
+  text-decoration: underline;
 }
 
 .search-bar {
   background-color: white;
-  height: 40px;
+  height: 32px;
   text-align: center;
   border-radius: 8px;
 }

@@ -1,10 +1,9 @@
-import Banner from "../Banner";
-
 const Wishlist = () => {
   return (
     <div className="wishlist">
-      {" "}
-      <Banner title="Wishlist"></Banner>
+      <div className="content-container">
+        <h1>Wishlist</h1>
+      </div>
     </div>
   );
 };

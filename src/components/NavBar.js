@@ -28,10 +28,16 @@ const NavBar = () => {
           <div className="user-links">
             <ul>
               <li>
+                <Link to="/cart">View cart</Link>
+              </li>
+              <li>
                 <Link to="/login">Log in</Link>
               </li>
               <li>
                 <Link to="/signup">Sign up</Link>
+              </li>
+              <li>
+                <Link to="/account">My account</Link>
               </li>
             </ul>
           </div>

@@ -1,7 +1,9 @@
+import Banner from "../components/Banner";
+
 const BookPurchase = () => {
   return (
     <div className="book-purchase">
-      <h1>Book info</h1>
+      <Banner title="Book title" subtitle=""></Banner>
     </div>
   );
 };

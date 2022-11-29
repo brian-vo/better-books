@@ -1,63 +1,63 @@
-import Banner from "../Banner";
-import BookIcon from "../BookIcon";
+import Banner from "../components/Banner";
+import FeaturedBook from "../components/FeaturedBook";
 import example_cover from "../img/example-cover.jpg";
 
 const Home = () => {
   return (
     <div className="home">
       <Banner
-        title="Welcome to [company name]!"
+        title="Welcome to BetterBooks"
         subtitle="We offer a wide selection of books"
       ></Banner>
-      <div className="featured-container">
+      <div className="content-container">
         <h1>Featured Books</h1>
         <ul className="featured">
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
           />
-          <BookIcon
+          <FeaturedBook
             title="Book title here"
             price="$24.99"
             imageUrl={example_cover}
