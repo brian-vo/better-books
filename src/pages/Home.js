@@ -12,56 +12,16 @@ const Home = () => {
       <div className="content-container">
         <h1 className="home-title">Featured Books</h1>
         <ul className="featured">
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
-          <FeaturedBook
-            title="Book title here"
-            price="$24.99"
-            imageUrl={example_cover}
-          />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
+          <FeaturedBook isbn="0" />
         </ul>
       </div>
     </div>

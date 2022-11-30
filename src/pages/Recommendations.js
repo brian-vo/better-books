@@ -9,13 +9,13 @@ const Recommendations = () => {
         <h1>Recommended Books</h1>
         <div className="recommended-books">
           <Recommendation
-            is_book={true}
+            isbn="0"
             id="0"
             sender_id="Brian Vo"
             recommend_num="1"
           ></Recommendation>
           <Recommendation
-            is_book={true}
+            isbn="0"
             id="1"
             sender_id="Brian Vo"
             recommend_num="2"

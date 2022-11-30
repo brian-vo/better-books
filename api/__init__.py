@@ -9,6 +9,7 @@ def create_app():
         app.app_context().push()
 
         app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:kQ4xei6b^@localhost:3306/bookshopdb'
+        # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root^@database-1.cy3twvoecm4a.us-east-1.rds.amazonaws.com:3306/bookshopdb'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = 'q3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C'
 
@@ -29,4 +30,3 @@ def create_app():
         app.register_blueprint(main)
 
         return app
-

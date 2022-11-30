@@ -4,11 +4,11 @@ import example_cover from "../img/example-cover.jpg";
 const BookIcon = ({ isbn, content }) => {
   return (
     <div className="book-icon-small">
-      <Link to="/book/">
+      <Link to={"/book?isbn=" + isbn}>
         <img src={example_cover} alt="book" />
       </Link>
       <div className="icon-small-info">
-        <Link to="/book/">Book title</Link>
+        <Link to={"/book?isbn=" + isbn}>Book title</Link>
         <br />
         Price: $24.99
       </div>
