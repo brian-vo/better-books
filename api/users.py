@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session, current_app
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, login_required, logout_user
-
+from flask_login import login_user, login_required, logout_user, current_user
+from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed, Principal, Permission, RoleNeed
 from .models import *
 
 main = Blueprint('main', __name__)
+admin_permission = Permission(RoleNeed('admin'))
 
 # ===========================================================
 # BOOK FUNCTIONS
@@ -65,6 +66,8 @@ def book_stock(book_isbn):
 
 # add a book with data from flask HTTP method
 @main.route('/book/new', methods=['POST'])
+@login_required
+@admin_permission.require()
 def add_book():
     book_data = request.get_json()
 
@@ -84,9 +87,11 @@ def add_book():
 # ===========================================================
 
 # add an item to shopping_cart
-@main.route('/shopping_cart/add/<user_id>', methods=['POST'])
+@main.route('/shopping_cart/add/', methods=['POST'])
+@login_required
 # checks if cart exists for that user, and creates if does not 
-def add_cart(user_id):
+def add_cart():
+    user_id = current_user.user_id
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
     if not cart_exists:
@@ -124,8 +129,10 @@ def add_item_cart(user_id):
     return 'ADDED ISBN'  + str(cart_data['isbn']) + ' TO USER ' + str(user_id) + ' CART', 200
 
 # get existing shopping cart data                                                                                                    
-@main.route('/shopping_cart/data/<user_id>')
-def cart_data(user_id):
+@main.route('/shopping_cart/data/')
+@login_required
+def cart_data():
+    user_id = current_user.user_id
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
     if cart_exists:
@@ -146,8 +153,10 @@ def cart_data(user_id):
         return 'NO CART', 404
 
 # delete book from cart
-@main.route('/shopping_cart/delete/<user_id>', methods=['POST'])
-def cart_delete_item(user_id):
+@main.route('/shopping_cart/delete/', methods=['POST'])
+@login_required
+def cart_delete_item():
+    user_id = current_user.user_id
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
 
@@ -166,8 +175,10 @@ def cart_delete_item(user_id):
         return 'NO CART', 404
 
 # delete cart + associated stores
-@main.route('/shopping_cart/delete/<user_id>/all')
-def cart_delete(user_id):
+@main.route('/shopping_cart/delete/all')
+@login_required
+def cart_delete():
+    user_id = current_user.user_id
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
     if cart_exists:
@@ -190,10 +201,12 @@ def cart_delete(user_id):
 
 # create a new order -
 @main.route('/order/create/', methods=['POST'])
+@login_required
 def new_order():
+    user_id = current_user.user_id
     order_data = request.get_json()
 
-    new_order = Book_Order(user_id=order_data['user_id'], shipping_address=order_data['shipping_address'], payment_method=order_data['payment_method'])
+    new_order = Book_Order(user_id=user_id, shipping_address=order_data['shipping_address'], payment_method=order_data['payment_method'])
     db.session.add(new_order)
     db.session.commit()
 
@@ -213,28 +226,31 @@ def new_order():
 
 # return data of single order
 @main.route('/order/<order_id>/data')
+@login_required
 def order_data(order_id):
     exists = db.session.query(db.exists().where(Book_Order.order_id == order_id)).scalar()
-
+    
     if exists:
-        orders = []
-        items = []
         order = db.session.query(Book_Order).filter(Book_Order.order_id == order_id).one()
-        items_order = db.session.query(Isbns).filter(Isbns.order_id == order_id)
-        for item in items_order:
-            items.append(item.isbn)
-        sum = order.getTotal(order.order_id)
-        if order.prepared_date != None:
-            order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
-        if order.shipped_date != None:
-            order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
-        if order.delivered_date != None:
-            order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
-        orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum, 'items' : items})      
- 
+        if(order.user_id == current_user.user_id):
+            orders = []
+            items = []
+            items_order = db.session.query(Isbns).filter(Isbns.order_id == order_id)
+            for item in items_order:
+                items.append(item.isbn)
+            sum = order.getTotal(order.order_id)
+            if order.prepared_date != None:
+                order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
+            if order.shipped_date != None:
+                order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
+            if order.delivered_date != None:
+                order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
+            orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum, 'items' : items})      
+    
 
-        return jsonify({'order' : orders})
-  
+            return jsonify({'order' : orders})
+        else:
+            return 'NOT PERMITTED', 404
     else:
         return 'Order does not exist', 404
 
@@ -243,11 +259,13 @@ def order_data(order_id):
 # ===========================================================
 
 # add an item to wishlist 
-@main.route('/wishlist/add/<user_id>', methods=['POST'])
+@main.route('/wishlist/add/', methods=['POST'])
+@login_required
 # checks if wishlist exists for that user, and creates if does not 
-def add_wishlist(user_id):
-    wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+def add_wishlist():
+    user_id = current_user.user_id
 
+    wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
     if not wishlist_exists:
         new_wishlist = Wishlist(user_id= user_id)
         db.session.add(new_wishlist)
@@ -276,10 +294,11 @@ def add_item_wishlist(user_id):
     
 
 # get existing wishlist data                                                                                                    
-@main.route('/wishlist/<user_id>/data')
-def wishlist_data(user_id):
+@main.route('/wishlist/data')
+@login_required
+def wishlist_data():
+    user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
-
     if wishlist_exists:
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
         all_includes = db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id)
@@ -293,8 +312,10 @@ def wishlist_data(user_id):
         return 'USER DOES NOT HAVE A WISHLIST', 404
 
 # delete book from wishlist
-@main.route('/wishlist/<user_id>/delete_item', methods=['POST'])
+@main.route('/wishlist/delete_item', methods=['POST'])
+@login_required
 def wishlist_delete_item(user_id):
+    user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
 
     if wishlist_exists:
@@ -307,8 +328,10 @@ def wishlist_delete_item(user_id):
         return 'NO CART', 404
 
 # delete wishlist + associated stores
-@main.route('/wishlist/<user_id>/delete')
+@main.route('/wishlist/delete')
+@login_required
 def wishlist_delete(user_id):
+    user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
 
     if wishlist_exists:
@@ -328,13 +351,14 @@ def wishlist_delete(user_id):
 
 # add a review with data from flask HTTP method
 @main.route('/book/<isbn_input>/review/new', methods=['POST'])
+@login_required
 def add_review(isbn):
+    user_id = current_user.user_id
     review_data = request.get_json()
-
-    exists = db.session.query(db.exists().where(Review.user_id == review_data['user_id'], Review.isbn == isbn )).scalar()
+    exists = db.session.query(db.exists().where(Review.user_id == current_user.user_id, Review.isbn == isbn )).scalar()
 
     if not exists:
-        new_review = Review(user_id=review_data['user_id'], isbn=isbn, message_title=review_data['message_title'], message_body=review_data['message_body'], rating=review_data['rating'])
+        new_review = Review(user_id=current_user.user_id, isbn=isbn, message_title=review_data['message_title'], message_body=review_data['message_body'], rating=review_data['rating'])
         db.session.add(new_review)
         db.session.commit()
 
@@ -391,8 +415,10 @@ def specific_review(isbn, user_id):
         return 'This review does not exist', 404
 
 # delete review
-@main.route('/book/<isbn>/review/<user_id>/delete')
-def review_delete(isbn, user_id):
+@main.route('/book/<isbn>/review/delete')
+@login_required
+def review_delete(isbn):
+    user_id = current_user.user_id
     exists = db.session.query(db.exists().where(Review.isbn == isbn, Review.user_id == user_id )).scalar()
 
     if exists:
@@ -433,6 +459,8 @@ def add_customer(email):
      
 # return a specific user by id, specified in url
 @main.route('/user/data/<user_id>')
+@login_required
+@admin_permission.require()
 def user_data(user_id):
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
@@ -456,6 +484,7 @@ def log_in():
         return 'Incorrect username or password', 401
 
     login_user(user)
+    identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
     return 'LOGGED IN', 200
 
 # logout user
@@ -463,11 +492,18 @@ def log_in():
 @login_required
 def logout():
     logout_user()
+
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
+
+    identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
     return 'LOGGED OUT', 200
 
 # return all orders from specific user_id
-@main.route('/orders/<user_id>')
-def user_orders(user_id):
+@main.route('/orders/all')
+@login_required
+def user_orders():
+    user_id = current_user.user_id
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
     if exists:
@@ -489,8 +525,10 @@ def user_orders(user_id):
         return 'User does not exist', 404
 
 # update user
-@main.route('/user/data/<user_id>/update', methods=['POST'])
-def update_order(user_id):
+@main.route('/user/data//update', methods=['POST'])
+@login_required
+def update_order():
+    user_id = current_user.user_id
     update_data = request.get_json()
     
     user  = db.session.query(User).filter(User.user_id == user_id).one()
@@ -526,10 +564,12 @@ def update_order(user_id):
 
 # add new recommendation
 @main.route('/recommendation/new', methods=['POST'])
+@login_required
 def add_recommendation():
+    user_id = current_user.user_id
     recommendation_data = request.get_json()
 
-    new_recommendation = Recommendation(recipient_id=recommendation_data['recipient_id'], user_id=recommendation_data['user_id'])
+    new_recommendation = Recommendation(recipient_id=recommendation_data['recipient_id'], user_id=user_id)
     db.session.add(new_recommendation)
     db.session.commit()
 
@@ -550,23 +590,30 @@ def add_recommendation():
 
 # delete recommendation + associated tables
 @main.route('/recommendation/delete', methods = ['POST'])
+@login_required
 def recommend_delete():
+    user_id = current_user.user_id
     recommendation_data = request.get_json()
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommendation_data['recommend_id'])).scalar()
 
     if recommendation_exists:
-        db.session.query(Sends).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
-        db.session.query(Author_Names).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
-        db.session.query(Recommendation).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
-        db.session.commit()
-        
+        Recommendation = db.session.qury(Recommendation).filter(Recommendation.recommend_id == recommend_data['recommend_id']).one()
+        if (Recommendation.user_id == user_id):
+            db.session.query(Sends).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
+            db.session.query(Author_Names).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
+            db.session.query(Recommendation).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
+            db.session.commit()
+        else:
+            return 'NOT PERMITTED', 401
         return 'DELETED', 200
     else:
         return 'RECOMMENDATION DOES NOT EXIST', 404
 
 # return all recommendation to specific user_id
-@main.route('/recommendation/user/<user_id>/')
-def recieved_recommendations(user_id):
+@main.route('/recommendation/user/all/')
+@login_required
+def recieved_recommendations():
+    user_id = current_user.user_id
     exists = db.session.query(db.exists().where(Recommendation.recipient_id == user_id)).scalar()
 
     if exists:
@@ -582,6 +629,7 @@ def recieved_recommendations(user_id):
 
 # get existing recommendation data                                                                                                    
 @main.route('/recommendation/view/<recommend_id>')
+@login_required
 def recommendation_data(recommend_id):
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id)).scalar()
 
@@ -639,6 +687,7 @@ def recommend_auto(user_id):
 
 # return a specific user's points by id, specified in url
 @main.route('/user/points/<user_id>')
+@login_required
 def user_points_data(user_id):
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
@@ -654,6 +703,8 @@ def user_points_data(user_id):
 
 # updates loyalty points
 @main.route('/points/<user_id>/update', methods = ['POST'])
+@login_required
+@admin_permission.require()
 def update_points(user_id):
     points_data = request.get_json()
     customer_exists = db.session.query(db.exists().where(Customer.user_id == user_id)).scalar()
@@ -675,6 +726,8 @@ def update_points(user_id):
 
 # return a specific admin start date
 @main.route('/admin/<user_id>')
+@login_required
+@admin_permission.require()
 def start_date(user_id):
     exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
 
@@ -692,7 +745,7 @@ def start_date(user_id):
 # search FUNCTIONS
 # ===========================================================
 
-# return a specific admin start date
+# return a searched value
 @main.route('/search/', methods=['POST'])
 def search():
     search_input = (request.get_json())["search"]

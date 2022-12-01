@@ -1,6 +1,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_principal import Principal, Permission, RoleNeed
+from flask_principal import Principal, Identity, AnonymousIdentity, Principal, Permission, RoleNeed, identity_loaded, UserNeed
+from flask_login import current_user
+
 
 db = SQLAlchemy()
 
@@ -19,13 +23,30 @@ def create_app():
         login_manager.login_view = 'auth.login'
         login_manager.init_app(app)
 
-        from .models import User
+        from .models import User, Admin
 
         @login_manager.user_loader
         def load_user(user_id):
             u = (db.session.query(User).filter(User.user_id == user_id).one())
             return u
-        
+        login_manager.login_view = "http://localhost:3000/login"
+
+        principals = Principal(app)
+        @identity_loaded.connect_via(app)
+        def on_identity_loaded(sender, identity):
+            # Set the identity user object
+            identity.user = current_user
+
+            # Add the UserNeed to the identity
+            if hasattr(current_user, 'user_id'):
+                identity.provides.add(UserNeed(current_user.user_id))
+
+            # Assuming the User model has a list of roles, update the
+            # identity with the roles that the user provides
+            if hasattr(current_user, 'role_value'):
+                for role in current_user.role_value:
+                    identity.provides.add(RoleNeed(role.name))
+
         from .users import main
         app.register_blueprint(main)
 
