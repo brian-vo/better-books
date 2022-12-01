@@ -5,7 +5,6 @@ from flask_login import login_user, login_required, logout_user
 
 from .models import *
 
-
 main = Blueprint('main', __name__)
 
 # ===========================================================
@@ -599,6 +598,40 @@ def recommendation_data(recommend_id):
         return jsonify({'wishlist_items' : recommendation_info})
     else:
         return 'RECOMMENDATION DOES NOT EXIST', 404
+
+# auto-give recommendations, based on wishlist                                                                                                    
+@main.route('/recommendation/<user_id>/auto')
+def recommend_auto(user_id):
+    wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+
+    if wishlist_exists:
+        genres = []
+        books_gen = []
+        book_ret = []
+        wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
+        includes = db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id).all()
+
+        for books in includes:
+            book = db.session.query(Book).filter(Book.isbn == books.isbn).one()
+            genre = db.session.query(Genres).filter(Genres.isbn == book.isbn).one()
+            genres.append(genre)
+        
+        for genre in genres:
+            recommend_genre = db.session.query(Genres).filter(Genres.genre == genre.genre)
+            for books in recommend_genre:
+                book = db.session.query(Book).filter(Book.isbn == books.isbn).one()
+                books_gen.append(book)
+      
+        for book in books_gen:
+            authors = []
+            book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
+            for auth in book_writes:
+                author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
+                authors.append({'fname' : author.fname, 'lname' : author.lname})
+            book_ret.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})          
+        return jsonify({'wishlist_items' : book_ret})
+    else:
+        return 'No recommendations avaliable at this time', 404
 
 # ===========================================================
 # customer FUNCTIONS
