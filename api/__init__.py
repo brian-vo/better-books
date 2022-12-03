@@ -9,7 +9,9 @@ from flask_login import current_user
 db = SQLAlchemy()
 
 def create_app():
-        app = Flask(__name__)
+        app = Flask(__name__,
+            static_url_path='', 
+            static_folder='../src')
         app.app_context().push()
 
         app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:kQ4xei6b^@localhost:3306/bookshopdb'
@@ -29,7 +31,7 @@ def create_app():
         def load_user(user_id):
             u = (db.session.query(User).filter(User.user_id == user_id).one())
             return u
-        login_manager.login_view = "http://localhost:3000/login"
+        login_manager.login_view = "???"
 
         principals = Principal(app)
         @identity_loaded.connect_via(app)
@@ -44,8 +46,7 @@ def create_app():
             # Assuming the User model has a list of roles, update the
             # identity with the roles that the user provides
             if hasattr(current_user, 'role_value'):
-                for role in current_user.role_value:
-                    identity.provides.add(RoleNeed(role.name))
+                identity.provides.add(RoleNeed(current_user.role_value))
 
         from .users import main
         app.register_blueprint(main)

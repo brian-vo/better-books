@@ -1,9 +1,10 @@
-from flask import Blueprint, jsonify, request, session, current_app
+from flask import Blueprint, jsonify, request, session, current_app, render_template
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed, Principal, Permission, RoleNeed
 from .models import *
+
 
 main = Blueprint('main', __name__)
 admin_permission = Permission(RoleNeed('admin'))
@@ -441,7 +442,7 @@ def add_user():
     exists = db.session.query(db.exists().where(User.email == user_data['email'])).scalar()
 
     if not exists:
-        new_user = User(fname=user_data['fname'], lname=user_data['lname'], email=user_data['email'], pass_word=generate_password_hash(user_data['pass_word'], method='sha256'))
+        new_user = User(fname=user_data['fname'], lname=user_data['lname'], email=user_data['email'],  role_value="customer", pass_word=generate_password_hash(user_data['pass_word'], method='sha256'))
         db.session.add(new_user)
         db.session.commit()
 
@@ -485,7 +486,10 @@ def log_in():
 
     login_user(user)
     identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
-    return 'LOGGED IN', 200
+    return "test", 200
+
+
+
 
 # logout user
 @main.route('/logout')
