@@ -1,10 +1,10 @@
-from flask import Blueprint, jsonify, request, session, current_app, render_template
+from flask import Blueprint, jsonify, request, session, current_app
 from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed, Principal, Permission, RoleNeed
 from .models import *
-
+from flask_jwt_extended import create_access_token
 
 main = Blueprint('main', __name__)
 admin_permission = Permission(RoleNeed('admin'))
@@ -451,7 +451,7 @@ def add_user():
 
         return 'Registered new user', 201
     else:
-        return 'User with this email already exists', 400
+        return 'User with this email already exists', 409
 
 # add new user to customer relation
 def add_customer(email):
@@ -486,10 +486,9 @@ def log_in():
 
     login_user(user)
     identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
-    return "test", 200
+    access_token = create_access_token(identity=user)
 
-
-
+    return jsonify(access_token=access_token), 200
 
 # logout user
 @main.route('/logout')

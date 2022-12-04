@@ -5,7 +5,6 @@ from flask_principal import Principal, Permission, RoleNeed
 from flask_principal import Principal, Identity, AnonymousIdentity, Principal, Permission, RoleNeed, identity_loaded, UserNeed
 from flask_login import current_user
 
-
 db = SQLAlchemy()
 
 def create_app():
@@ -18,6 +17,7 @@ def create_app():
         # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root^@database-1.cy3twvoecm4a.us-east-1.rds.amazonaws.com:3306/bookshopdb'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config['SECRET_KEY'] = 'q3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C'
+        app.config["JWT_SECRET_KEY"] = "bQeThWmYq3t6w9z$C&F)J@NcRfUjXn2r"
 
         db.init_app(app)
 
