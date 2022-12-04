@@ -100,11 +100,8 @@ def add_cart():
         db.session.add(new_cart)
         db.session.commit()
 
-        status, value = add_item_cart(user_id)
-        return status, value
-    else:
-        status, value = add_item_cart(user_id)
-        return status, value
+    status, value = add_item_cart(user_id)
+    return status, value
 
 # adds item to stores relationship relative to cart
 def add_item_cart(user_id):
