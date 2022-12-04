@@ -1,16 +1,25 @@
 import OrderItem from "../components/OrderItem";
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
 const Account = () => {
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
+
   const handleLogout = () => {
-    // Clear the user's session token cookie
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-    // Redirect the user to the home page
     navigate("/");
   };
+
 
   return (
     <div className="wishlist">

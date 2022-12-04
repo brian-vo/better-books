@@ -64,15 +64,6 @@ const LogIn = () => {
               name="password"
               onChange={(event) => setPassword(event.target.value)}
             />
-            <div className="d-flex justify-content-between mx-4 mb-4">
-              <MDBCheckbox
-                name="flexCheck"
-                value=""
-                id="flexCheckDefault"
-                label="Remember me"
-              />
-              <a href="!#">Forgot password?</a>
-            </div>
             <MDBBtn
               className="mb-4 w-100"
               type="submit"
