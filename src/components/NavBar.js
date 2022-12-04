@@ -17,12 +17,6 @@ const NavBar = () => {
               <li>
                 <Link to="/">Home</Link>
               </li>
-              <li>
-                <Link to="/recommendations">Recommendations</Link>
-              </li>
-              <li>
-                <Link to="/wishlist">Wishlist</Link>
-              </li>
             </ul>
           </div>
           <div className="user-links">
