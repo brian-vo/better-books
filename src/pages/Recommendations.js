@@ -1,7 +1,18 @@
 import Banner from "../components/Banner";
 import Recommendation from "../components/Recommendation";
+import React, {useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Recommendations = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
+
   return (
     <div className="recommendations">
       <Banner title="Recommendations"></Banner>

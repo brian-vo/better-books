@@ -1,11 +1,21 @@
+import React, {useEffect} from 'react';
+import { Link } from 'react-router-dom';
 import OrderItem from "../components/OrderItem";
-import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import "./accountnav.css";
 
+const SideNav = () => {
+  return (
+    <div className="sidenav">
+      <Link to="/account">Order History</Link>
+      <Link to="/wishlist">Wishlist</Link>
+      <Link to="/recommendations">Recommendations</Link>
+    </div>
+  );
+};
 
 const Account = () => {
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
@@ -20,9 +30,9 @@ const Account = () => {
     navigate("/");
   };
 
-
   return (
     <div className="wishlist">
+      <SideNav />
       <div className="wishlist-container">
         <h1>Order History</h1>
         <table className="order-table">

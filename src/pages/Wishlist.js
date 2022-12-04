@@ -1,6 +1,17 @@
 import WishlistItem from "../components/WishlistItem";
+import React, {useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Wishlist = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
+
   return (
     <div className="wishlist">
       <div className="wishlist-container">
