@@ -27,14 +27,13 @@ const LogIn = () => {
       }
     })
     .then((responseData) => {
-     if (responseData.status === 401) {
-        setError("Incorrect username or password");
-     }
+     if (responseData.status === 200) {
       const token = responseData.json().token
-    
       document.cookie = `token=${encodeURIComponent(token)}`
-
       navigate("/account");
+     }
+     setError("Incorrect username or password");
+
     })
     .then((data) => {
     })

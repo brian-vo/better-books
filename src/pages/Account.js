@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import OrderItem from "../components/OrderItem";
-import { useNavigate } from 'react-router-dom';
 import "./accountnav.css";
 
 const SideNav = () => {
