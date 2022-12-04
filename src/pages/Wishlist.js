@@ -1,6 +1,7 @@
 import WishlistItem from "../components/WishlistItem";
 import React, {useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
+import SideNav from "../components/SideNav";
 
 const Wishlist = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Wishlist = () => {
 
   return (
     <div className="wishlist">
+        <SideNav />
       <div className="wishlist-container">
         <h1>My Wishlist</h1>
         <WishlistItem isbn={"0"}></WishlistItem>
