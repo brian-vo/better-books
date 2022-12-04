@@ -32,12 +32,13 @@ const SignUp = () => {
       if (response.status === 201) {
         navigate("/login");
       } else if (response.status === 409) {
-       setError("Incorrect username or password");
+       setError("User with this email already exists");
     }
     })
     .catch((error) => {
     });
   }
+  
   return (
     <div className="login">
       <div className="login-form">
@@ -72,7 +73,7 @@ const SignUp = () => {
               type="password"
               onChange={(event) => setPassword(event.target.value)}
             />
-            <div className="d-flex justify-content-center mb-4smitht3est@gmail.com">
+            <div className="d-flex justify-content-center mb-4">
               <MDBCheckbox
                 name="flexCheck"
                 id="flexCheckDefault"
