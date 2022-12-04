@@ -15,7 +15,6 @@ const Account = () => {
       return;
     }
 
-      // Send the HTTP request to load the orders data.
   fetch(`/orders/all`, {
     headers: {
       "Authorization": `Bearer ${token}`
@@ -24,8 +23,6 @@ const Account = () => {
     .then(response => response.json())
     .then(response => setOrders(response.orders));
 }, []);
-
-
 
 
   return (
