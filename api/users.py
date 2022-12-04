@@ -525,7 +525,7 @@ def user_orders():
         return 'User does not exist', 404
 
 # update user
-@main.route('/user/data//update', methods=['POST'])
+@main.route('/user/data/update', methods=['POST'])
 @login_required
 def update_order():
     user_id = current_user.user_id
@@ -535,7 +535,6 @@ def update_order():
     fname = user.fname
     lname = user.lname
     email = user.email
-    address = user.address
     password = user.pass_word
 
     if (update_data['fname'] != None):
@@ -544,15 +543,12 @@ def update_order():
         lname = update_data['lname']
     if (update_data['email'] != None):
         email = update_data['email'] 
-    if (update_data['address'] != None):
-        address = update_data['address']
-    if (update_data['password'] != None):
-        password = update_data['password']
+    if (update_data['pass_word'] != None):
+        password = update_data['pass_word']
 
     user.fname = fname
     user.lname = lname
     user.email = email
-    user.address = address
     user.pass_word = password
     db.session.commit()
 
@@ -686,9 +682,10 @@ def recommend_auto(user_id):
 # ===========================================================
 
 # return a specific user's points by id, specified in url
-@main.route('/user/points/<user_id>')
+@main.route('/user/points/')
 @login_required
-def user_points_data(user_id):
+def user_points_data():
+    user_id = current_user.user_id
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
     if exists:
