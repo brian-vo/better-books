@@ -2,7 +2,7 @@
 
 # settings
 /.vscode
-/__pycache__
+/api/__pycache__
 
 # dependencies
 /node_modules
