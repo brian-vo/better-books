@@ -1,12 +1,11 @@
 import { useNavigate } from "react-router-dom";
 
-const SearchBar = ({ placeholder, data }) => {
-  
+const SearchBar = ({ placeholder }) => {
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
       handleSearch(e.target.value.toLowerCase());
-      e.target.blur();
+      e.target.blur(); // Remove focus
     }
   };
 
@@ -21,7 +20,7 @@ const SearchBar = ({ placeholder, data }) => {
         type="text"
         className="search-input"
         placeholder={placeholder}
-        onFocus={(e) => (e.target.value = "")}
+        onFocus={(e) => (e.target.value = "")} // Delete current text when input field is selected
         onKeyPress={(e) => handleKeyPress(e)}
       />
       <div className="searchIcon"></div>
