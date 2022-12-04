@@ -486,7 +486,7 @@ def log_in():
 
     login_user(user)
     identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
-    access_token = create_access_token(identity=user)
+    access_token = create_access_token(identity=user.user_id)
 
     return jsonify(access_token=access_token), 200
 

@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_principal import Principal, Permission, RoleNeed
 from flask_principal import Principal, Identity, AnonymousIdentity, Principal, Permission, RoleNeed, identity_loaded, UserNeed
 from flask_login import current_user
+from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
 
@@ -20,6 +21,7 @@ def create_app():
         app.config["JWT_SECRET_KEY"] = "bQeThWmYq3t6w9z$C&F)J@NcRfUjXn2r"
 
         db.init_app(app)
+        jwt = JWTManager(app)
 
         login_manager = LoginManager()
         login_manager.login_view = 'auth.login'
