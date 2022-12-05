@@ -21,6 +21,7 @@ def create_app():
         app.config['SECRET_KEY'] = 'q3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C'
         app.config["JWT_SECRET_KEY"] = "bQeThWmYq3t6w9z$C&F)J@NcRfUjXn2r"
         CORS(app)
+        CORS(app, origins=["http://localhost:3000"])
         app.config['CORS_HEADERS'] = 'Content-Type'
 
         db.init_app(app)
@@ -36,7 +37,7 @@ def create_app():
         def load_user(user_id):
             u = (db.session.query(User).filter(User.user_id == user_id).one())
             return u
-        login_manager.login_view = "???"
+        login_manager.login_view = "/"
 
         principals = Principal(app)
         @identity_loaded.connect_via(app)
