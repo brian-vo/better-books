@@ -12,6 +12,9 @@ const useFetch = (url, method = "GET", body = null) => {
     fetch(url, {
       method,
       body,
+      headers: {
+        "Content-Type": "application/json"
+      }
     })
       .then((response) => {
         // Server gave a faulty response, eg. if the requested resource does not exist
