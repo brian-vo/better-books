@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Review from "../components/Review";
 import { useLocation } from "react-router-dom";
+import useFetch from "../hooks/useFetch";
 
 const BookPurchase = () => {
   const [book, setBook] = useState({}); // Store the book in state
@@ -14,6 +15,7 @@ const BookPurchase = () => {
   const isbn = params.get("isbn");
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     const fetchBook = async () => {
       try {
         // Make a request to the '/book/<book_isbn>/data' endpoint
@@ -41,6 +43,7 @@ const BookPurchase = () => {
         method: 'POST',
         headers: {
           "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           "isbn": isbn,
@@ -53,37 +56,60 @@ const BookPurchase = () => {
     }
   };
 
-return (
-  <div className="purchase-container">
-    <div className="purchase-content">
-      <div className="book-container">
-        <img src={book.image_location} alt="book" />
-      </div>
-      <div className="purchase-info">
-        <h1>{book.title}</h1>
-        <p>
-          <h2>${book.price}</h2>
-          <strong>Description:</strong>
-          <br />
-          {book.description}
-        </p>
-        <div className="purchase-btns">
-          <button className="button">Add to Wishlist</button>
-          <button className="button">Leave Review</button>
+  const handleAddToWishlist = async (isbn, token) => {
+    try {
+      // Make a request to the '/shopping_cart/add/<user_id>' endpoint
+      const response = await fetch(`/wishlist/add/`, {
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "isbn": isbn,
+        }),
+      });
+      // Parse the response as JSON
+    } catch (error) {
+      // Handle any errors
+      console.error(error);
+    }
+  };
+
+  return (
+    <div className="purchase-container">
+      <div className="purchase-content">
+        <div className="book-container">
+          <img src={book.image_location} alt="book" />
         </div>
-        <button className="button" onClick={() => handleAddToCart(isbn)}>
-        Add to Cart
-      </button>      </div>
+        <div className="purchase-info">
+          <h1>{book.title}</h1>
+          <p>
+            <h2>${book.price}</h2>
+            <strong>Description:</strong>
+            <br />
+            {book.description}
+          </p>
+          <div className="purchase-btns">
+            <button className="button" onClick={() => handleAddToWishlist(isbn)}>
+              Add to Wishlist
+            </button>          
+            <button className="button">Leave Review</button>
+          </div>
+          <button className="button" onClick={() => handleAddToCart(isbn)}>
+            Add to Cart
+          </button>      
+          </div>
+      </div>
+      <div className="review-content">
+        <h1>Reviews</h1>
+        <Review review_id="0"></Review>
+        <Review review_id="0"></Review>
+        <Review review_id="0"></Review>
+        <Review review_id="0"></Review>
+      </div>
     </div>
-    <div className="review-content">
-      <h1>Reviews</h1>
-      <Review review_id="0"></Review>
-      <Review review_id="0"></Review>
-      <Review review_id="0"></Review>
-      <Review review_id="0"></Review>
-    </div>
-  </div>
-);
+  );
 };
 
 export default BookPurchase;
