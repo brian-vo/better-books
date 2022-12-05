@@ -5,6 +5,7 @@ from flask_login import login_user, login_required, logout_user, current_user
 from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed, Principal, Permission, RoleNeed
 from .models import *
 from flask_jwt_extended import create_access_token
+from flask_cors import cross_origin
 
 main = Blueprint('main', __name__)
 admin_permission = Permission(RoleNeed('admin'))
@@ -89,6 +90,7 @@ def add_book():
 
 # add an item to shopping_cart
 @main.route('/shopping_cart/add/', methods=['POST'])
+@cross_origin()
 @login_required
 # checks if cart exists for that user, and creates if does not 
 def add_cart():
@@ -742,11 +744,11 @@ def start_date(user_id):
 # search FUNCTIONS
 # ===========================================================
 
-# return a searched value
-@main.route('/search/', methods=['POST'])
+@main.route('/search/', methods = ['POST'])
+@cross_origin()
 def search():
-    search_input = (request.get_json())["search"]
-
+    data = request.get_json()
+    search_input = data['search']
     authors = []
     
     books = []
@@ -771,5 +773,3 @@ def search():
 
     return jsonify({'books' : book_no_dup})
   
-    
-    
