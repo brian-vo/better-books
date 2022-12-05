@@ -21,7 +21,7 @@ def create_app():
         app.config['SECRET_KEY'] = 'q3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C'
         app.config["JWT_SECRET_KEY"] = "bQeThWmYq3t6w9z$C&F)J@NcRfUjXn2r"
         CORS(app)
-        CORS(app, origins=["http://localhost:3000"])
+        app.config['CORS_HEADERS'] = 'Content-Type'
 
         db.init_app(app)
         jwt = JWTManager(app)
