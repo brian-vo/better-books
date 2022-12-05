@@ -1,14 +1,21 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
 import BookSearchResult from "../components/BookSearchResult";
+import useFetch from "../hooks/useFetch";
 
 const Search = () => {
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get("query");
+  const queryString = useLocation().search;
 
+  // Parse the query string to get the `isbn` value
+  const params = new URLSearchParams(queryString);
+  const query = params.get("searchvalue");
   const location = useLocation();
 
+  const searchData = {
+    search: query,
+  };
+  // Use useFetch hook to make a POST request to the "/search/" route
+  const { data, isLoading, error } = useFetch("/search/", "POST", JSON.stringify(searchData));
   useEffect(() => {
     console.log("Location changed");
   }, [location]);
