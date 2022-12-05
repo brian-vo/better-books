@@ -17,18 +17,55 @@ const Search = () => {
   // Use useFetch hook to make a POST request to the "/search/" route
   const { data, isLoading, error } = useFetch("/search/", "POST", JSON.stringify(searchData));
   useEffect(() => {
-    console.log("Location changed");
-  }, [location]);
+  }, []);
 
-  return (
-    <div className="wishlist">
-      <div className="wishlist-container">
-        <h1>{`Search results for "${query}"`}</h1>
-        <BookSearchResult isbn="0"></BookSearchResult>
-        <BookSearchResult isbn="0"></BookSearchResult>
+  // Check if the data has been fetched
+  if (!data || isLoading) {
+    return (
+      <div className="wishlist">
+        <div className="wishlist-container">
+          <h1>{`Search results for "${query}"`}</h1>
+          <p>Loading...</p>
+        </div>
       </div>
+    );
+  }
+
+  // Check if an error occurred
+  if (error) {
+    return (
+      <div className="wishlist">
+        <div className="wishlist-container">
+          <h1>{`Search results for "${query}"`}</h1>
+          <p>Error: {error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If there are no books in the data, display a message
+  if (!data.books || data.books.length === 0) {
+    return (
+      <div className="wishlist">
+        <div className="wishlist-container">
+          <h1>{`Search results for "${query}"`}</h1>
+          <p>No books found</p>
+        </div>
+      </div>
+    );
+  }
+
+ // If there are books in the data, map over them and render a BookSearchResult for each book
+ return (
+  <div className="wishlist">
+    <div className="wishlist-container">
+      <h1>{`Search results for "${query}"`}</h1>
+      {data.books.map((book) => (
+        <BookSearchResult key={book.isbn} book={book} />
+      ))}
     </div>
-  );
+  </div>
+);
 };
 
 export default Search;
