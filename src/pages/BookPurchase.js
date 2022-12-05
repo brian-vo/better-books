@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 
 const BookPurchase = () => {
   const [book, setBook] = useState({}); // Store the book in state
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
   // Get the URL query string
   const queryString = useLocation().search;
@@ -33,20 +34,19 @@ const BookPurchase = () => {
     fetchBook();
   }, [isbn]);
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (isbn, token) => {
     try {
       // Make a request to the '/shopping_cart/add/<user_id>' endpoint
       const response = await fetch(`/shopping_cart/add/`, {
         method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          "isbn": "1507084220223",
+          "isbn": isbn,
         }),
       });
       // Parse the response as JSON
-      const data = await response.json();
-
-      // Handle the response data
-      console.log(data);
     } catch (error) {
       // Handle any errors
       console.error(error);
@@ -71,8 +71,9 @@ return (
           <button className="button">Add to Wishlist</button>
           <button className="button">Leave Review</button>
         </div>
-        <button className="button" onClick={handleAddToCart}>Add to Cart</button>
-      </div>
+        <button className="button" onClick={() => handleAddToCart(isbn)}>
+        Add to Cart
+      </button>      </div>
     </div>
     <div className="review-content">
       <h1>Reviews</h1>
