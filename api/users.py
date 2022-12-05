@@ -260,6 +260,7 @@ def order_data(order_id):
 
 # add an item to wishlist 
 @main.route('/wishlist/add/', methods=['POST'])
+@cross_origin()
 @login_required
 # checks if wishlist exists for that user, and creates if does not 
 def add_wishlist():
@@ -295,6 +296,7 @@ def add_item_wishlist(user_id):
 
 # get existing wishlist data                                                                                                    
 @main.route('/wishlist/data')
+@cross_origin()
 @login_required
 def wishlist_data():
     user_id = current_user.user_id
@@ -313,14 +315,15 @@ def wishlist_data():
 
 # delete book from wishlist
 @main.route('/wishlist/delete_item', methods=['POST'])
+@cross_origin()
 @login_required
-def wishlist_delete_item(user_id):
+def wishlist_delete_item():
     user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
-
     if wishlist_exists:
+        wishlist_data = request.get_json()
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
-        db.session.query(Wishlist).filter_by(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn']).delete()
+        db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == wishlist_data['isbn']).delete()
         db.session.commit()
         
         return 'DELETED', 200
