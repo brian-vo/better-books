@@ -11,7 +11,6 @@ const OrderItem = ({ order }) => {
       <td>
         <a href={`/order?order_id=${order.order_id}`}>{order.order_id}</a>
       </td>
-      <td>{order.items}</td>
       <td>${order.sum}</td>
       <td>{order.status}</td>
       <td>{formatDate(new Date(order.order_date))}</td>

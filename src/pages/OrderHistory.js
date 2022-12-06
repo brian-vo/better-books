@@ -34,7 +34,6 @@ const OrderHistory = () => {
         <thead>
         <tr>
           <th>Order ID</th>
-          <th># Items</th>
           <th>Total</th>
           <th>Status</th>
           <th>Order Date</th>
