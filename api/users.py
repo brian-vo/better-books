@@ -196,6 +196,7 @@ def cart_delete_item():
 
 # delete cart + associated stores
 @main.route('/shopping_cart/delete/all')
+@cross_origin()
 @login_required
 def cart_delete():
     user_id = current_user.user_id
