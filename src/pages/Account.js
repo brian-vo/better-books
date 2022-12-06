@@ -11,13 +11,12 @@ function Account() {
   const [loyaltyPoints, setLoyaltyPoints] = React.useState(0);
   const navigate = useNavigate();
 
-
-  // useEffect(() => {
-  //   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-  //   if (!token) {
-  //     navigate("/login");
-  //   }
-  // }, []);
+  useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
 
   useEffect(() => {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
