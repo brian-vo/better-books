@@ -2,12 +2,13 @@ import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import "./nav.css";
 
+
 const NavBar = () => {
   return (
     <nav>
       <div className="nav-right">
         <Link to="/">
-          <img className="nav-logo" src="" alt="logo" />
+        <img className="nav-logo" width="30" height="30" src="../img/logo.png" alt="logo" />
         </Link>
       </div>
       <div className="nav-left">

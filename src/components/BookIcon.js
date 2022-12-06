@@ -53,12 +53,12 @@ const BookIcon = ({ book, content }) => {
   return (
     <div className="book-icon-small">
       <Link to={"/book?isbn=" + book.isbn}>
-        <img src={image_location} alt="book" />
+        <img src={book.image_location} alt="book" />
       </Link>
       <div className="icon-small-info">
-        <Link to={"/book?isbn=" + book.isbn}>{title}</Link>
+        <Link to={"/book?isbn=" + book.isbn}>{book.title}</Link>
         <br />
-        Price: ${price}
+        Price: ${book.price}
       </div>
       {content}
     </div>
