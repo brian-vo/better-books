@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 // Hook for getting data from a URL and returning it as a JSON obj
-const useFetch = (url) => {
+const useFetch = (url, method = "GET", body = null) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,7 +9,13 @@ const useFetch = (url) => {
   // useEffect hook runs code every time something on the page is rendered / re-rendered
   useEffect(() => {
     // Async call, GET request to fetch json data
-    fetch(url)
+    fetch(url, {
+      method,
+      body,
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
       .then((response) => {
         // Server gave a faulty response, eg. if the requested resource does not exist
         if (!response.ok) {
@@ -28,7 +34,7 @@ const useFetch = (url) => {
         setIsLoading(false);
       });
     // Run useEffect whenever a new url is given
-  }, [url]);
+  }, [url, method, body]);
 
   return { data, isLoading, error };
 };

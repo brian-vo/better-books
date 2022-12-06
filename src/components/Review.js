@@ -1,32 +1,16 @@
-const Review = ({ review_id }) => {
-  function formatDate(date) {
-    return [
-      date.getDate().toString().padStart(2, "0"),
-      date.getMonth().toString().padStart(2, "0"),
-      date.getFullYear(),
-    ].join("/");
-  }
-
+const Review = ({ review }) => {
   return (
     <div className="review">
-      <strong>John Doe</strong>
+      <strong>{review.user_id}</strong>
       <br />
-      Rating: 5/5
+      Rating: {review.rating}/5
       <br />
-      Posted: {formatDate(new Date(2022, 6, 24))}
+      Posted: {review.post_date}
       <br />
       <br />
-      <p>
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Adipisci
-        deserunt necessitatibus ad error dignissimos, maiores eligendi suscipit
-        placeat dolores eos asperiores eveniet aperiam, atque odio dicta
-        possimus quibusdam, recusandae molestias. Lorem ipsum dolor sit amet
-        consectetur adipisicing elit. Illum magnam minus eaque! Ipsa, iure
-        mollitia? Vel, obcaecati fugiat voluptas, ratione natus nulla officia
-        quasi maxime ducimus perferendis aperiam inventore provident.
-      </p>
+      <p>{review.message_body}</p>
     </div>
   );
-};
+}
 
 export default Review;

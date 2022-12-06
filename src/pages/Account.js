@@ -1,62 +1,114 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import OrderItem from "../components/OrderItem";
-import "./accountnav.css";
+import React, {useEffect} from 'react';
+import "./Account.css";
 import SideNav from "../components/SideNav";
+import { useNavigate } from 'react-router-dom';
 
-const Account = () => {
-  const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
+function Account() {
+  const [fname, setFname] = React.useState(null);
+  const [lname, setLname] = React.useState(null);
+  const [email, setEmail] = React.useState(null);
+  const [password, setPassword] = React.useState(null);
+  const [loyaltyPoints, setLoyaltyPoints] = React.useState(0);
+  const navigate = useNavigate(); 
+
 
   useEffect(() => {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
     if (!token) {
       navigate("/login");
-      return;
     }
+  }, []);
 
-  fetch(`/orders/all`, {
-    headers: {
-      "Authorization": `Bearer ${token}`
+  useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  
+    async function fetchLoyaltyPoints() {
+      const response = await fetch("/user/points/", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const json = await response.json();
+      setLoyaltyPoints(json.user[0].points);
     }
-  })
-    .then(response => response.json())
-    .then(response => setOrders(response.orders));
-}, []);
+  
+    fetchLoyaltyPoints();
+  }, []);
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+  
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  
+    const response = await fetch("/user/data/update", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fname: fname,
+        lname: lname,
+        email: email,
+        pass_word: password
+      })
+    });
+  };
 
   return (
-    <div className="wishlist">
+    <div className="form-container">
       <SideNav />
-      <div className="wishlist-container">
-        <h1>Order History</h1>
-        <table className="order-table">
-  <thead>
-    <tr className="order-header">
-      <td>Order#</td>
-      <td>Quantity</td>
-      <td>Total</td>
-      <td>Status</td>
-      <td>Prepared date</td>
-      <td>Shipped date</td>
-      <td>Delivered date</td>
-    </tr>
-    {orders.map(order => (
-      <OrderItem
-        key={order.order_id}
-        order_id={
-          <Link to={`/order?order_id=${order.order_id}`}>{order.order_id}</Link>
-        }
-        quantity={order.quantity}
-        total={order.sum}
-        status={order.status}
-        prepared_date={order.prepared_date}
-        shipped_date={order.shipping_date}
-        delivered_date={order.delivered_date}
-      />
-    ))}
-  </thead>
-</table>
+      <div className="form-and-loyalty-box" style={{ zIndex: 1 }}>
+        <h1>Update Information</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="form-box">
+            <label className="form-label">
+              First Name:
+              <input
+                type="text"
+                value={fname}
+                onChange={(e) => setFname(e.target.value)}
+                className="form-input"
+              />
+            </label>
+            <br />
+            <label className="form-label">
+              Last Name:
+              <input
+                type="text"
+                value={lname}
+                onChange={(e) => setLname(e.target.value)}
+                className="form-input"
+              />
+            </label>
+            <br />
+            <label className="form-label">
+              Email:
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="form-input"
+              />
+            </label>
+            <br />
+            <label className="form-label">
+              Password:
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="form-input"
+              />
+            </label>
+            <br />
+            <button type="submit" className="form-button">Update Profile</button>
+          </div>
+        </form>
+        <div className="loyalty-box">
+          <p className="loyalty-label">Loyalty Points:</p>
+          <p className="loyalty-points">{loyaltyPoints}</p>
+        </div>
       </div>
     </div>
   );

@@ -35,11 +35,11 @@ function Order() {
     }, [data]);
 
     if (!data) {
-        return <p>404 Erorr</p>;
+        return <p>No Data</p>;
     }
 
     if (!books) {
-        return <p>404 Erorr</p>;
+        return <p>No Book</p>;
     }
     return (
         <div className="container px-4 py-5">

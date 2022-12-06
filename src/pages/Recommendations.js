@@ -2,6 +2,7 @@ import Banner from "../components/Banner";
 import Recommendation from "../components/Recommendation";
 import React, {useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
+import SideNav from "../components/SideNav";
 
 const Recommendations = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Recommendations = () => {
 
   return (
     <div className="recommendations">
+            <SideNav />
       <Banner title="Recommendations"></Banner>
       <div className="content-container">
         <h1>Recommended Books</h1>
