@@ -5,7 +5,6 @@ import useFetch from "../hooks/useFetch";
 const BookIcon = ({ book, content }) => {
   // Use useFetch hook to make a GET request to the "/book/<book_isbn>/data" route
   const { data, isLoading, error } = useFetch(`/book/${book.isbn}/data`);
-
   // Check if the data has been fetched
   if (!data || isLoading) {
     return (
