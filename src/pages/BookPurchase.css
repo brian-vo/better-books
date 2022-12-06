@@ -6,22 +6,44 @@
 }
 
 .review-form label {
-  display: block;
+  display: flex;
+  flex-direction: row;
   margin-bottom: 10px;
 }
 
-.review-form-input {
-  display: block;
+.review-title {
+  height: 30px;
+}
+
+.review-title input {
   width: 100%;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.review-body textarea {
+  width: 100%;
+  height: 100px;
+  resize: none;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.review-form p {
+  width: 60px;
+  margin-right: 10px;
+}
+
+.review-rating {
+  height: 30px;
+}
+
+.review-rating input {
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+  width: 70px;
   padding: 10px;
-  margin: 10px 0;
-  box-sizing: border-box;
 }
 
-.review-form-input[name="messageBody"] {
-  min-height: 150px;
-}
-
-.button {
+.submit {
   width: 150px;
+  background-color: lightgray;
+  height: 40px;
 }

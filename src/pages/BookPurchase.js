@@ -150,14 +150,14 @@ const BookPurchase = () => {
             {book.description}
           </p>
           <div className="purchase-btns">
-            <button className="button" onClick={() => handleAddToWishlist(isbn, token)}>
+            <button className="pbutton" onClick={() => handleAddToWishlist(isbn, token)} >
               Add to Wishlist
             </button>
-            <button className="button" onClick={handleShowReviewForm}>
+            <button className="pbutton" onClick={handleShowReviewForm}>
               Leave Review
             </button>
           </div>
-          <button className="button" onClick={() => handleAddToCart(isbn, token)}>
+          <button className="pbutton" onClick={() => handleAddToCart(isbn, token)}>
             Add to Cart
           </button>
         </div>
@@ -165,19 +165,19 @@ const BookPurchase = () => {
       {showReviewForm && (
         <div className="review-form">
           <form onSubmit={handleReviewSubmit}>
-            <label>
-              Title:
+            <label className="review-title">
+              <p>Title:</p>
               <input type="text" name="messageTitle" />
             </label>
-            <label>
-              Review:
+            <label className="review-body">
+              <p>Review:</p>
               <textarea type="text" name="messageBody" />
             </label>
-            <label>
-              Rating:
+            <label className="review-rating">
+              <p>Rating:</p>
               <input type="number" name="rating" min="1" max="5" />
             </label>
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Submit" className="submit" />
           </form>
         </div>
       )}
