@@ -11,7 +11,7 @@ import Search from "../pages/Search";
 import Account from "../pages/Account";
 import Order from "../pages/Order";
 import OrderHistory from "../pages/OrderHistory";
-
+import ReviewHistory from "../pages/ReviewHistory";
 
 function App() {
   return (
@@ -31,6 +31,7 @@ function App() {
             <Route path="/account" element={<Account />} />
             <Route path="/order_history" element={<OrderHistory />} />
             <Route path="/order" element={<Order />} />
+            <Route path="/review_history" element={<ReviewHistory />} />
           </Routes>
         </div>
       </div>
