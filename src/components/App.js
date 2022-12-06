@@ -12,7 +12,7 @@ import Account from "../pages/Account";
 import Order from "../pages/Order";
 import OrderHistory from "../pages/OrderHistory";
 import ReviewHistory from "../pages/ReviewHistory";
-
+import Checkout from "../pages/Checkout";
 function App() {
   return (
     <Router>
@@ -32,6 +32,7 @@ function App() {
             <Route path="/order_history" element={<OrderHistory />} />
             <Route path="/order" element={<Order />} />
             <Route path="/review_history" element={<ReviewHistory />} />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
         </div>
       </div>
