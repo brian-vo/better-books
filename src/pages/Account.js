@@ -1,7 +1,7 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import "./Account.css";
 import SideNav from "../components/SideNav";
-import { useNavigate } from 'react-router-dom';
+import useLoginCheck from "../hooks/useLoginCheck"
 
 function Account() {
   const [fname, setFname] = React.useState(null);
@@ -9,19 +9,12 @@ function Account() {
   const [email, setEmail] = React.useState(null);
   const [password, setPassword] = React.useState(null);
   const [loyaltyPoints, setLoyaltyPoints] = React.useState(0);
-  const navigate = useNavigate(); 
 
-
-  useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (!token) {
-      navigate("/login");
-    }
-  }, []);
+  useLoginCheck("/login");
 
   useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-  
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+
     async function fetchLoyaltyPoints() {
       const response = await fetch("/user/points/", {
         headers: {
@@ -31,15 +24,15 @@ function Account() {
       const json = await response.json();
       setLoyaltyPoints(json.user[0].points);
     }
-  
+
     fetchLoyaltyPoints();
   }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-  
+
     const response = await fetch("/user/data/update", {
       method: "POST",
       headers: {
@@ -56,12 +49,16 @@ function Account() {
   };
 
   return (
-    <div className="form-container">
+    <div className="account-container">
       <SideNav />
-      <div className="form-and-loyalty-box" style={{ zIndex: 1 }}>
+      <div className="form-container">
         <h1>Update Information</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="form-box">
+        <div className="form-and-loyalty-box">
+          <div className="loyalty-box">
+            <p className="loyalty-label">Loyalty Points:</p>
+            <p className="loyalty-points">{loyaltyPoints}</p>
+          </div>
+          <form onSubmit={handleSubmit}>
             <label className="form-label">
               First Name:
               <input
@@ -102,15 +99,11 @@ function Account() {
               />
             </label>
             <br />
-            <button type="submit" className="form-button">Update Profile</button>
-          </div>
-        </form>
-        <div className="loyalty-box">
-          <p className="loyalty-label">Loyalty Points:</p>
-          <p className="loyalty-points">{loyaltyPoints}</p>
+          </form>
         </div>
+        <button type="submit" className="form-button">Update Profile</button>
       </div>
-    </div>
+    </div >
   );
 };
 
