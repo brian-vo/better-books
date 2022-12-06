@@ -1,17 +1,22 @@
-.-button {
-    color: white;
-    background-color: #AA4A44;
-    font-weight: bold;
-  }
+.button {
+  color: white;
+  background-color: #AA4A44;
+  font-weight: bold;
+}
 
-  .wishlist .sum-box {
-    width: 200px;
-    height: 30px;
-    background-color: #ccc;
-    padding: 5px;
-    border-radius: 5px;
-    margin: 30px 20px -5px 15px; 
-    margin-left: auto; 
-    font-weight: bold; 
-    font-family: "Helvetica Neue", "Arial", sans-serif; 
-  }
+.wishlist .sum-box {
+  width: 200px;
+  height: 40px;
+  background-color: #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 20px;
+  margin-left: auto;
+  font-weight: bold;
+  font-family: "Helvetica Neue", "Arial", sans-serif;
+  text-align: center;
+}
+
+.wishlist .sum-box p {
+  margin-top: 2px;
+}

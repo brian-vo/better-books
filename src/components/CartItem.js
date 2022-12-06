@@ -18,7 +18,7 @@ const CartItem = ({ book }) => {
         },
         body: JSON.stringify({
           "isbn": isbn,
-          "quantity": newQuantity 
+          "quantity": newQuantity
         }),
       });
       window.location.reload();
@@ -47,7 +47,7 @@ const CartItem = ({ book }) => {
 
   return (
     <BookIcon
-      book={book} 
+      book={book}
       content={
         <div className="button-stack">
           <label>Quantity:</label>
@@ -76,7 +76,7 @@ const CartItem = ({ book }) => {
           </button>
         </div>
       }
-    ></BookIcon> 
+    ></BookIcon>
   );
 };
 

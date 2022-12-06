@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import "./Cart.css"
 
 const Cart = () => {
-  const navigate = useNavigate(); 
-  const [books, setBooks] = useState(null); 
+  const navigate = useNavigate();
+  const [books, setBooks] = useState(null);
   const [sum, setSum] = useState(0);
 
   useEffect(() => {
@@ -31,32 +31,32 @@ const Cart = () => {
 
   }, []);
 
-return (
-  <div className="wishlist">
-    <div className="wishlist-container">
-      <h1>Shopping Cart</h1>
-      <div className="cart-items-container">
-        {books &&
-          books.map((book) =>
-            book.items.map((item) => <CartItem key={item.isbn} book={item} />)
-          )}
-      </div>
-      <div className="sum-box">
-        <p>Subtotal: ${sum}.00</p>
-      </div>
-      <div className="button-stack">
-        <button
-          className="button"
-          onClick={() => navigate('/checkout')}
-          style={{ backgroundColor: '#AA4A44', margin: '30px 0' }}
-        >
-          Checkout
-        </button>
+  return (
+    <div className="wishlist">
+      <div className="wishlist-container">
+        <h1>Shopping Cart</h1>
+        <div className="cart-items-container">
+          {books &&
+            books.map((book) =>
+              book.items.map((item) => <CartItem key={item.isbn} book={item} />)
+            )}
+        </div>
+        <div className="button-stack">
+          <div className="sum-box">
+            <p>Subtotal: ${0}.00</p>
+          </div>
+          <button
+            className="button"
+            onClick={() => navigate('/checkout')}
+            style={{ backgroundColor: '#AA4A44', margin: '30px 0' }}
+          >
+            Checkout
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 
-        };
+};
 
 export default Cart;

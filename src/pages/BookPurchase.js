@@ -171,7 +171,7 @@ const BookPurchase = () => {
             </label>
             <label>
               Review:
-              <input type="text" name="messageBody" />
+              <textarea type="text" name="messageBody" />
             </label>
             <label>
               Rating:
