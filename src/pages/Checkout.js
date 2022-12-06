@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Checkout.css';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -8,6 +8,22 @@ const Checkout = () => {
   const cardOptions = ['','Visa', 'Mastercard', 'Amex', 'Discover'];
   const navigate = useNavigate(); 
   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  const [sum, setSum] = useState(0);
+
+  useEffect(() => {
+    fetch('/shopping_cart/data/', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setSum(data.books[0].sum);
+      })
+      .catch((error) => {
+      });
+  }, []);
 
   const handleAddressChange = (event) => {
     setAddress(event.target.value);
@@ -77,6 +93,9 @@ const Checkout = () => {
             ))}
           </select>
         </label>
+      </div>
+      <div className="total-box">
+        <p>Subtotal: ${sum}</p>
       </div>
       <div className="form-section">
         <button type="submit" className="submit-button">Submit</button>

@@ -25,3 +25,15 @@
   .checkout-form input {
   border: 1px solid black;
 }
+.total-box {
+  width: 100px;
+  height: 30px;
+  background-color: #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  margin: 30px 20px 15px 15px; 
+  margin-left: auto; 
+  font-weight: bold; 
+  font-family: "Helvetica Neue", "Arial", sans-serif; 
+  text-align: right;
+}
