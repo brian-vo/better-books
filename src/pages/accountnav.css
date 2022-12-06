@@ -6,12 +6,9 @@
     left: 0;
     top: 0;
     bottom: 0;
+    padding-top: 20px;
     width: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     background-color: #eee;
-
 }
 
 .sidenav-item {
@@ -30,4 +27,5 @@
     color: #fff;
     padding: 0.5rem 1rem;
     border: none;
-  }
+    margin-bottom: 40px;
+}

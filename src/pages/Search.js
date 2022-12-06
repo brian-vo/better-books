@@ -55,17 +55,17 @@ const Search = () => {
     );
   }
 
- // If there are books in the data, map over them and render a BookSearchResult for each book
- return (
-  <div className="wishlist">
-    <div className="wishlist-container">
-      <h1>{`Search results for "${query}"`}</h1>
-      {data.books.map((book) => (
-        <BookSearchResult key={book.isbn} book={book} />
-      ))}
+  // If there are books in the data, map over them and render a BookSearchResult for each book
+  return (
+    <div className="wishlist">
+      <div className="wishlist-container">
+        <h1>{`Search results for "${query}"`}</h1>
+        {data.books.map((book) => (
+          <BookSearchResult key={book.isbn} book={book} />
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default Search;
