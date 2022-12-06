@@ -1,21 +1,21 @@
-const OrderItem = ({ order_id }) => {
+const OrderItem = ({ order }) => {
   function formatDate(date) {
-    return [
-      date.getDate().toString().padStart(2, "0"),
-      date.getMonth().toString().padStart(2, "0"),
-      date.getFullYear(),
-    ].join("/");
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
   }
-
   return (
     <tr>
-      <td>{order_id}</td>
-      <td>4</td>
-      <td>$99.96</td>
-      <td>Shipped</td>
-      <td>{formatDate(new Date(2022, 6, 24))}</td>
-      <td>{formatDate(new Date(2022, 6, 24))}</td>
-      <td>{"N/A"}</td>
+      <td>
+        <a href={`/order?order_id=${order.order_id}`}>{order.order_id}</a>
+      </td>
+      <td>${order.sum}</td>
+      <td>{order.status}</td>
+      <td>{formatDate(new Date(order.order_date))}</td>
+      <td>{order.prepared_date ? formatDate(new Date(order.prepared_date)) : "NULL"}</td>
+      <td>{order.delivered_date ? formatDate(new Date(order.delivered_date)) : "NULL"}</td>
     </tr>
   );
 };

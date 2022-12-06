@@ -3,6 +3,8 @@ const Review = ({ review }) => {
     <div className="review">
       <strong>{review.user_id}</strong>
       <br />
+      Title: {review.message_title}
+      <br />
       Rating: {review.rating}/5
       <br />
       Posted: {review.post_date}

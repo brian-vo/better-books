@@ -143,7 +143,7 @@ def cart_data():
         items_order = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id)
         for item in items_order:
             book = db.session.query(Book).filter(Book.isbn == item.isbn).one()
-            items.append({'isbn' : item.isbn, 'title' : book.title, 'isbn' : book.isbn, 'price' : book.price, 'quantity' : item.amount})
+            items.append({'isbn' : item.isbn, 'title' : book.title, 'isbn' : book.isbn, 'price' : book.price, 'quantity' : item.amount, 'image_location' : book.image_location})
 
         total = cart.getTotal(cart.cart_id)
         cart_list.append({'sum' : total, 'items' : items})
@@ -186,11 +186,7 @@ def cart_delete_item():
     if cart_exists:
         cart_data = request.get_json()
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-        stores = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).one()
-        if stores.amount-1 == 0:
-            db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).delete()        
-        else:
-            stores.amount-=1
+        stores = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).delete()
         db.session.commit()
         
         return 'DELETED', 200
@@ -200,6 +196,7 @@ def cart_delete_item():
 
 # delete cart + associated stores
 @main.route('/shopping_cart/delete/all')
+@cross_origin()
 @login_required
 def cart_delete():
     user_id = current_user.user_id
@@ -233,11 +230,12 @@ def new_order():
     new_order = Book_Order(user_id=user_id, shipping_address=order_data['shipping_address'], payment_method=order_data['payment_method'])
     db.session.add(new_order)
     db.session.commit()
+    cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
 
-    new_deriv_from = Derived_From(cart_id = order_data['cart_id'], order_id = new_order.order_id)
+    new_deriv_from = Derived_From(cart_id = cart.cart_id, order_id = new_order.order_id)
     db.session.add(new_deriv_from)
 
-    cart_items = db.session.query(Stores).filter(Stores.cart_id == order_data['cart_id']).all()
+    cart_items = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id).all()
     for items in cart_items:
         new_isbns = Isbns(order_id = new_order.order_id, isbn = items.isbn, amount = items.amount)
         book = db.session.query(Book).filter(Book.isbn == items.isbn).one()

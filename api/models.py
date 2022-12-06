@@ -4,8 +4,6 @@ from statistics import mean
 from flask_login import UserMixin
 
 Base = automap_base()
-Base.prepare(db.engine, reflect=True)
-
 class Admin(Base):
     __tablename__ = 'admin'
 
@@ -109,3 +107,5 @@ class Wishlist(Base):
 
 class Writes(Base):
      __tablename__ = 'writes'
+
+Base.prepare(db.engine, reflect=True)

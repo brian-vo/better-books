@@ -1,6 +1,9 @@
 import BookIcon from "./BookIcon";
+import { useState, useEffect } from "react";
 
-const WishlistItem = ({ book }) => {
+const WishlistItem = ({ book }) => {  
+  
+  const [books, setBook] = useState({});
   const handleAddToCart = async (isbn, token) => {
     try {
       const response = await fetch(`/shopping_cart/add/`, {
@@ -36,9 +39,23 @@ const WishlistItem = ({ book }) => {
     }
   };
 
+  async function fetchBookData() {
+    console.log("TEST " + book.isbn)
+    const response = await fetch(`/book/${book.isbn}/data`);
+    const data = await response.json();
+    if (data.books[0]) {
+      setBook(data.books[0]);
+    }
+  }
+  useEffect(() => {
+    if (book && book.isbn && Object.keys(books).length === 0) {
+      fetchBookData();
+    }
+  }, [book]);
+
   return (
     <BookIcon
-      book={book}
+      book={books} 
       content={
         <div className="button-stack">
           <button className="button" onClick={() => handleAddToCart(book.isbn)} style={{ backgroundColor: "#fce705" }}>
