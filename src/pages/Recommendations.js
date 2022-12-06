@@ -1,22 +1,15 @@
 import Banner from "../components/Banner";
 import Recommendation from "../components/Recommendation";
-import React, {useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import SideNav from "../components/SideNav";
+import useLoginCheck from "../hooks/useLoginCheck";
 
 const Recommendations = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (!token) {
-      navigate("/login");
-    }
-  }, []);
+  useLoginCheck("/login");
 
   return (
     <div className="recommendations">
-            <SideNav />
+      <SideNav />
       <Banner title="Recommendations"></Banner>
       <div className="content-container">
         <h1>Recommended Books</h1>

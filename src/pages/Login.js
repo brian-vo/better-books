@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { MDBBtn, MDBInput, MDBCheckbox } from "mdb-react-ui-kit";
+import React, { useState } from 'react';
+import { MDBBtn, MDBInput } from "mdb-react-ui-kit";
 import { useNavigate, Link } from 'react-router-dom';
+import useLoginCheck from "../hooks/useLoginCheck";
 
 const LogIn = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (token) {
-      navigate("/account");
-    }
-  }, []);
+  useLoginCheck("/account");
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -26,19 +22,19 @@ const LogIn = () => {
         'Content-Type': 'application/json'
       }
     })
-    .then((responseData) => {
-     if (responseData.status === 200) {
-      const token = responseData.json().token
-      document.cookie = `token=${encodeURIComponent(token)}`
-      navigate("/account");
-     }
-     setError("Incorrect username or password");
+      .then((responseData) => {
+        if (responseData.status === 200) {
+          const token = responseData.json().token
+          document.cookie = `token=${encodeURIComponent(token)}`
+          navigate("/account");
+        }
+        setError("Incorrect username or password");
 
-    })
-    .then((data) => {
-    })
-    .catch((error) => {
-    });
+      })
+      .then((data) => {
+      })
+      .catch((error) => {
+      });
   }
 
   return (

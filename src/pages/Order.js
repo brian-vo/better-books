@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 function Order() {
     const [data, setData] = useState(null);
@@ -48,7 +48,7 @@ function Order() {
             <p className="fw-bold">Placed on: {data.order_date}</p>
             <p className="fw-bold">Payment Status: {data.payment_status}</p>
             <p className="fw-bold">Fulfillment Status: {data.fulfillment_status}</p>
-    
+
             <table className="table table-bordered">
                 <thead className="thead-dark">
                     <tr>
@@ -73,6 +73,6 @@ function Order() {
             </table>
         </div>
     );
-                    };
+};
 
 export default Order;

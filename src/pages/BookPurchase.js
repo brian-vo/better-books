@@ -5,7 +5,7 @@ import "./BookPurchase.css";
 
 const BookPurchase = () => {
   const [book, setBook] = useState({});
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviews, setReviews] = useState([]); // Store the reviews in state
   const [error, setError] = useState(null); // Initialize the error state variable
@@ -29,7 +29,7 @@ const BookPurchase = () => {
           headers: {
             "Content-Type": "application/json"
           },
-        });        
+        });
         const data1 = await response1.json();
         setReviews(data1.reviews);
       } catch (error) {
@@ -107,7 +107,7 @@ const BookPurchase = () => {
       });
       response.json().then((responseData) => {
         if (responseData.status === 400) {
-          setError("You have already left a review on this product!."); 
+          setError("You have already left a review on this product!.");
           return;
         }
       });
@@ -118,11 +118,11 @@ const BookPurchase = () => {
 
   const handleReviewSubmit = async (event) => {
     event.preventDefault();
-  
+
     const messageTitle = event.target.messageTitle.value;
     const messageBody = event.target.messageBody.value;
     const rating = event.target.rating.value;
-  
+
     handleAddReview(isbn, token, messageTitle, messageBody, rating);
     window.location.reload();
 
@@ -130,7 +130,7 @@ const BookPurchase = () => {
     event.target.messageBody.value = "";
     event.target.rating.value = "";
   };
-  
+
   const handleShowReviewForm = () => {
     setShowReviewForm(true);
   };
@@ -152,17 +152,17 @@ const BookPurchase = () => {
           <div className="purchase-btns">
             <button className="button" onClick={() => handleAddToWishlist(isbn, token)}>
               Add to Wishlist
-            </button>          
+            </button>
             <button className="button" onClick={handleShowReviewForm}>
               Leave Review
             </button>
           </div>
           <button className="button" onClick={() => handleAddToCart(isbn, token)}>
             Add to Cart
-          </button>      
-          </div>
+          </button>
+        </div>
       </div>
-      { showReviewForm && (
+      {showReviewForm && (
         <div className="review-form">
           <form onSubmit={handleReviewSubmit}>
             <label>
@@ -181,12 +181,12 @@ const BookPurchase = () => {
           </form>
         </div>
       )}
- <div className="review-content">
-      <h1>Reviews</h1>
-      {reviews.map((review) => (
-        <Review review={review} />
-      ))}
-    </div>
+      <div className="review-content">
+        <h1>Reviews</h1>
+        {reviews.map((review) => (
+          <Review review={review} />
+        ))}
+      </div>
     </div>
   );
 };

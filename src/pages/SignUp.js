@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MDBBtn, MDBInput, MDBCheckbox } from "mdb-react-ui-kit";
 import { useNavigate } from 'react-router-dom';
+import useLoginCheck from "../hooks/useLoginCheck";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -10,12 +11,7 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (token) {
-      navigate("/account");
-    }
-  }, []);
+  useLoginCheck("/account");
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -28,17 +24,17 @@ const SignUp = () => {
         'Content-Type': 'application/json'
       }
     })
-    .then((response) => {
-      if (response.status === 201) {
-        navigate("/login");
-      } else if (response.status === 409) {
-       setError("User with this email already exists");
-    }
-    })
-    .catch((error) => {
-    });
+      .then((response) => {
+        if (response.status === 201) {
+          navigate("/login");
+        } else if (response.status === 409) {
+          setError("User with this email already exists");
+        }
+      })
+      .catch((error) => {
+      });
   }
-  
+
   return (
     <div className="login">
       <div className="login-form">
