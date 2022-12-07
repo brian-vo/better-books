@@ -314,9 +314,9 @@ def add_item_wishlist(user_id):
         new_stores = Includes(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn'] )
         db.session.add(new_stores)
         db.session.commit()
-        return 'Book ' + wishlist_data['isbn'] + ' added to wishlist', 200 
+        return 'Book ' + str(wishlist_data['isbn']) + ' added to wishlist', 200 
     else:
-        return 'Book ' + wishlist_data['isbn'] + ' already exists in wishlist', 400 
+        return 'Book ' + str(wishlist_data['isbn']) + ' already exists in wishlist', 400 
     
 
 # get existing wishlist data                                                                                                    
@@ -721,33 +721,38 @@ def recommend_auto():
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
 
     if wishlist_exists:
-        genres = []
-        books_gen = []
-        book_ret = []
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
-        includes = db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id).all()
+        includes_exists = db.session.query(db.exists().where(Includes.wishlist_id == wishlist.wishlist_id)).scalar()
+        if includes_exists:
+            genres = []
+            books_gen = []
+            book_ret = []
+            wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
+            includes = db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id).all()
 
-        for books in includes:
-            book = db.session.query(Book).filter(Book.isbn == books.isbn).one()
-            genre = db.session.query(Genres).filter(Genres.isbn == book.isbn).one()
-            genres.append(genre)
-        
-        for genre in genres:
-            recommend_genre = db.session.query(Genres).filter(Genres.genre == genre.genre)
-            for books in recommend_genre:
+            for books in includes:
                 book = db.session.query(Book).filter(Book.isbn == books.isbn).one()
-                books_gen.append(book)
-      
-        for book in books_gen:
-            authors = []
-            book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
-            for auth in book_writes:
-                author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
-                authors.append({'fname' : author.fname, 'lname' : author.lname})
-            book_ret.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})          
-        return jsonify({'wishlist_items' : book_ret})
+                genre = db.session.query(Genres).filter(Genres.isbn == book.isbn).one()
+                genres.append(genre)
+            
+            for genre in genres:
+                recommend_genre = db.session.query(Genres).filter(Genres.genre == genre.genre)
+                for books in recommend_genre:
+                    book = db.session.query(Book).filter(Book.isbn == books.isbn).one()
+                    books_gen.append(book)
+        
+            for book in books_gen:
+                authors = []
+                book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
+                for auth in book_writes:
+                    author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
+                    authors.append({'fname' : author.fname, 'lname' : author.lname})
+                book_ret.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})          
+            return jsonify({'wishlist_items' : book_ret})
+        else:
+            return 'No recommendations avaliable at this time', 481
     else:
-        return 'No recommendations avaliable at this time', 404
+        return 'No recommendations avaliable at this time', 481
 
 # ===========================================================
 # customer FUNCTIONS

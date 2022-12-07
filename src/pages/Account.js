@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import "./Account.css";
 import SideNav from "../components/SideNav";
 import useLoginCheck from "../hooks/useLoginCheck"
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Account() {
   const [fname, setFname] = React.useState(null);
@@ -10,6 +10,8 @@ function Account() {
   const [email, setEmail] = React.useState(null);
   const [password, setPassword] = React.useState(null);
   const [loyaltyPoints, setLoyaltyPoints] = React.useState(0);
+  const [data, setData] = React.useState([]);
+  const [statusCode, setStatusCode] = React.useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,8 +28,20 @@ function Account() {
       const json = await response.json();
       setLoyaltyPoints(json.user[0].points);
     }
+    async function fetchRecommendationAuto() {
+      const response = await fetch("/recommendation/auto", {
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      setStatusCode(response.status);
+      const json1 = await response.json();
+      setData(json1.wishlist_items);
+    }
 
     fetchLoyaltyPoints();
+    fetchRecommendationAuto();
   }, []);
 
   const handleSubmit = async (event) => {
@@ -49,7 +63,8 @@ function Account() {
       })
     });
   };
-
+  const fiveRecommendations = data.slice(0, 5);
+  console.log(statusCode);
   return (
     <div className="account-container">
       <SideNav />
@@ -104,6 +119,25 @@ function Account() {
           </form>
         </div>
         <button type="submit" className="form-button">Update Profile</button>
+      </div>
+      <div className="suggestion-container"> 
+        <h1>Our Suggestions</h1>
+        {statusCode === 481 && <p className="no-suggestions">No suggestions</p>}
+        {fiveRecommendations.map((book) => {
+          return (
+            <li className="book-icon">
+              <Link to={"/book?isbn=" + book.isbn}>
+                <div className="icon-container">
+                  <img src={book.image_location} alt="book" />
+                </div>
+                <div className="icon-info">
+                  <div className="icon-title">{book.title}</div>
+                  <div className="icon-price">${book.price}</div>
+                </div>
+              </Link>
+            </li>
+          );
+        })}
       </div>
     </div >
   );
