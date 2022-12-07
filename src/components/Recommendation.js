@@ -1,15 +1,45 @@
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
+import "./Recommendation.css"
 
-const Recommendation = ({ isbn, recommend_id, sender_id, recommend_num }) => {
+const Recommendation = ({ sender_id, recommend_num, isSent }) => {
+  const [wishlist_items, setWishlistItems] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(() => {
+    // Fetch the wishlist_items data from the API
+    const fetchWishlistItems = async () => {
+      const response = await fetch(`/recommendation/view/${recommend_num}`);
+      const data = await response.json();
+      setWishlistItems(data.wishlist_items);
+    };
+    fetchWishlistItems();
+  }, [recommend_num]);
+
   return (
     <div className="recommendation">
-      {/* Recommend_id is the ID of the actual recommendation to find it in the DB, recommend_num is the number that appears in the list (relative to eg. the total number of book recommendations) */}
-      <div className="count">{recommend_num}</div>
-      <Link to={"/book?isbn=" + isbn}>
-        {isbn ? "Book title: " : "Author name: "}
-      </Link>
-      <div className="sender">From: {sender_id}</div>
-      <button>X</button>
+      <div className="count" onClick={() => setShowDropdown(!showDropdown)}>
+        {recommend_num}
+      </div>
+      <div className="sender">
+        {isSent ? 'To: User #' : 'From: User #'}
+        {sender_id}
+      </div>
+      {showDropdown && (
+        <div className="wishlist-items-container" style={{ position: 'relative' }}>
+          <ul className="wishlist-items" style={{ display: 'block' }}>
+            <p>Recommendations:</p>
+            {wishlist_items.map((item) => {
+              console.log(item);
+              return (
+                <p>
+                  {item.isbn ? `ISBN: ${item.isbn}` : `Author ID: ${item.author_ids}`}
+                </p>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
