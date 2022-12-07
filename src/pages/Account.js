@@ -20,17 +20,17 @@ function Account() {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
     if (!token) {
       navigate("/login");
-  }
-  fetch('/api/roles')
-  .then((response) => response.json())
-  .then((data) => {
-    setRoles(data.roles);
-    setLoading(false);
-  })
-  .catch((error) => {
-    console.error(error);
-    setLoading(false);
-  });
+    }
+    fetch('/api/roles')
+      .then((response) => response.json())
+      .then((data) => {
+        setRoles(data.roles);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoading(false);
+      });
     async function fetchLoyaltyPoints() {
       const response = await fetch("/user/points/", {
         headers: {
@@ -78,7 +78,7 @@ function Account() {
   const fiveRecommendations = data.slice(0, 5);
   if (roles.includes('admin')) {
     navigate("/admin/orders");
-}
+  }
   return (
     <div className="account-container">
       <SideNav />
@@ -134,24 +134,26 @@ function Account() {
         </div>
         <button type="submit" className="form-button">Update Profile</button>
       </div>
-      <div className="suggestion-container"> 
-        <h1>Our Suggestions</h1>
+      <div className="content-container">
+        <h1 className="home-title">Our Suggestions</h1>
         {statusCode === 481 && <p className="no-suggestions">No suggestions</p>}
-        {fiveRecommendations.map((book) => {
-          return (
-            <li className="book-icon">
-              <Link to={"/book?isbn=" + book.isbn}>
-                <div className="icon-container">
-                  <img src={book.image_location} alt="book" />
-                </div>
-                <div className="icon-info">
-                  <div className="icon-title">{book.title}</div>
-                  <div className="icon-price">${book.price}</div>
-                </div>
-              </Link>
-            </li>
-          );
-        })}
+        <ul className="featured">
+          {fiveRecommendations.map((book) => {
+            return (
+              <li className="book-icon">
+                <Link to={"/book?isbn=" + book.isbn}>
+                  <div className="icon-container">
+                    <img src={book.image_location} alt="book" />
+                  </div>
+                  <div className="icon-info">
+                    <div className="icon-title">{book.title}</div>
+                    <div className="icon-price">${book.price}</div>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </div >
   );
