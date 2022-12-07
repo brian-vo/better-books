@@ -3,22 +3,27 @@ import { useNavigate, Link } from 'react-router-dom';
 import OrderItem from "../components/OrderItem";
 import "./accountnav.css";
 import SideNav from "../components/SideNav";
-import useLoginCheck from "../hooks/useLoginCheck"
 
 const OrderHistory = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
 
-  useLoginCheck("/login", () => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+  useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-    fetch(`/orders/all`, {
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
-    })
-      .then(response => response.json())
-      .then(response => setOrders(response.orders));
-  });
+  fetch(`/orders/all`, {
+    headers: {
+      "Authorization": `Bearer ${token}`
+    }
+  })
+    .then(response => response.json())
+    .then(response => setOrders(response.orders));
+}, []);
+
 
   return (
     <div className="wishlist">
@@ -41,7 +46,7 @@ const OrderHistory = () => {
           <OrderItem key={order.order_id} order={order} />
         ))}
       </tbody>
-      </table>
+</table>
       </div>
     </div>
   );

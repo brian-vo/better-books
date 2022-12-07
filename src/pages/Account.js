@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import "./Account.css";
 import SideNav from "../components/SideNav";
 import useLoginCheck from "../hooks/useLoginCheck"
+import { useNavigate } from 'react-router-dom';
 
 function Account() {
   const [fname, setFname] = React.useState(null);
@@ -9,12 +10,13 @@ function Account() {
   const [email, setEmail] = React.useState(null);
   const [password, setPassword] = React.useState(null);
   const [loyaltyPoints, setLoyaltyPoints] = React.useState(0);
-
-  useLoginCheck("/login");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
-
+    if (!token) {
+      navigate("/login");
+  }
     async function fetchLoyaltyPoints() {
       const response = await fetch("/user/points/", {
         headers: {

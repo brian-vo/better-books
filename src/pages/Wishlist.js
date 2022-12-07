@@ -3,14 +3,18 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SideNav from "../components/SideNav";
 import useFetch from "../hooks/useFetch";
-import useLoginCheck from "../hooks/useLoginCheck"
 
 const Wishlist = () => {
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+  const navigate = useNavigate();
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
   const { data, isLoading, error } = useFetch("/wishlist/data", "GET", null, {
     Authorization: token,
   });
-  useLoginCheck("/login");
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, []);
 
   return (
     <div className="wishlist">
