@@ -118,3 +118,14 @@ li {
 .home {
   height: 1000px;
 }
+
+.nav-title {
+  margin-top: 10px;
+  padding: 0;
+  font-size: 35
+  px;
+  color: rgb(255, 255, 255);
+  display: inline-block;
+  vertical-align: bottom;
+  font-family: Helvetica, sans-serif;
+}

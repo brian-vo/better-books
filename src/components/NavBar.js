@@ -6,11 +6,12 @@ import "./nav.css";
 const NavBar = () => {
   return (
     <nav>
-      <div className="nav-right">
-        <Link to="/">
-        <img className="nav-logo" width="30" height="30" src="../img/logo.png" alt="logo" />
-        </Link>
-      </div>
+    <div className="nav-right">
+  <Link to="/">
+    <img className="nav-logo" width="30" height="30" src="../img/logo.png" alt="logo" />
+    <h1 className="nav-title">BetterBooks</h1>
+  </Link>
+</div>
       <div className="nav-left">
         <div className="link-container">
           <div className="page-links">
