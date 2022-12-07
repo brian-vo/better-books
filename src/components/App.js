@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import NavBar from "./NavBar";
 import Home from "../pages/Home";
 import BookPurchase from "../pages/BookPurchase";
-import Recommendations from "../pages/Recommendations";
+import RecommendationSent from "../pages/RecommendationSent";
+import RecommendationReceive from "../pages/RecommendationReceive";
 import Wishlist from "../pages/Wishlist";
 import LogIn from "../pages/Login";
 import Cart from "../pages/Cart";
@@ -13,6 +14,8 @@ import Order from "../pages/Order";
 import OrderHistory from "../pages/OrderHistory";
 import ReviewHistory from "../pages/ReviewHistory";
 import Checkout from "../pages/Checkout";
+
+
 function App() {
   return (
     <Router>
@@ -23,7 +26,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<Search searchQuery="test" />} />
             <Route path="/book" element={<BookPurchase />} />
-            <Route path="/recommendations" element={<Recommendations />} />
+            <Route path="/recommendation/received" element={<RecommendationReceive />} />
+            <Route path="/recommendation/sent" element={<RecommendationSent />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/login" element={<LogIn />} />

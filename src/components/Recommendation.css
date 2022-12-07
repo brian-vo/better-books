@@ -1,0 +1,11 @@
+.wishlist-items {
+    position: sticky;
+    background-color: white; 
+    padding: 8px;
+    border: 1px solid #ddd;
+    z-index: 10;
+  }
+
+.count{
+    color: blue;
+};

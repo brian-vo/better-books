@@ -600,7 +600,9 @@ def update_order():
 def add_recommendation():
     user_id = current_user.user_id
     recommendation_data = request.get_json()
-
+    user_exists = db.session.query(db.exists().where(User.user_id == recommendation_data['recipient_id'])).scalar()
+    if not user_exists:
+        return "bad", 491
     new_recommendation = Recommendation(recipient_id=recommendation_data['recipient_id'], user_id=user_id)
     db.session.add(new_recommendation)
     db.session.commit()
@@ -609,12 +611,22 @@ def add_recommendation():
 
     if(recommendation_data['isbns'] != None):
         for isbns in recommendation_data['isbns']:
-            new_sends = Sends(recommend_id = recommend.recommend_id, isbn = isbns )
+            isbn_exist = db.session.query(db.exists().where(Book.isbn == isbns)).scalar()
+            if not isbn_exist:
+                db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).delete()                
+                db.session.commit()         
+                return "bad", 492
+            new_sends = Sends(recommend_id = new_recommendation.recommend_id, isbn = isbns )
             db.session.add(new_sends)
             db.session.commit()
     if(recommendation_data['author_names'] != None):
         for authors in recommendation_data['author_names']:
-            new_author = Author_Names(recommend_id = recommend.recommend_id, author_id = authors)
+            author_exist = db.session.query(db.exists().where(Author.author_id == authors)).scalar()
+            if not author_exist:
+                db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).delete()                
+                db.session.commit()         
+                return "bad", 493
+            new_author = Author_Names(recommend_id = new_recommendation.recommend_id, author_id = authors)
             db.session.add(new_author)
             db.session.commit()
 
@@ -643,6 +655,7 @@ def recommend_delete():
 
 # return all recommendation to specific user_id
 @main.route('/recommendation/user/all/')
+@cross_origin()
 @login_required
 def recieved_recommendations():
     user_id = current_user.user_id
@@ -659,8 +672,28 @@ def recieved_recommendations():
     else:
         return 'User has no recommendations', 404
 
+# return all recommendation to specific user_id
+@main.route('/recommendation/user/all/sent')
+@cross_origin()
+@login_required
+def sent_recommendations():
+    user_id = current_user.user_id
+    exists = db.session.query(db.exists().where(Recommendation.user_id == user_id)).scalar()
+
+    if exists:
+        recommendations = []
+        recommendations_list = db.session.query(Recommendation).filter(Recommendation.user_id == user_id)
+        for recommendation in recommendations_list:
+            recommendations.append({'recommend_id' : recommendation.recommend_id, 'recipient_id' : recommendation.recipient_id })      
+
+        return jsonify({'recommendations' : recommendations})
+  
+    else:
+        return 'User has no recommendations', 404
+
 # get existing recommendation data                                                                                                    
 @main.route('/recommendation/view/<recommend_id>')
+@cross_origin()
 @login_required
 def recommendation_data(recommend_id):
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id)).scalar()
@@ -680,8 +713,11 @@ def recommendation_data(recommend_id):
         return 'RECOMMENDATION DOES NOT EXIST', 404
 
 # auto-give recommendations, based on wishlist                                                                                                    
-@main.route('/recommendation/<user_id>/auto')
-def recommend_auto(user_id):
+@main.route('/recommendation/auto')
+@cross_origin()
+@login_required
+def recommend_auto():
+    user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
 
     if wishlist_exists:
