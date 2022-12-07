@@ -9,6 +9,8 @@ const ReviewHistory = () => {
   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [reviews, setReviews] = useState([]);
   const [error, setError] = useState(null); //
+  const [titles, setTitles] = useState({});
+  const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
 
   useEffect(() => {
     if (!token) {
@@ -49,26 +51,48 @@ const ReviewHistory = () => {
     }
   };
 
+
+  async function fetchTitleData(review) {
+    if (fetchedIsbns.has(review.isbn)) {
+      return;
+    }
+
+    const response = await fetch(`/book/${review.isbn}/title`);
+    const data = await response.json();
+
+    setTitles((prevTitles) => ({ ...prevTitles, [review.isbn]: data.title }));
+
+    setFetchedIsbns((prevIsbns) => prevIsbns.add(review.isbn));
+  }
+
   return (
     <div className="wishlist">
       <SideNav />
       <div className="wishlist-container">
         {reviews.length > 0 ? (
-          reviews.map((review) => (
-            <div key={review.review_id}>
-              <h2>{review.isbn}</h2>
-              <Review review={review} />
-              <div className="button-stack">
-                <button
-                  className="button"
-                  onClick={() => deleteReview(review.isbn)}
-                  style={{ backgroundColor: "#fce705" }}
-                >
-                  Delete Review
-                </button>
-              </div>
-            </div>
-          ))
+          reviews.map((review) => {
+            fetchTitleData(review);
+
+            if (titles[review.isbn]) {
+              return (
+                <div key={review.review_id}>
+                  <h2>{titles[review.isbn]}</h2>
+                  <Review review={review} />
+                  <div className="button-stack">
+                    <button
+                      className="button"
+                      onClick={() => deleteReview(review.isbn)}
+                      style={{ backgroundColor: "#fce705" }}
+                    >
+                      Delete Review
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            return <></>;
+          })
         ) : (
           <p>You have not left any reviews.</p>
         )}
@@ -76,4 +100,5 @@ const ReviewHistory = () => {
     </div>
   );
 };
+
 export default ReviewHistory;
