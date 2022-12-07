@@ -75,9 +75,11 @@ const RecommendationSent = () => {
         const pattern = /[A-Za-z0-9]+/i;
         if (!pattern.test(inputValueAuth)) {
             alert("Authors must be a list of values separated by commas.");
+            return;
         }
         if (!pattern.test(inputValueISBNs)) {
             alert("ISBNs must be a list of values separated by commas.");
+            return;
         }
 
         const recipient_id = event.target.recipient.value;

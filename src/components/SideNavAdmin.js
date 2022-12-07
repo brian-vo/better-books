@@ -35,6 +35,15 @@ const SideNav = () => {
 
     const userId = prompt("Enter user ID:");
     const updatedPoints = prompt("Enter updated points:");
+    const pattern = /[0-9]+/i;
+    if (!pattern.test(userId)) {
+        alert("User ID must be only numbers.");
+        return;
+    }
+    if (!pattern.test(updatedPoints)) {
+        alert("Requested value of points must be >=0");
+        return;
+    }
 
     handleUpdatePoints(userId, updatedPoints);
     alert("Updated points for user "  + userId);
