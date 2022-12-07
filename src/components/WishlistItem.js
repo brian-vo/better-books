@@ -19,6 +19,7 @@ const WishlistItem = ({ book }) => {
     } catch (error) {
       console.error(error);
     }
+    alert("Added to Cart!");
   };
 
   const deleteFromWishlist = async (isbn, token) => {
