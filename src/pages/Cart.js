@@ -43,7 +43,7 @@ const Cart = () => {
         </div>
         <div className="button-stack">
           <div className="sum-box">
-            <p>Subtotal: ${0}.00</p>
+            <p>Subtotal: ${sum}.00</p>
           </div>
           <button
             className="button"
