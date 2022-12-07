@@ -257,9 +257,12 @@ def order_data(order_id):
         if(order.user_id == current_user.user_id):
             orders = []
             items = []
+            items_qty = []
             items_order = db.session.query(Isbns).filter(Isbns.order_id == order_id)
             for item in items_order:
                 items.append(item.isbn)
+                t = (item.isbn, item.amount)
+                items_qty.append(t)
             sum = order.getTotal(order.order_id)
             if order.prepared_date != None:
                 order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
@@ -267,7 +270,7 @@ def order_data(order_id):
                 order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
             if order.delivered_date != None:
                 order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
-            orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum, 'items' : items})      
+            orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum, 'items' : items, 'items_qty' : items_qty, 'address' : order.shipping_address})      
     
 
             return jsonify({'order' : orders})
