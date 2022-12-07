@@ -254,7 +254,7 @@ def order_data(order_id):
     
     if exists:
         order = db.session.query(Book_Order).filter(Book_Order.order_id == order_id).one()
-        if(order.user_id == current_user.user_id):
+        if(order.user_id == current_user.user_id or current_user.role_value == "admin"):
             orders = []
             items = []
             items_qty = []
@@ -590,6 +590,14 @@ def update_order():
 
     return 'UPDATED USER', 201
 
+# return current user roles
+@main.route('/api/roles')
+@cross_origin()
+@login_required
+def get_roles():
+  roles = current_user.role_value
+  return jsonify({'roles': roles})
+
 # ===========================================================
 # Recommendation FUNCTIONS
 # ===========================================================
@@ -794,6 +802,7 @@ def update_points(user_id):
     else:
         return 'CUSTOMER DOES NOT EXIST', 404
 
+
 # ===========================================================
 # admin FUNCTIONS
 # ===========================================================
@@ -814,6 +823,52 @@ def start_date(user_id):
   
     else:
         return 'Admin does not exist', 404
+
+# return all orders
+@main.route('/admin/orders/all')
+@login_required
+@admin_permission.require()
+def all_orders():
+
+
+        orders = []
+        order_list = db.session.query(Book_Order).all()
+        for order in order_list:
+            sum = order.getTotal(order.order_id)
+            if order.prepared_date != None:
+                order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
+            if order.shipped_date != None:
+                order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
+            if order.delivered_date != None:
+                order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
+            orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum})      
+
+        return jsonify({'orders' : orders})
+  
+  
+# return all reviews
+@main.route('/admin/reviews/all')
+@cross_origin()
+@login_required
+@admin_permission.require()
+def all_admin_review():
+
+        reviews = []
+        reviews_list = db.session.query(Review)
+        for review in reviews_list:
+            reviews.append({'user_id' : review.user_id, 'isbn' : review.isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
+
+        return jsonify({'reviews' : reviews})
+
+# delete review
+@main.route('/admin/review/<isbn>/<user_id>/delete')
+@cross_origin()
+@login_required
+def review_delete_admin(isbn, user_id):
+        db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id).delete()
+        db.session.commit()
+        
+
 
 # ===========================================================
 # search FUNCTIONS

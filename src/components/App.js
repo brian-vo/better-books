@@ -14,7 +14,8 @@ import Order from "../pages/Order";
 import OrderHistory from "../pages/OrderHistory";
 import ReviewHistory from "../pages/ReviewHistory";
 import Checkout from "../pages/Checkout";
-
+import AdminOrders from "../pages/AdminOrders.js";
+import AdminReviews from "../pages/AdminReviews.js";
 
 function App() {
   return (
@@ -37,6 +38,8 @@ function App() {
             <Route path="/order" element={<Order />} />
             <Route path="/review_history" element={<ReviewHistory />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/reviews" element={<AdminReviews />} />
           </Routes>
         </div>
       </div>

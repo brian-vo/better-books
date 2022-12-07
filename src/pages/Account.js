@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./Account.css";
 import SideNav from "../components/SideNav";
 import useLoginCheck from "../hooks/useLoginCheck"
@@ -12,6 +12,8 @@ function Account() {
   const [loyaltyPoints, setLoyaltyPoints] = React.useState(0);
   const [data, setData] = React.useState([]);
   const [statusCode, setStatusCode] = React.useState(null);
+  const [roles, setRoles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,6 +21,16 @@ function Account() {
     if (!token) {
       navigate("/login");
   }
+  fetch('/api/roles')
+  .then((response) => response.json())
+  .then((data) => {
+    setRoles(data.roles);
+    setLoading(false);
+  })
+  .catch((error) => {
+    console.error(error);
+    setLoading(false);
+  });
     async function fetchLoyaltyPoints() {
       const response = await fetch("/user/points/", {
         headers: {
@@ -64,7 +76,9 @@ function Account() {
     });
   };
   const fiveRecommendations = data.slice(0, 5);
-  console.log(statusCode);
+  if (roles.includes('admin')) {
+    navigate("/admin/orders");
+}
   return (
     <div className="account-container">
       <SideNav />
