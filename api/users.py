@@ -29,6 +29,19 @@ def books_all():
 
     return jsonify({'books' : books})
 
+# return all books 
+@main.route('/book/<isbn>/title')
+def book_title(isbn):
+    exists = db.session.query(db.exists().where(Book.isbn == isbn)).scalar()
+    if exists:
+        book = db.session.query(Book).filter(Book.isbn == isbn).one()
+    
+        return jsonify({'title' : book.title})
+  
+    else:
+        return 'Book does not exist', 404
+
+
 # return a specific book by isbn, specified in url
 @main.route('/book/<book_isbn>/data')
 def books_specific(book_isbn):
