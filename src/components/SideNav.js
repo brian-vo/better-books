@@ -6,8 +6,18 @@ const SideNav = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+
+    fetch('/logout', {
+      headers: {
+        'Authorization': `Token ${token}`
+      }
+    });
+
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     navigate("/");
+    window.location.reload();
+
   };
 
   return (

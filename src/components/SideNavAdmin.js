@@ -34,7 +34,7 @@ const SideNav = () => {
     event.preventDefault();
 
     const userId = prompt("Enter user ID:");
-    const updatedPoints = prompt("Enter updated points:");
+    const updatedPoints = prompt("Enter how many points to add:");
     const pattern = /[0-9]+/i;
     if (!pattern.test(userId)) {
         alert("User ID must be only numbers.");
