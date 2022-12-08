@@ -753,6 +753,10 @@ def sent_recommendations():
 def recommendation_data(recommend_id):
     recommend_id = sanitize_input(recommend_id)
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id)).scalar()
+    recommendation_exists = (
+        db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id))
+        .scalar()
+    )
 
     if recommendation_exists:
         recommendation_info = []
@@ -814,7 +818,7 @@ def recommend_auto():
 # customer FUNCTIONS
 # ===========================================================
 
-# return a specific user's points by id, specified in url
+# return current  user's points
 @main.route('/user/points/')
 @login_required
 def user_points_data():
@@ -839,9 +843,9 @@ def update_points(user_id):
     points_data = request.get_json()
     user_id = sanitize_input(user_id)
     points = sanitize_input(points_data['points'])
+
     customer_exists = db.session.query(db.exists().where(Customer.user_id == user_id)).scalar()
-
-
+    
     # if customer exists, update points
     if customer_exists:
         customer = db.session.query(Customer).filter(Customer.user_id == user_id).one()
@@ -863,8 +867,10 @@ def update_points(user_id):
 @admin_permission.require()
 def start_date(user_id):
     user_id = sanitize_input(user_id)
-    exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
-
+    exists = (
+        db.session.query(db.exists().where(Admin.user_id == user_id))
+        .scalar()
+    )
     if exists:
         admins = []
         admin = db.session.query(Admin).filter(Admin.user_id == user_id).one()
@@ -921,10 +927,8 @@ def review_delete_admin(isbn, user_id):
         .filter(Review.user_id == user_id)
         )
 
-        # Use the .params() method to specify the values for the parameters in the query
         query = query.params(isbn=isbn, user_id=user_id)
 
-        # Execute the query using the .execute() method and pass the parameter values as arguments
         query.delete()
         db.session.commit()
         
@@ -937,12 +941,22 @@ def review_delete_admin(isbn, user_id):
 def search():
     data = request.get_json()
     search_input = data['search']
-    search_input = sanitize_input(search)
+    search_input = sanitize_input(search_input)
     authors = []
     
     books = []
-    sim_auth_fname = db.session.query(Author).filter(Author.fname.ilike('%{}%'.format(search_input))).all()
-    sim_auth_lname = db.session.query(Author).filter(Author.lname.ilike('%{}%'.format(search_input))).all()
+    sim_auth_fname = (
+        db.session.query(Author)
+        .filter(Author.fname.ilike(f'%{search_input}%'))
+        .all()
+    )
+
+    sim_auth_lname = (
+        db.session.query(Author)
+        .filter(Author.lname.ilike(f'%{search_input}%'))
+        .all()
+    )
+
     sim_auth = list(dict.fromkeys(sim_auth_fname + sim_auth_lname))
     for authors in sim_auth:
         written_author = db.session.query(Writes).filter(Writes.author_id == authors.author_id)
