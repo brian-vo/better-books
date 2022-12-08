@@ -7,8 +7,16 @@ from .models import *
 from flask_jwt_extended import create_access_token
 from flask_cors import cross_origin
 
+import re
 main = Blueprint('main', __name__)
 admin_permission = Permission(RoleNeed('admin'))
+
+def sanitize_input(input_str: str) -> str:
+    # Sanitize the input string
+    sanitized = re.sub('[^A-Za-z0-9]+', '_', input_str)
+
+    # Return the sanitized string
+    return sanitized
 
 # ===========================================================
 # BOOK FUNCTIONS
@@ -32,6 +40,7 @@ def books_all():
 # return all books 
 @main.route('/book/<isbn>/title')
 def book_title(isbn):
+    isbn = sanitize_input(isbn)
     exists = db.session.query(db.exists().where(Book.isbn == isbn)).scalar()
     if exists:
         book = db.session.query(Book).filter(Book.isbn == isbn).one()
@@ -45,6 +54,7 @@ def book_title(isbn):
 # return a specific book by isbn, specified in url
 @main.route('/book/<book_isbn>/data')
 def books_specific(book_isbn):
+    book_isbn = sanitize_input(book_isbn)
     books = []
     exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
 
@@ -66,6 +76,7 @@ def books_specific(book_isbn):
 # return a specific book stock by isbn, specified in url
 @main.route('/book/<book_isbn>/stock')
 def book_stock(book_isbn):
+    book_isbn = sanitize_input(book_isbn)
     books = []
     exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
 
@@ -84,6 +95,7 @@ def book_stock(book_isbn):
 @login_required
 @admin_permission.require()
 def add_book():
+    book_isbn = sanitize_input(book_isbn)
     book_data = request.get_json()
 
     exists = db.session.query(db.exists().where(Book.isbn == book_data['isbn'])).scalar()
@@ -122,24 +134,24 @@ def add_cart():
 def add_item_cart(user_id):
     cart_data = request.get_json()
     cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-
-    item_exists_cart = db.session.query(db.exists().where(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn'])).scalar()
+    isbn = sanitize_input(cart_data['isbn'])
+    item_exists_cart = db.session.query(db.exists().where(Stores.cart_id == cart.cart_id, Stores.isbn == isbn)).scalar()
 
     # if cart doesnt already store product, create stores
     if not item_exists_cart:
-        new_stores = Stores(cart_id = cart.cart_id, isbn = cart_data['isbn'], amount = 1 )
+        new_stores = Stores(cart_id = cart.cart_id, isbn = isbn, amount = 1 )
         db.session.add(new_stores)
         
     # if cart does already contain, amount+=1
     else:
-        current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).one()
-        book = db.session.query(Book).filter(Book.isbn == cart_data['isbn']).one()
+        current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == isbn).one()
+        book = db.session.query(Book).filter(Book.isbn == isbn).one()
         if current.amount+1 > book.stock:
             return 'Unable to add product to cart, not enough stock', 307
         current.amount+=1
     db.session.commit()
 
-    return 'ADDED ISBN'  + str(cart_data['isbn']) + ' TO USER ' + str(user_id) + ' CART', 200
+    return 'ADDED ISBN'  + str(isbn) + ' TO USER ' + str(user_id) + ' CART', 200
 
 # get existing shopping cart data                                                                                                    
 @main.route('/shopping_cart/data/')
@@ -171,19 +183,20 @@ def cart_data():
 @login_required
 def cart_update_item():
     user_id = current_user.user_id
+    quantity = sanitize_input(cart_data['quantity'])
     cart_data = request.get_json()
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
     if cart_exists:
-        quantity  = cart_data['quantity']
         add_to_cart(user_id, quantity)
 
 # adds item to stores relationship relative to cart
 def add_to_cart(user_id, quantity):
     cart_data = request.get_json()
+    isbn = sanitize_input(cart_data['isbn'])
     cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
 
-    current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).one()
+    current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == isbn).one()
     current.amount = quantity
     db.session.commit()
 
@@ -198,8 +211,9 @@ def cart_delete_item():
 
     if cart_exists:
         cart_data = request.get_json()
+        isbn = sanitize_input(cart_data['isbn'])
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-        stores = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == cart_data['isbn']).delete()
+        stores = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == isbn).delete()
         db.session.commit()
         
         return 'DELETED', 200
@@ -239,8 +253,10 @@ def cart_delete():
 def new_order():
     user_id = current_user.user_id
     order_data = request.get_json()
+    shipping_address = sanitize_input(order_data['shipping_address'])
+    payment_method = sanitize_input(order_data['payment_method'])
 
-    new_order = Book_Order(user_id=user_id, shipping_address=order_data['shipping_address'], payment_method=order_data['payment_method'])
+    new_order = Book_Order(user_id=user_id, shipping_address=shipping_address, payment_method=payment_method)
     db.session.add(new_order)
     db.session.commit()
     cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
@@ -263,6 +279,7 @@ def new_order():
 @main.route('/order/<order_id>/data')
 @login_required
 def order_data(order_id):
+    order_id = sanitize_input(order_id)
     exists = db.session.query(db.exists().where(Book_Order.order_id == order_id)).scalar()
     
     if exists:
@@ -319,17 +336,17 @@ def add_wishlist():
 # adds item to stores relationship relative to wishlist
 def add_item_wishlist(user_id):
     wishlist_data = request.get_json()
-
+    isbn = sanitize_input(wishlist_data['isbn'])
     wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
-    wishlist_exists = db.session.query(db.exists().where(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == wishlist_data['isbn'])).scalar()
+    wishlist_exists = db.session.query(db.exists().where(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == isbn)).scalar()
 
     if not wishlist_exists:
-        new_stores = Includes(wishlist_id = wishlist.wishlist_id, isbn = wishlist_data['isbn'] )
+        new_stores = Includes(wishlist_id = wishlist.wishlist_id, isbn = isbn )
         db.session.add(new_stores)
         db.session.commit()
-        return 'Book ' + str(wishlist_data['isbn']) + ' added to wishlist', 200 
+        return 'Book ' + str(isbn) + ' added to wishlist', 200 
     else:
-        return 'Book ' + str(wishlist_data['isbn']) + ' already exists in wishlist', 400 
+        return 'Book ' + str(isbn) + ' already exists in wishlist', 400 
     
 
 # get existing wishlist data                                                                                                    
@@ -360,8 +377,9 @@ def wishlist_delete_item():
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
     if wishlist_exists:
         wishlist_data = request.get_json()
+        isbn = sanitize_input(wishlist_data['isbn'])
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
-        db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == wishlist_data['isbn']).delete()
+        db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == isbn).delete()
         db.session.commit()
         
         return 'DELETED', 200
@@ -400,7 +418,11 @@ def add_review(isbn):
     exists = db.session.query(db.exists().where(Review.user_id == current_user.user_id, Review.isbn == isbn )).scalar()
 
     if not exists:
-        new_review = Review(user_id=user_id, isbn=isbn, message_title=review_data['message_title'], message_body=review_data['message_body'], rating=review_data['rating'])
+        message_title = sanitize_input(review_data['message_title'])
+        message_body = sanitize_input(review_data['message_body'])
+        rating = sanitize_input(review_data['rating'])
+
+        new_review = Review(user_id=user_id, isbn=isbn, message_title=message_title, message_body=message_body, rating=rating)
         db.session.add(new_review)
         db.session.commit()
 
@@ -431,6 +453,7 @@ def all_review():
 @main.route('/book/<isbn>/review_all')
 @cross_origin()
 def all_review_book(isbn):
+    isbn = sanitize_input(isbn)
     exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
 
     if exists:
@@ -447,6 +470,8 @@ def all_review_book(isbn):
 # return specific review data
 @main.route('/book/<isbn>/review/<user_id>')
 def specific_review(isbn, user_id):
+    isbn = sanitize_input(isbn)
+    user_id = sanitize_input(user_id)
     exists = db.session.query(db.exists().where(Review.isbn == isbn, Review.user_id == user_id )).scalar()
 
     if exists:
@@ -465,6 +490,7 @@ def specific_review(isbn, user_id):
 @cross_origin()
 @login_required
 def review_delete(isbn):
+    isbn = sanitize_input(isbn)
     user_id = current_user.user_id
     exists = db.session.query(db.exists().where(Review.isbn == isbn, Review.user_id == user_id )).scalar()
 
@@ -484,15 +510,17 @@ def review_delete(isbn):
 @main.route('/register/new', methods=['POST'])
 def add_user():
     user_data = request.get_json()
-
-    exists = db.session.query(db.exists().where(User.email == user_data['email'])).scalar()
+    email = sanitize_input(user_data['email'])
+    exists = db.session.query(db.exists().where(User.email == email)).scalar()
 
     if not exists:
-        new_user = User(fname=user_data['fname'], lname=user_data['lname'], email=user_data['email'],  role_value="customer", pass_word=generate_password_hash(user_data['pass_word'], method='sha256'))
+        fname = sanitize_input(user_data['fname'])
+        lname = sanitize_input(user_data['lname'])
+        new_user = User(fname=fname, lname=lname, email=email,  role_value="customer", pass_word=generate_password_hash(user_data['pass_word'], method='sha256'))
         db.session.add(new_user)
         db.session.commit()
 
-        db.session.add(add_customer(user_data['email']))
+        db.session.add(add_customer(email))
         db.session.commit()
 
         return 'Registered new user', 201
@@ -509,6 +537,7 @@ def add_customer(email):
 @login_required
 @admin_permission.require()
 def user_data(user_id):
+    user_id = sanitize_input(user_id)
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
     if exists:
@@ -588,18 +617,18 @@ def update_order():
     password = user.pass_word
 
     if (update_data['fname'] != None):
-        fname = update_data['fname']
+        fname = sanitize_input(update_data['fname'])
     if (update_data['lname'] != None):
-        lname = update_data['lname']
+        lname = sanitize_input(update_data['lname'])
     if (update_data['email'] != None):
-        email = update_data['email'] 
+        email = user_data['email']
     if (update_data['pass_word'] != None):
         password = update_data['pass_word']
+        user.pass_word = generate_password_hash(password, method='sha256')
 
     user.fname = fname
     user.lname = lname
     user.email = email
-    user.pass_word = password
     db.session.commit()
 
     return 'UPDATED USER', 201
@@ -622,10 +651,11 @@ def get_roles():
 def add_recommendation():
     user_id = current_user.user_id
     recommendation_data = request.get_json()
-    user_exists = db.session.query(db.exists().where(User.user_id == recommendation_data['recipient_id'])).scalar()
+    recipient_id = sanitize_input(recommendation_data['recipient_id'])
+    user_exists = db.session.query(db.exists().where(User.user_id == recipient_id)).scalar()
     if not user_exists:
         return "bad", 491
-    new_recommendation = Recommendation(recipient_id=recommendation_data['recipient_id'], user_id=user_id)
+    new_recommendation = Recommendation(recipient_id=recipient_id, user_id=user_id)
     db.session.add(new_recommendation)
     db.session.commit()
 
@@ -638,6 +668,7 @@ def add_recommendation():
                 db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).delete()                
                 db.session.commit()         
                 return "bad", 492
+            isbns = sanitize_input(isbns)
             new_sends = Sends(recommend_id = new_recommendation.recommend_id, isbn = isbns )
             db.session.add(new_sends)
             db.session.commit()
@@ -648,6 +679,7 @@ def add_recommendation():
                 db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).delete()                
                 db.session.commit()         
                 return "bad", 493
+            authors = sanitize_input(authors)
             new_author = Author_Names(recommend_id = new_recommendation.recommend_id, author_id = authors)
             db.session.add(new_author)
             db.session.commit()
@@ -660,14 +692,15 @@ def add_recommendation():
 def recommend_delete():
     user_id = current_user.user_id
     recommendation_data = request.get_json()
-    recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommendation_data['recommend_id'])).scalar()
+    recommendation_id = sanitize_input(recommendation_data['recommend_id'])
+    recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommendation_id)).scalar()
 
     if recommendation_exists:
-        Recommendation = db.session.qury(Recommendation).filter(Recommendation.recommend_id == recommend_data['recommend_id']).one()
+        Recommendation = db.session.qury(Recommendation).filter(Recommendation.recommend_id == recommendation_id).one()
         if (Recommendation.user_id == user_id):
-            db.session.query(Sends).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
-            db.session.query(Author_Names).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
-            db.session.query(Recommendation).filter_by(recommend_id = recommendation_data['recommend_id']).delete()
+            db.session.query(Sends).filter_by(recommend_id = recommendation_id).delete()
+            db.session.query(Author_Names).filter_by(recommend_id = recommendation_id).delete()
+            db.session.query(Recommendation).filter_by(recommend_id = recommendation_id).delete()
             db.session.commit()
         else:
             return 'NOT PERMITTED', 401
@@ -718,6 +751,7 @@ def sent_recommendations():
 @cross_origin()
 @login_required
 def recommendation_data(recommend_id):
+    recommend_id = sanitize_input(recommend_id)
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id)).scalar()
 
     if recommendation_exists:
@@ -803,13 +837,15 @@ def user_points_data():
 @admin_permission.require()
 def update_points(user_id):
     points_data = request.get_json()
+    user_id = sanitize_input(user_id)
+    points = sanitize_input(points_data['points'])
     customer_exists = db.session.query(db.exists().where(Customer.user_id == user_id)).scalar()
 
 
     # if customer exists, update points
     if customer_exists:
         customer = db.session.query(Customer).filter(Customer.user_id == user_id).one()
-        customer.loyalty_points+=int(points_data['points'])
+        customer.loyalty_points+=int(points)
         db.session.commit()
         return 'UPDATED POINTS', 200
     # if customer does not exist
@@ -826,6 +862,7 @@ def update_points(user_id):
 @login_required
 @admin_permission.require()
 def start_date(user_id):
+    user_id = sanitize_input(user_id)
     exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
 
     if exists:
@@ -843,8 +880,6 @@ def start_date(user_id):
 @login_required
 @admin_permission.require()
 def all_orders():
-
-
         orders = []
         order_list = db.session.query(Book_Order).all()
         for order in order_list:
@@ -866,7 +901,6 @@ def all_orders():
 @login_required
 @admin_permission.require()
 def all_admin_review():
-
         reviews = []
         reviews_list = db.session.query(Review)
         for review in reviews_list:
@@ -879,7 +913,19 @@ def all_admin_review():
 @cross_origin()
 @login_required
 def review_delete_admin(isbn, user_id):
-        db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id).delete()
+        isbn = sanitize_input(isbn)
+        user_id = sanitize_input(user_id)
+        query = (
+        db.session.query(Review)
+        .filter(Review.isbn == isbn)
+        .filter(Review.user_id == user_id)
+        )
+
+        # Use the .params() method to specify the values for the parameters in the query
+        query = query.params(isbn=isbn, user_id=user_id)
+
+        # Execute the query using the .execute() method and pass the parameter values as arguments
+        query.delete()
         db.session.commit()
         
 # ===========================================================
@@ -891,6 +937,7 @@ def review_delete_admin(isbn, user_id):
 def search():
     data = request.get_json()
     search_input = data['search']
+    search_input = sanitize_input(search)
     authors = []
     
     books = []
