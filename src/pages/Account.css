@@ -86,3 +86,9 @@
   text-align: center;
   top: 150px;
 }
+
+.suggestions-container {
+  padding-top: 44px;
+  margin-left: 5%;
+  margin-right: 5%;
+}
