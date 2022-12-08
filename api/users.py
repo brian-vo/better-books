@@ -11,16 +11,19 @@ import re
 main = Blueprint('main', __name__)
 admin_permission = Permission(RoleNeed('admin'))
 
+
+# sanitize inputs
 def sanitize_input(input_str: str) -> str:
     # Sanitize the input string
-    sanitized = re.sub('[^A-Za-z0-9]+', '_', input_str)
+    sanitized = re.sub('[^A-Za-z0-9\s_]+', '_', input_str)
 
     # Return the sanitized string
     return sanitized
 
+# sanitize email inputs - only allow for inputs in str@str.str format
 def sanitize_input_email(input_str: str) -> str:
     # Sanitize the input string
-    sanitized = re.sub('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', '_', input_str)
+    sanitized = re.sub('/^[^\s@]+@[^\s@]+\.[^\s@]+$/', '_', input_str)
 
     # Return the sanitized string
     return sanitized
@@ -189,8 +192,8 @@ def cart_data():
 @login_required
 def cart_update_item():
     user_id = current_user.user_id
-    quantity = sanitize_input(cart_data['quantity'])
     cart_data = request.get_json()
+    quantity = sanitize_input(cart_data['quantity'])
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
     if cart_exists:
@@ -628,7 +631,7 @@ def update_order():
     if (update_data['lname'] != None):
         lname = sanitize_input(update_data['lname'])
     if (update_data['email'] != None):
-        email = sanitize_input_email(user_data['email'])
+        email = sanitize_input_email(update_data['email'])
     if (update_data['pass_word'] != None):
         password = update_data['pass_word']
         user.pass_word = generate_password_hash(password, method='sha256')
