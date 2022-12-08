@@ -136,7 +136,7 @@ function Account() {
           </form>
         </div>
       </div>
-      <div className="content-container">
+      <div className="suggestions-container">
         <h1 className="home-title">Our Suggestions</h1>
         {statusCode === 481 && <p className="no-suggestions">No suggestions</p>}
         <ul className="featured">
