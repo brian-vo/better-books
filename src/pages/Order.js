@@ -75,13 +75,14 @@ function Order() {
         </thead>
         <tbody>
   {Array.from(uniqueBooks).map(book => {
+      const itemQuantity = data.order[0].items_qty.find(item => item[0] === book.isbn);
     return (
       <tr key={book.ISBN}>
         <th scope="row">{book.title}</th>
         <td>{book.isbn}</td>
         <td>${book.price}</td>
-        <td>{data.order[0].items_qty[0][1]}</td>
-        <td>${book.price * data.order[0].items_qty[0][1]}</td>
+        <td>{itemQuantity[1]}</td>
+        <td>${book.price * itemQuantity[1]}</td>
       </tr>
     );
   })}
