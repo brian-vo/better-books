@@ -58,9 +58,9 @@ function Account() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-
+  
     const response = await fetch("/user/data/update", {
       method: "POST",
       headers: {
@@ -74,7 +74,9 @@ function Account() {
         pass_word: password
       })
     });
+    alert("Updated information!");
   };
+
   const fiveRecommendations = data.slice(0, 5);
   if (roles.includes('admin')) {
     navigate("/admin/orders");
@@ -130,9 +132,9 @@ function Account() {
               />
             </label>
             <br />
+            <button type="submit" className="form-button">Update Profile</button>
           </form>
         </div>
-        <button type="submit" className="form-button">Update Profile</button>
       </div>
       <div className="content-container">
         <h1 className="home-title">Our Suggestions</h1>

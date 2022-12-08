@@ -575,6 +575,7 @@ def user_orders():
 
 # update user
 @main.route('/user/data/update', methods=['POST'])
+@cross_origin()
 @login_required
 def update_order():
     user_id = current_user.user_id
@@ -881,8 +882,6 @@ def review_delete_admin(isbn, user_id):
         db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id).delete()
         db.session.commit()
         
-
-
 # ===========================================================
 # search FUNCTIONS
 # ===========================================================
@@ -895,8 +894,8 @@ def search():
     authors = []
     
     books = []
-    sim_auth_fname = db.session.query(Author).filter(Author.fname.ilike(f'%{search_input}%')).all()
-    sim_auth_lname = db.session.query(Author).filter(Author.lname.ilike(f'%{search_input}%')).all()
+    sim_auth_fname = db.session.query(Author).filter(Author.fname.ilike('%{}%'.format(search_input))).all()
+    sim_auth_lname = db.session.query(Author).filter(Author.lname.ilike('%{}%'.format(search_input))).all()
     sim_auth = list(dict.fromkeys(sim_auth_fname + sim_auth_lname))
     for authors in sim_auth:
         written_author = db.session.query(Writes).filter(Writes.author_id == authors.author_id)
