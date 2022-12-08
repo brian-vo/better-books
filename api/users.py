@@ -18,6 +18,12 @@ def sanitize_input(input_str: str) -> str:
     # Return the sanitized string
     return sanitized
 
+def sanitize_input_email(input_str: str) -> str:
+    # Sanitize the input string
+    sanitized = re.sub('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$', '_', input_str)
+
+    # Return the sanitized string
+    return sanitized
 # ===========================================================
 # BOOK FUNCTIONS
 # ===========================================================
@@ -510,7 +516,7 @@ def review_delete(isbn):
 @main.route('/register/new', methods=['POST'])
 def add_user():
     user_data = request.get_json()
-    email = sanitize_input(user_data['email'])
+    email = sanitize_input_email(user_data['email'])
     exists = db.session.query(db.exists().where(User.email == email)).scalar()
 
     if not exists:
@@ -554,7 +560,8 @@ def user_data(user_id):
 @main.route('/login', methods = ['POST'])
 def log_in():
     user_data = request.get_json()
-    user = db.session.query(User).filter(User.email == user_data['email']).one()
+    email = sanitize_input_email(user_data['email'])
+    user = db.session.query(User).filter(User.email == email).one()
 
     if not user or not check_password_hash(user.pass_word, user_data['pass_word']):
         return 'Incorrect username or password', 401
@@ -621,7 +628,7 @@ def update_order():
     if (update_data['lname'] != None):
         lname = sanitize_input(update_data['lname'])
     if (update_data['email'] != None):
-        email = user_data['email']
+        email = sanitize_input_email(user_data['email'])
     if (update_data['pass_word'] != None):
         password = update_data['pass_word']
         user.pass_word = generate_password_hash(password, method='sha256')
