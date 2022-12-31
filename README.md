@@ -1,70 +1,82 @@
-# Getting Started with Create React App
+# BetterBooks Book Store
+BetterBooks is a responsive full stack web application designed to manage and streamline the operations of an ecommerce bookstore.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+All essential ecommerce store features, including user authentication, product pages, search functionality, shopping cart and checkout system, and an admin interface, are implemented in BetterBooks
+In addition to standard ecommerce features, we implemented a social recommendation system that allows users to send each other book recommendations and receive automatic recommendations based on their wishlist.
 
-## Available Scripts
+## Features
+- User authentication with role-based access using Flask-Login and Flask-Principal
+- Dynamic viewing, updating, and creation of data on the frontend using React
+- Querying of a MySQL database through Flask-SQLAlchemy on a Flask server
 
-In the project directory, you can run:
+## How It Was Made:
+The backend of BetterBooks is powered by a MySQL database, which is accessed through Flask-SQLAlchemy on a Flask server. User authentication and role-based access are implemented using Flask-Login and Flask-Principal. The frontend is created using React and CSS, allowing users to dynamically create, update, and view data.
 
-### `npm start`
+### Languages Used
+- JavaScript
+- Python
+- CSS
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frameworks Used
+- React
+- Flask
+- SQLAlchemy
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## How to Run
 
-### `npm test`
+`bookshop-data.sql` provides an example database (with data) in the MySQL format.
+### Prerequisites
+- Python 3.7+
+- React 16.13.1+
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Setting Up the Development Environment
+1. Clone the repository: 
+```
+git clone https://github.com/brian-vo/BetterBooksStore.git
+```
+2. Install the frontend dependencies: 
+```
+npm install
+```
+3. Install the backend dependencies 
+```
+cd api
+pip install -r requirements.txt
+```
+4. Set up a MySQL database and configure the connection string, and secret keys in `/api/__init__.py`. See SQLAlchemy docs for formatting if not using MySQL:
+```
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://username:password@server/db'
+app.config['SECRET_KEY'] = 'PASSWORD-SECRET-KEY-HERE'
+app.config["JWT_SECRET_KEY"] = "JWT-SECRET-KEY-HERE"
+```
 
-### `npm run build`
+### Running the Project
+1. Start the development server (also ensure that the SQL server is running): 
+```
+$env:FLASK_APP="__init__.py" 
+python -m flask run
+```
+2. In a separate terminal, start the React development server: 
+```
+npm start
+```
+3. Open `http://localhost:3000` in your browser to view the app.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Images
+![Home Page](https://i.imgur.com/qycoOnC.png)
+![Product Page](https://i.imgur.com/EB31w1W.png)
+![Search Function](https://i.imgur.com/hID6IZk.png)
+![Register Page](https://i.imgur.com/caYWH8K.png)
+![Shopping Cart Page](https://i.imgur.com/wckiMPt.png)
+![Manage Account](https://i.imgur.com/eTE8cdw.png)
+![Admin Page](https://i.imgur.com/Ir73WVe.png)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+## Acknowledgements:
+I would like to thank Unsplash for providing access to high-quality images for use as book covers on the website. All images from Unsplash are used under the Unsplash License, which allows for free use of the images for non-commercial purposes.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+I would like to thank OpenClipart for providing the logo for our website. The logo was sourced from OpenClipart and is used under the Creative Commons Zero 1.0 Public Domain License.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
