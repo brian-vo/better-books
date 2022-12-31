@@ -1,6 +1,5 @@
 import useFetch from "../hooks/useFetch";
 import { Link } from "react-router-dom";
-import example_cover from "../img/example-cover.jpg";
 
 const FeaturedBookList = () => {
   const { data, error, isLoading } = useFetch("/book/all_data");
