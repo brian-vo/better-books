@@ -15,11 +15,10 @@ def create_app():
             static_folder='../src')
         app.app_context().push()
 
-        # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:root^@database-1.cy3twvoecm4a.us-east-1.rds.amazonaws.com:3306/bookshopdb'
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:kQ4xei6b^@localhost:3306/bookshopdb'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'SQL-SERVER-LOGIN-HERE'
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-        app.config['SECRET_KEY'] = 'q3t6v9y$B&E)H@McQfTjWnZr4u7x!z%C'
-        app.config["JWT_SECRET_KEY"] = "bQeThWmYq3t6w9z$C&F)J@NcRfUjXn2r"
+        app.config['SECRET_KEY'] = 'PASSWORD--SECRET-KEY-HERE'
+        app.config["JWT_SECRET_KEY"] = "JWT-SECRET-KEY-HERE"
         CORS(app)
         CORS(app, origins=["http://localhost:3000"])
         app.config['CORS_HEADERS'] = 'Content-Type'
