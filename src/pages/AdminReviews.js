@@ -44,7 +44,6 @@ function AdminReviews() {
       fetchReviews();
 
   }, []);
-  console.log(roles);
   if (loading) {
     return <div>Loading...</div>;
   }

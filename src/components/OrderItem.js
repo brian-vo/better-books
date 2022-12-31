@@ -1,5 +1,4 @@
 const OrderItem = ({ order }) => {
-  console.log(order);
   return (
     <tr>
       <td>
