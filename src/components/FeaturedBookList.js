@@ -3,6 +3,12 @@ import { Link } from "react-router-dom";
 
 const FeaturedBookList = () => {
   const { data, error, isLoading } = useFetch("/book/all_data");
+  const truncateText = (text, maxLength) => {
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return text.substring(0, maxLength) + "...";
+  }
 
   return (
     <ul className="featured">
@@ -15,8 +21,10 @@ const FeaturedBookList = () => {
                   <img src={book.image_location} alt="book" />
                 </div>
                 <div className="icon-info">
-                  <div className="icon-title">{book.title}</div>
-                  <div className="icon-price">${book.price}</div>
+                <div className="icon-title" title={book.title}>
+                  {truncateText(book.title, 25)}
+                </div>
+                <div className="icon-price">${book.price}</div>
                 </div>
               </Link>
             </li>
