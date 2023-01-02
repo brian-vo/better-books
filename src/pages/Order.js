@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import SideNav from "../components/SideNav";
 
 function Order() {
   const [data, setData] = useState(null);
@@ -57,6 +58,7 @@ function Order() {
   }
   return (
     <div className="container px-4 py-5">
+      <SideNav />
       <h2 className="pb-2">Order #{data.order[0].order_id}</h2>
       <p className="fw-bold">Address: {data.order[0].address}</p>
       <p className="fw-bold">Placed on: {data.order[0].order_date}</p>
