@@ -29,6 +29,16 @@ class Book(Base):
 
             return round((mean(ratings)), 1)
         return None
+        
+    @classmethod
+    def getNumberReviews(self, isbn):
+        exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
+        if exists:
+            reviews = db.session.query(Review).filter(Review.isbn == isbn).count()
+
+            return reviews
+        return None
+
 
 class Book_Order(Base):
     __tablename__ = 'book_order'

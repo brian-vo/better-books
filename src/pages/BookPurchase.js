@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Review from "../components/Review";
 import { useLocation } from "react-router-dom";
+import Rating from '@mui/material/Rating';
 import "./BookPurchase.css";
 
 const BookPurchase = () => {
@@ -134,7 +135,7 @@ const BookPurchase = () => {
   const handleShowReviewForm = () => {
     setShowReviewForm(true);
   };
-
+  console.log(book)
   return (
     <div className="purchase-container">
       <div className="purchase-content">
@@ -143,6 +144,14 @@ const BookPurchase = () => {
         </div>
         <div className="purchase-info">
           <h1>{book.title}</h1>
+          {book.average_rating ? (
+  <>
+    <Rating value={parseFloat(book.average_rating)} size="small" readOnly precision={0.1} />
+     <h6>({book.number_reviews})</h6>
+    <br/>
+  </>
+) : null}
+
           <span>By: {book.authors ? book.authors.map(author => <strong>{author.fname} {author.lname}</strong>) : null}</span>
           <p>
             <br/>

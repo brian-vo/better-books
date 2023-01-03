@@ -75,7 +75,7 @@ def books_specific(book_isbn):
             for auth in book_writes:
                 author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
                 authors.append({'fname' : author.fname, 'lname' : author.lname})
-        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})          
+        books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn), 'number_reviews' : book.getNumberReviews(book.isbn)})          
 
         return jsonify({'books' : books})
   
