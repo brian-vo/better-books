@@ -3,6 +3,7 @@ import OrderItem from "../components/OrderItem";
 import "./accountnav.css";
 import SideNav from "../components/SideNav";
 import useLoginCheck from '../hooks/useLoginCheck';
+import './orderhistory.css';
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
