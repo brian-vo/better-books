@@ -46,7 +46,7 @@ const BookPurchase = () => {
       return;
     }
     try {
-      const response = await fetch(`/shopping_cart/add/`, {
+      await fetch(`/shopping_cart/add/`, {
         method: 'POST',
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -68,7 +68,7 @@ const BookPurchase = () => {
       return;
     }
     try {
-      const response = await fetch(`/wishlist/add/`, {
+      await fetch(`/wishlist/add/`, {
         method: 'POST',
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -143,11 +143,13 @@ const BookPurchase = () => {
         </div>
         <div className="purchase-info">
           <h1>{book.title}</h1>
+          <span>By: {book.authors ? book.authors.map(author => <strong>{author.fname} {author.lname}</strong>) : null}</span>
           <p>
+            <br/>
             <h2>${book.price}</h2>
-            <strong>Description:</strong>
-            <br />
-            {book.description}
+            <div>
+  {book.description ? <strong>About:</strong> : null} <br/> {book.description}
+</div>
           </p>
           <div className="purchase-btns">
             <button className="pbutton" onClick={() => handleAddToWishlist(isbn, token)} >
@@ -157,7 +159,7 @@ const BookPurchase = () => {
               Leave Review
             </button>
           </div>
-          <button className="pbutton" onClick={() => handleAddToCart(isbn, token)}>
+          <button className="cart-button" onClick={() => handleAddToCart(isbn, token)}>
             Add to Cart
           </button>
         </div>
