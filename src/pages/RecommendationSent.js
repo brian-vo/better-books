@@ -25,7 +25,7 @@
 
         const handleAddRecommendation = async (recipient_id, token, authors, isbns) => {
             try {
-                const response = await fetch(`/recommendation/new`, {
+                await fetch(`/recommendation/new`, {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${token}`,

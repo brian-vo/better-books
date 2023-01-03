@@ -1,15 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SideNav from "../components/SideNav";
 import Review from "../components/Review";
-import useLoginCheck from '../hooks/useLoginCheck';
 import "./ReviewHistory.css";
 
 const ReviewHistory = () => {
+  const navigate = useNavigate();
   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [reviews, setReviews] = useState([]);
   const [titles, setTitles] = useState({});
   const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
-  useLoginCheck("/review_history", "/login");
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    } else {
+      fetchReviews();
+    }
+  }, [token]);
 
   const fetchReviews = async () => {
     try {
@@ -30,21 +38,18 @@ const ReviewHistory = () => {
 
   const deleteReview = async (isbn, token) => {
     try {
-      const response = await fetch(`/book/${isbn}/review/delete`, {
+      await fetch(`/book/${isbn}/review/delete`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
       });
-      if (response.status === 200) {
-        window.location.reload();
-      }
-        } catch (error) {
+      window.location.reload();
+    } catch (error) {
       console.error(error);
     }
   };
 
-  fetchReviews()
 
   async function fetchTitleData(review) {
     if (fetchedIsbns.has(review.isbn)) {
@@ -71,7 +76,7 @@ const ReviewHistory = () => {
               return (
                 <div key={review.review_id}>
                   <h2>{titles[review.isbn]}</h2>
-                  <Review review={review} />
+                  <Review review={review} displayUser={false} />
                   <div className="button-stack">
                     <button
                       className="button"
