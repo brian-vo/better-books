@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./Account.css";
 import SideNav from "../components/SideNav";
-import useLoginCheck from "../hooks/useLoginCheck"
+import useLoginCheck from '../hooks/useLoginCheck';
 import { useNavigate, Link } from 'react-router-dom';
 
 function Account() {
@@ -15,12 +15,11 @@ function Account() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
 
-  useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
-    if (!token) {
-      navigate("/login");
-    }
+  useLoginCheck("/account", "/login");
+
+  useEffect(() => { 
     fetch('/api/roles')
       .then((response) => response.json())
       .then((data) => {

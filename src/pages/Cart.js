@@ -1,19 +1,17 @@
 import CartItem from "../components/CartItem";
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import useLoginCheck from '../hooks/useLoginCheck';
 import "./Cart.css"
 
 const Cart = () => {
   const navigate = useNavigate();
   const [books, setBooks] = useState(null);
   const [sum, setSum] = useState(0);
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
+  useLoginCheck("/cart", "/login");
   useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (!token) {
-      navigate("/login");
-    }
-
     fetch('/shopping_cart/data/', {
       headers: {
         "Authorization": `Bearer ${token}`,

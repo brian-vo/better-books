@@ -1,16 +1,17 @@
+
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const LoginCheck = ({ redirectUrl, effectFunc }) => {
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
-        if (token) {
-            navigate(redirectUrl);
-        }
-        effectFunc();
-    }, []);
+function useLoginCheck(tokenExists, tokenNotExist) {
+const navigate = useNavigate();
+  useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    if (token) {
+      navigate(tokenExists);
+    } else {
+      navigate(tokenNotExist);
+    }
+  }, []);
 }
 
-export default LoginCheck;
+export default useLoginCheck;

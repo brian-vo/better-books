@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SideNav from "../components/SideNav";
 import Review from "../components/Review";
+import useLoginCheck from '../hooks/useLoginCheck';
 import "./ReviewHistory.css";
 
 const ReviewHistory = () => {
@@ -11,14 +12,7 @@ const ReviewHistory = () => {
   const [error, setError] = useState(null); //
   const [titles, setTitles] = useState({});
   const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    } else {
-      fetchReviews();
-    }
-  }, []);
+  useLoginCheck("/review_history", "/login");
 
   const fetchReviews = async () => {
     try {
@@ -51,6 +45,7 @@ const ReviewHistory = () => {
     }
   };
 
+  fetchReviews()
 
   async function fetchTitleData(review) {
     if (fetchedIsbns.has(review.isbn)) {

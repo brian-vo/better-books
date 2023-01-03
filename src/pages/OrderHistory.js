@@ -3,18 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import OrderItem from "../components/OrderItem";
 import "./accountnav.css";
 import SideNav from "../components/SideNav";
+import useLoginCheck from '../hooks/useLoginCheck';
 
 const OrderHistory = () => {
-  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
+  useLoginCheck("/order_history", "/login");
   useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
   fetch(`/orders/all`, {
     headers: {
       "Authorization": `Bearer ${token}`

@@ -3,19 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import SideNav from "../components/SideNav";
 import Banner from "../components/Banner";
 import Recommendation from "../components/Recommendation";
+import useLoginCheck from '../hooks/useLoginCheck';
 
 const RecommendationSent = () => {
-    const navigate = useNavigate();
     const [recommendations, setRecommendations] = useState([]);
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [error, setError] = useState(null);
-
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    useLoginCheck("/recommendation/sent", "/login");
     useEffect(() => {
-        const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-        if (!token) {
-            navigate("/login");
-        }
-
         fetch('/recommendation/user/all/sent', {
             headers: {
                 'Authorization': `Token ${token}`,

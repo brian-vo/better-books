@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SideNav from "../components/SideNav";
 import useFetch from "../hooks/useFetch";
+import useLoginCheck from '../hooks/useLoginCheck';
 
 const Wishlist = () => {
   const navigate = useNavigate();
@@ -10,11 +11,7 @@ const Wishlist = () => {
   const { data, isLoading, error } = useFetch("/wishlist/data", "GET", null, {
     Authorization: token,
   });
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, []);
+  useLoginCheck("/wishlist", "/login");
 
   return (
     <div className="wishlist">

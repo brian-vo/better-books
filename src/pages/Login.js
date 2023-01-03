@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MDBBtn, MDBInput } from "mdb-react-ui-kit";
 import { useNavigate, Link } from 'react-router-dom';
-import useLoginCheck from "../hooks/useLoginCheck";
+import useLoginCheck from '../hooks/useLoginCheck';
 
 const LogIn = () => {
   const navigate = useNavigate();
@@ -9,12 +9,8 @@ const LogIn = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    if (token) {
-      navigate("/account");
-    }
-  }, []);
+  useLoginCheck("/account", "/login");
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = { "email": email, "pass_word": password };

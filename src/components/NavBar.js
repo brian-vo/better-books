@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import "./nav.css";
 
-
 const NavBar = () => {
   return (
     <nav>
