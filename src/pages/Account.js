@@ -15,11 +15,11 @@ function Account() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
 
   useLoginCheck("/account", "/login");
 
   useEffect(() => { 
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
     fetch('/api/roles')
       .then((response) => response.json())
       .then((data) => {

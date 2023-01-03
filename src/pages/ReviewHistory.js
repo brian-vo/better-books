@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import SideNav from "../components/SideNav";
 import Review from "../components/Review";
 import useLoginCheck from '../hooks/useLoginCheck';
 import "./ReviewHistory.css";
 
 const ReviewHistory = () => {
-  const navigate = useNavigate();
   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [reviews, setReviews] = useState([]);
-  const [error, setError] = useState(null); //
   const [titles, setTitles] = useState({});
   const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
   useLoginCheck("/review_history", "/login");
@@ -39,8 +36,10 @@ const ReviewHistory = () => {
           "Content-Type": "application/json"
         },
       });
-      window.location.reload();
-    } catch (error) {
+      if (response.status === 200) {
+        window.location.reload();
+      }
+        } catch (error) {
       console.error(error);
     }
   };

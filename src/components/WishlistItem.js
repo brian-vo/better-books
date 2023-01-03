@@ -2,8 +2,8 @@ import BookIcon from "./BookIcon";
 import { useState, useEffect } from "react";
 
 const WishlistItem = ({ book }) => {  
-  
   const [books, setBook] = useState({});
+  
   const handleAddToCart = async (isbn, token) => {
     try {
       const response = await fetch(`/shopping_cart/add/`, {
@@ -16,6 +16,11 @@ const WishlistItem = ({ book }) => {
           "isbn": isbn,
         }),
       });
+      if (response.status === 200) {
+        window.location.reload();
+      } else {
+        console.error(`Error adding item to cart: ${response.status}`);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -34,11 +39,16 @@ const WishlistItem = ({ book }) => {
           "isbn": isbn,
         }),
       });
-      window.location.reload();
+      if (response.status === 200) {
+        window.location.reload();
+      } else {
+        console.error(`Error deleting item from wishlist: ${response.status}`);
+      }
     } catch (error) {
       console.error(error);
     }
   };
+  
 
   async function fetchBookData() {
     const response = await fetch(`/book/${book.isbn}/data`);
@@ -51,7 +61,7 @@ const WishlistItem = ({ book }) => {
     if (book && book.isbn && Object.keys(books).length === 0) {
       fetchBookData();
     }
-  }, [book]);
+  }, );
 
   return (
     <BookIcon
