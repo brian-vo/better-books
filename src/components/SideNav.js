@@ -22,7 +22,7 @@ const SideNav = () => {
 
   return (
     <div className="sidenav">
-      <Link to="/account">Update Information</Link>
+      <Link to="/account">Manage Account</Link>
       <Link to="/order_history">Order History</Link>
       <Link to="/wishlist">Wishlist</Link>
       <DropdownMenu /> 

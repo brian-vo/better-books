@@ -541,6 +541,23 @@ def add_customer(email):
      user = db.session.query(User).filter(User.email == email).one()
      return Customer(user_id = user.user_id)
      
+# return own user info, for display in input box
+@main.route('/user/data/self')
+@login_required
+def user_data_self():
+    user_id = current_user.user_id
+    exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
+
+    if exists:
+        users = []
+        user_list = db.session.query(User).filter(User.user_id == user_id).one()
+        users.append({'fname' : user_list.fname, 'lname' : user_list.lname, 'email' : user_list.email})      
+
+        return jsonify({'user' : users})
+  
+    else:
+        return 'User does not exist', 404
+
 # return a specific user by id, specified in url
 @main.route('/user/data/<user_id>')
 @login_required

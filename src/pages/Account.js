@@ -8,6 +8,9 @@ function Account() {
   const [fname, setFname] = React.useState(null);
   const [lname, setLname] = React.useState(null);
   const [email, setEmail] = React.useState(null);
+  const [fnameD, setFnameD] = React.useState(null);
+  const [lnameD, setLnameD] = React.useState(null);
+  const [emailD, setEmailD] = React.useState(null);
   const [password, setPassword] = React.useState(null);
   const [loyaltyPoints, setLoyaltyPoints] = React.useState(0);
   const [data, setData] = React.useState([]);
@@ -47,7 +50,19 @@ function Account() {
       const json1 = await response.json();
       setData(json1.wishlist_items);
     }
-
+    async function fetchUserData() {
+      const response = await fetch("/user/data/self", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const json = await response.json();
+      setFnameD(json.user[0].fname);
+      setLnameD(json.user[0].lname);
+      setEmailD(json.user[0].email);
+    }
+    
+    fetchUserData();
     fetchLoyaltyPoints();
     fetchRecommendationAuto();
   }, []);
@@ -70,6 +85,11 @@ function Account() {
     });
     if (response.ok) {
       alert("Updated information!");
+      setFname("");
+      setLname("");
+      setEmail("");
+      setPassword("");
+      window.location.reload();
     } else {
       alert("Failed to update information!");
     }
@@ -83,7 +103,7 @@ function Account() {
     <div className="account-container">
       <SideNav />
       <div className="form-container">
-        <h1>Update Information</h1>
+        <h1>Manage Account</h1>
         <div className="form-and-loyalty-box">
           <div className="loyalty-box">
             <p className="loyalty-label">Loyalty Points:</p>
@@ -92,11 +112,12 @@ function Account() {
           <form onSubmit={handleSubmit}>
             <label className="form-label">
               First Name:
-              <input
-                type="text"
+              <input 
+                type="text" 
+                placeholder={fnameD}
                 value={fname}
-                onChange={(e) => setFname(e.target.value)}
-                className="form-input"
+                onChange={(event) => setFname(event.target.value)}
+                required 
               />
             </label>
             <br />
@@ -104,6 +125,7 @@ function Account() {
               Last Name:
               <input
                 type="text"
+                placeholder={lnameD}
                 value={lname}
                 onChange={(e) => setLname(e.target.value)}
                 className="form-input"
@@ -114,6 +136,7 @@ function Account() {
               Email:
               <input
                 type="email"
+                placeholder={emailD}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="form-input"
