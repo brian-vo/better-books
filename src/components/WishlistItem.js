@@ -41,7 +41,6 @@ const WishlistItem = ({ book }) => {
   };
 
   async function fetchBookData() {
-    console.log("TEST " + book.isbn)
     const response = await fetch(`/book/${book.isbn}/data`);
     const data = await response.json();
     if (data.books[0]) {
