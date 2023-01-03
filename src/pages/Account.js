@@ -99,6 +99,14 @@ function Account() {
   if (roles.includes('admin')) {
     navigate("/admin/orders");
   }
+
+  const truncateText = (text, maxLength) => {
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return text.substring(0, maxLength) + "...";
+  }
+
   return (
     <div className="account-container">
       <SideNav />
@@ -169,8 +177,10 @@ function Account() {
                     <img src={book.image_location} alt="book" />
                   </div>
                   <div className="icon-info">
-                    <div className="icon-title">{book.title}</div>
-                    <div className="icon-price">${book.price}</div>
+                  <div className="icon-title" title={book.title}>
+                    {truncateText(book.title, 25)}
+                  </div>
+                   <div className="icon-price">${book.price}</div>
                   </div>
                 </Link>
               </li>
