@@ -1,0 +1,6 @@
+.icon-small-info {
+    white-space: pre-wrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60ch; 
+  }
