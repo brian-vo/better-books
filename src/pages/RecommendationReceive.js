@@ -9,7 +9,7 @@ const RecommendationsReceive = () => {
   useLoginCheck("/recommendation/received", "/test");
 
   useEffect(() => {
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   fetch('/recommendation/user/all/', {
   headers: {
     'Authorization': `Token ${token}`,

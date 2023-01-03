@@ -11,7 +11,7 @@
         useLoginCheck("/recommendation/sent", "/login");
         
         useEffect(() => {
-            const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
             fetch('/recommendation/user/all/sent', {
                 headers: {
                     'Authorization': `Token ${token}`,
@@ -64,7 +64,7 @@
         }, [error]);
 
         const handleReviewSubmit = async (event) => {
-            const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
             event.preventDefault();
             const inputValueAuth = event.target.authors.value.toString();
             const inputValueISBNs = event.target.isbns.value.toString();

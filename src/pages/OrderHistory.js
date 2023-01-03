@@ -9,7 +9,7 @@ const OrderHistory = () => {
 
   useLoginCheck("/order_history", "/login");
   useEffect(() => {
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   fetch(`/orders/all`, {
     headers: {
       "Authorization": `Bearer ${token}`

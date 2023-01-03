@@ -13,22 +13,19 @@ function Account() {
   const [data, setData] = React.useState([]);
   const [statusCode, setStatusCode] = React.useState(null);
   const [roles, setRoles] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useLoginCheck("/account", "/login");
 
   useEffect(() => { 
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
     fetch('/api/roles')
       .then((response) => response.json())
       .then((data) => {
         setRoles(data.roles);
-        setLoading(false);
       })
       .catch((error) => {
         console.error(error);
-        setLoading(false);
       });
     async function fetchLoyaltyPoints() {
       const response = await fetch("/user/points/", {
@@ -57,9 +54,7 @@ function Account() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-  
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
     const response = await fetch("/user/data/update", {
       method: "POST",
       headers: {
@@ -73,7 +68,11 @@ function Account() {
         pass_word: password
       })
     });
-    alert("Updated information!");
+    if (response.ok) {
+      alert("Updated information!");
+    } else {
+      alert("Failed to update information!");
+    }
   };
 
   const fiveRecommendations = data.slice(0, 5);
