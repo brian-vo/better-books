@@ -1,15 +1,18 @@
 import Banner from "../components/Banner";
 import FeaturedBookList from "../components/FeaturedBookList";
+import "./Home.css";
 
 const Home = () => {
   return (
     <div className="home">
-      <Banner
-        title="Welcome to BetterBooks"
-        subtitle="We offer a wide selection of books"
-      ></Banner>
+      <div className="collage-container">
+        <Banner
+          title="Welcome to BetterBooks"
+          subtitle="Discover your next great read at BetterBooks - your one-stop shop for all your book needs"
+        ></Banner>
+      </div>
       <div className="content-container">
-        <h1 className="home-title">Featured Books</h1>
+        <h1 className="home-title">Our Selection</h1>
         <FeaturedBookList />
       </div>
     </div>
