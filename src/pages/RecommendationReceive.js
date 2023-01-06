@@ -6,7 +6,7 @@ import useLoginCheck from '../hooks/useLoginCheck';
 
 const RecommendationsReceive = () => {
   const [recommendations, setRecommendations] = useState([]); 
-  useLoginCheck("/recommendation/received", "/test");
+  useLoginCheck("/recommendation/received", "/login");
 
   useEffect(() => {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
