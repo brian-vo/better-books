@@ -279,6 +279,12 @@ def new_order():
         book = db.session.query(Book).filter(Book.isbn == items.isbn).one()
         book.stock -= items.amount
         db.session.add(new_isbns)
+    
+    sum = cart.getTotal(cart.cart_id)
+    sum = round(sum * 10)
+    print(user_id)
+    customer = db.session.query(Customer).filter(Customer.user_id == user_id).one()
+    customer.loyalty_points += sum
     db.session.commit()
 
     return 'ORDER CREATED', 200
