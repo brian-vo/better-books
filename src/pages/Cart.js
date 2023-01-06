@@ -8,8 +8,10 @@ const Cart = () => {
   const navigate = useNavigate();
   const [books, setBooks] = useState(null);
   const [sum, setSum] = useState(0);
+  const [roles, setRoles] = useState([]);
 
   useLoginCheck("/cart", "/login");
+
   useEffect(() => {
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
     fetch('/shopping_cart/data/', {
@@ -26,9 +28,20 @@ const Cart = () => {
       .catch(error => {
         console.error(error);
       });
-
+        fetch('/api/roles')
+          .then((response) => response.json())
+          .then((data) => {
+            setRoles(data.roles);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
   }, []);
 
+  if (roles.includes('admin')) {
+    navigate("/admin/orders");
+  }
+  
   return (
     <div className="wishlist">
       <div className="wishlist-container">

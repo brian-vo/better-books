@@ -256,35 +256,42 @@ def cart_delete():
 # book_order FUNCTIONS
 # ===========================================================
 
-# create a new order -
+# create new order
 @main.route('/order/create/', methods=['POST'])
 @login_required
 def new_order():
+    # get order data, sanitize inputs
     user_id = current_user.user_id
     order_data = request.get_json()
     shipping_address = sanitize_input(order_data['shipping_address'])
     payment_method = sanitize_input(order_data['payment_method'])
 
+    # create new order
     new_order = Book_Order(user_id=user_id, shipping_address=shipping_address, payment_method=payment_method)
     db.session.add(new_order)
     db.session.commit()
+    # select user's cart
     cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
 
+    # create new derived_from to link cart / order temporarily
     new_deriv_from = Derived_From(cart_id = cart.cart_id, order_id = new_order.order_id)
     db.session.add(new_deriv_from)
-
+    # select all items in cart
     cart_items = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id).all()
+    # store each item in cart in Isbns table, for order
     for items in cart_items:
         new_isbns = Isbns(order_id = new_order.order_id, isbn = items.isbn, amount = items.amount)
         book = db.session.query(Book).filter(Book.isbn == items.isbn).one()
+        # update book stock
         book.stock -= items.amount
         db.session.add(new_isbns)
     
+    # update user loyalty points by 10x the total price of the order
     sum = cart.getTotal(cart.cart_id)
     sum = round(sum * 10)
-    print(user_id)
     customer = db.session.query(Customer).filter(Customer.user_id == user_id).one()
     customer.loyalty_points += sum
+    
     db.session.commit()
 
     return 'ORDER CREATED', 200
