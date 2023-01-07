@@ -139,7 +139,6 @@ function Account() {
                 className="form-input"
               />
             </label>
-            <br />
             <label className="form-label">
               Email:
               <input
@@ -160,10 +159,10 @@ function Account() {
                 className="form-input"
               />
             </label>
-            <br />
             <button type="submit" className="form-button">Update Profile</button>
           </form>
         </div>
+        
       </div>
       <div className="suggestions-container">
         <h1 className="home-title">Our Suggestions</h1>

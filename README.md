@@ -69,8 +69,8 @@ npm start
 ![Search Function](https://i.imgur.com/hID6IZk.png)
 ![Register Page](https://i.imgur.com/caYWH8K.png)
 ![Shopping Cart Page](https://i.imgur.com/Q0Pz9bP.png)
-![Manage Account](https://i.imgur.com/XCLhrzg.png)
-![Admin Page](https://i.imgur.com/Ir73WVe.png)
+![Manage Account](https://i.imgur.com/wEKOOZj.png)
+![Admin Page](https://i.imgur.com/5fgVTVO.png)
 
 
 ## Acknowledgements:
