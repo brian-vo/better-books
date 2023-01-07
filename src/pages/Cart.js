@@ -41,7 +41,7 @@ const Cart = () => {
   if (roles.includes('admin')) {
     navigate("/admin/orders");
   }
-  
+
   return (
     <div className="wishlist">
       <div className="wishlist-container">
@@ -49,7 +49,7 @@ const Cart = () => {
         <div className="cart-items-container">
           {books &&
             books.map((book) =>
-              book.items.map((item) => <CartItem key={item.isbn} book={item} />)
+              book.items.map((item) => <CartItem key={item.isbn} book={item}  />)
             )}
         </div>
         <div className="button-stack">
