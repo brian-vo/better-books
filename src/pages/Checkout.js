@@ -82,6 +82,12 @@
           <div className="checkout-box">
             <h1>Checkout</h1>
             <form>
+            <label htmlFor="address">Name:</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+              />
               <label htmlFor="address">Address:</label>
               <input
                 type="text"

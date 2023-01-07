@@ -64,12 +64,12 @@ npm start
 
 
 ## Images
-![Home Page](https://i.imgur.com/qycoOnC.png)
-![Product Page](https://i.imgur.com/EB31w1W.png)
+![Home Page](https://i.imgur.com/2lxth78.png)
+![Product Page](https://i.imgur.com/xjrZFKn.png)
 ![Search Function](https://i.imgur.com/hID6IZk.png)
 ![Register Page](https://i.imgur.com/caYWH8K.png)
-![Shopping Cart Page](https://i.imgur.com/wckiMPt.png)
-![Manage Account](https://i.imgur.com/eTE8cdw.png)
+![Shopping Cart Page](https://i.imgur.com/Q0Pz9bP.png)
+![Manage Account](https://i.imgur.com/XCLhrzg.png)
 ![Admin Page](https://i.imgur.com/Ir73WVe.png)
 
 
