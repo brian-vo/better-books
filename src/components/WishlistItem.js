@@ -53,7 +53,7 @@ const WishlistItem = ({ book }) => {
       book={book} 
       content={
         <div className="button-stack">
-          <button className="button" onClick={() => handleAddToCart(book.isbn)} style={{ backgroundColor: "#fce705" }}>
+          <button className="button" onClick={() => handleAddToCart(book.isbn)} style={{ backgroundColor: "#E4D00A" }}>
             Add to Cart
           </button>
           <button className="button" onClick={() => deleteFromWishlist(book.isbn)} style={{ backgroundColor: "#AA4A44" }}>
