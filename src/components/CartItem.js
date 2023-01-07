@@ -1,5 +1,6 @@
 import BookIcon from "./BookIcon";
 import { useState } from "react";
+import "./CartItem.css";
 
 const CartItem = ({ book }) => {
   const [quantity, setQuantity] = useState(book.quantity);
@@ -10,7 +11,7 @@ const CartItem = ({ book }) => {
       return;
     }
     try {
-      const response = await fetch(`/shopping_cart/update/`, {
+      await fetch(`/shopping_cart/update/`, {
         method: 'POST',
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -29,7 +30,7 @@ const CartItem = ({ book }) => {
 
   const deleteFromCart = async (isbn, token) => {
     try {
-      const response = await fetch(`/shopping_cart/delete/`, {
+      await fetch(`/shopping_cart/delete/`, {
         method: 'POST',
         headers: {
           "Authorization": `Bearer ${token}`,

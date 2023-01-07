@@ -1,9 +1,7 @@
 import BookIcon from "./BookIcon";
-import { useState, useEffect } from "react";
 import './WishlistItem.css';
 
 const WishlistItem = ({ book }) => {  
-  const [books, setBook] = useState({});
   
   const handleAddToCart = async (isbn, token) => {
     try {

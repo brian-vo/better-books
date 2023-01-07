@@ -2,7 +2,7 @@ import useFetch from "../hooks/useFetch";
 import { Link } from "react-router-dom";
 
 const FeaturedBookList = () => {
-  const { data, error, isLoading } = useFetch("/book/all_data");
+  const { data, isLoading } = useFetch("/book/all_data");
   const truncateText = (text, maxLength) => {
     if (text.length <= maxLength) {
       return text;

@@ -51,6 +51,8 @@ const Wishlist = () => {
             if (item.isbn) {
               return <WishlistItem key={item.isbn} book={item} />;
             }
+            return null;
+
           })
         )}
         {!isLoading && !error && data && data.wishlist_items.length === 0 && (
