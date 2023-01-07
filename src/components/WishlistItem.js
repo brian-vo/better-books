@@ -50,23 +50,9 @@ const WishlistItem = ({ book }) => {
     }
   };
   
-
-  async function fetchBookData() {
-    const response = await fetch(`/book/${book.isbn}/data`);
-    const data = await response.json();
-    if (data.books[0]) {
-      setBook(data.books[0]);
-    }
-  }
-  useEffect(() => {
-    if (book && book.isbn && Object.keys(books).length === 0) {
-      fetchBookData();
-    }
-  }, );
-
   return (
     <BookIcon
-      book={books} 
+      book={book} 
       content={
         <div className="button-stack">
           <button className="button" onClick={() => handleAddToCart(book.isbn)} style={{ backgroundColor: "#fce705" }}>
