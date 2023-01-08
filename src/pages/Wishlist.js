@@ -3,14 +3,19 @@ import React, { useState, useEffect } from 'react';
 import SideNav from "../components/SideNav";
 import useLoginCheck from '../hooks/useLoginCheck';
 
+// Wishlist page - displays all books in a user's wishlist, with the option to remove books from the wishlist or to add them to the cart
+
 const Wishlist = () => {
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+
+  // Check if user is logged in, if not, redirect to login page using useLoginCheck hook
   useLoginCheck("/wishlist", "/login");
 
   useEffect(() => {
+    // Fetch user wishlist from FLASK API
     const fetchData = async () => {
       try {
         const response = await fetch('/wishlist/data', {
@@ -19,6 +24,7 @@ const Wishlist = () => {
             Authorization: token,
           },
         });
+        // Set wishlist state to wishlist returned from API
         if (response.ok) {
           const json = await response.json();
           setData(json);
@@ -61,6 +67,6 @@ const Wishlist = () => {
       </div>
     </div>
   );
-  
+
 };
 export default Wishlist;

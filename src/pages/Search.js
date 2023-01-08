@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import BookSearchResult from "../components/BookSearchResult";
 import useFetch from "../hooks/useFetch";
 
+// Search page - displays search results for a given query
+
 const Search = () => {
   const queryString = useLocation().search;
 

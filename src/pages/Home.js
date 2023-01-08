@@ -2,6 +2,8 @@ import Banner from "../components/Banner";
 import FeaturedBookList from "../components/FeaturedBookList";
 import "./Home.css";
 
+// Home page - displays a banner and a list of featured books
+
 const Home = () => {
   return (
     <div className="home">

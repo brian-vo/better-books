@@ -3,18 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import SideNavAdmin from '../components/SideNavAdmin';
 import Review from '../components/Review';
 
+// AdminReviews page - used to display all reviews in the database for admin moderation, providing the ability to delete reviews
+
 function AdminReviews() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const [reviews, setReviews] = useState([]);
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [titles, setTitles] = useState({});
   const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
+  const navigate = useNavigate();
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
 
   const fetchReviews = async () => {
     try {
-  
+      // fetch all reviews from database
       const response = await fetch('/admin/reviews/all', {
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -22,14 +24,16 @@ function AdminReviews() {
         },
       });
       const data = await response.json();
+      // set reviews to the data returned from the database
       setReviews(data.reviews);
-  
+
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
+    // Get roles from API
     fetch('/api/roles')
       .then((response) => response.json())
       .then((data) => {
@@ -40,47 +44,48 @@ function AdminReviews() {
         console.error(error);
         setLoading(false);
       });
-      fetchReviews();
+    fetchReviews();
 
   });
   if (loading) {
     return <div>Loading...</div>;
   }
 
+  // If user is not an admin, redirect to login page
   if (!roles.includes('admin')) {
     navigate("/login");
-}
-
-
-const deleteReview = async (isbn, user_id, token) => {
-  try {
-    await fetch(`/admin/review/${isbn}/${user_id}/delete`, {
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-    });
-    window.location.reload();
-  } catch (error) {
-    console.error(error);
   }
-};
 
+  // Handle deleting review from database
+  const deleteReview = async (isbn, user_id, token) => {
+    try {
+      // Delete review from database by API call
+      await fetch(`/admin/review/${isbn}/${user_id}/delete`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+      });
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-async function fetchTitleData(review) {
+  // Fetch title data from Flask API
+  async function fetchTitleData(review) {
     if (fetchedIsbns.has(review.isbn)) {
       return;
     }
-
     const response = await fetch(`/book/${review.isbn}/data`);
     const data = await response.json();
-
+    // Set title data to state
     setTitles((prevTitles) => ({ ...prevTitles, [review.isbn]: data.books[0].title }));
-
+    // Add isbn to set of fetched isbns
     setFetchedIsbns((prevIsbns) => prevIsbns.add(review.isbn));
   }
 
-return (
+  return (
     <div className="wishlist">
       <SideNavAdmin />
       <div className="wishlist-container">

@@ -4,16 +4,19 @@ import SideNav from "../components/SideNav";
 import Review from "../components/Review";
 import "./ReviewHistory.css";
 
+// ReviewHistory page - displays all reviews for a user, with ability to delete reviews
+
 const ReviewHistory = () => {
-  const navigate = useNavigate();
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [reviews, setReviews] = useState([]);
   const [titles, setTitles] = useState({});
   const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+  const navigate = useNavigate();
 
- 
+  // Fetch reviews for user
   const fetchReviews = useCallback(async () => {
     try {
+      // Call API to get reviews
       const response = await fetch('/reviews/all', {
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -21,13 +24,14 @@ const ReviewHistory = () => {
         },
       });
       const data = await response.json();
+      // Set reviews from response
       setReviews(data.reviews);
     } catch (error) {
       console.error(error);
     }
   }, [token]);
 
-
+  // If user is not logged in, redirect to login page, otherwise fetch reviews
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -36,21 +40,24 @@ const ReviewHistory = () => {
     }
   }, [token, fetchReviews, navigate]);
 
+  // Handle delete review button click
   const deleteReview = async (isbn, token) => {
     try {
+      // Call API to delete review
       await fetch(`/book/${isbn}/review/delete`, {
         headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
       });
+      // Refresh page
       window.location.reload();
     } catch (error) {
       console.error(error);
     }
   };
 
-
+  // Fetch title data for review
   async function fetchTitleData(review) {
     if (fetchedIsbns.has(review.isbn)) {
       return;
@@ -58,9 +65,9 @@ const ReviewHistory = () => {
 
     const response = await fetch(`/book/${review.isbn}/data`);
     const data = await response.json();
-
+    // Set title for review
     setTitles((prevTitles) => ({ ...prevTitles, [review.isbn]: data.books[0].title }));
-
+    // Add isbn to set of fetched isbns
     setFetchedIsbns((prevIsbns) => prevIsbns.add(review.isbn));
   }
 

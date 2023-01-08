@@ -3,20 +3,26 @@ import { MDBBtn, MDBInput, MDBCheckbox } from "mdb-react-ui-kit";
 import { useNavigate } from 'react-router-dom';
 import useLoginCheck from '../hooks/useLoginCheck';
 
+// Sign up page - used to create a new user account
+
 const SignUp = () => {
-  const navigate = useNavigate();
   const [fname, setFname] = useState('');
   const [lname, setLname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
+  // Check if user is logged in, if not, redirect to login page using useLoginCheck hook
   useLoginCheck("/account", "/signup");
 
+  // Handle form submission
   const handleSubmit = (event) => {
     event.preventDefault();
+    // Create user object to send to API
     const data = { "fname": fname, "lname": lname, "email": email, "pass_word": password };
 
+    // Send user object to API
     fetch('/register/new', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -25,9 +31,11 @@ const SignUp = () => {
       }
     })
       .then((response) => {
+        // If user is created successfully, redirect to login page
         if (response.status === 201) {
           navigate("/login");
         } else if (response.status === 409) {
+          // If user already exists, set error message
           setError("User with this email already exists");
         }
       })

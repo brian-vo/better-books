@@ -9,12 +9,14 @@ const LogIn = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
 
+  // Check if user is logged in, if not, redirect to login page using useLoginCheck hook
   useLoginCheck("/account", "/login");
 
+  // Handle login form submission
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = { "email": email, "pass_word": password };
-
+    // Post login data to server
     fetch('/login', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -23,11 +25,13 @@ const LogIn = () => {
       }
     })
       .then((responseData) => {
+        // If login is successful, set token cookie and redirect to account page
         if (responseData.status === 200) {
           const token = responseData.json().token
           document.cookie = `token=${encodeURIComponent(token)}`
           navigate("/account");
         }
+        // If login is unsuccessful, set error message
         setError("Incorrect username or password");
 
       })

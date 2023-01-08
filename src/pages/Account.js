@@ -4,6 +4,8 @@ import SideNav from "../components/SideNav";
 import useLoginCheck from '../hooks/useLoginCheck';
 import { useNavigate, Link } from 'react-router-dom';
 
+// Account page - displays user account information and allows user to update their information
+
 function Account() {
   const [fname, setFname] = React.useState(null);
   const [lname, setLname] = React.useState(null);
@@ -18,18 +20,24 @@ function Account() {
   const [roles, setRoles] = useState([]);
   const navigate = useNavigate();
 
+  // Check if user is logged in, if not, redirect to login page using useLoginCheck hook
   useLoginCheck("/account", "/login");
 
-  useEffect(() => { 
+  useEffect(() => {
+    // Get token from cookie
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    // Fetch user roles
     fetch('/api/roles')
       .then((response) => response.json())
       .then((data) => {
+        // set user roles
         setRoles(data.roles);
       })
       .catch((error) => {
         console.error(error);
       });
+
+    // Fetch user loyalty points
     async function fetchLoyaltyPoints() {
       const response = await fetch("/user/points/", {
         headers: {
@@ -37,8 +45,11 @@ function Account() {
         }
       });
       const json = await response.json();
+      // set loyalty points
       setLoyaltyPoints(json.user[0].points);
     }
+
+    // Fetch user auto recommendations
     async function fetchRecommendationAuto() {
       const response = await fetch("/recommendation/auto", {
         headers: {
@@ -48,8 +59,11 @@ function Account() {
       });
       setStatusCode(response.status);
       const json1 = await response.json();
+      // set auto recommendations
       setData(json1.wishlist_items);
     }
+
+    // Fetch user account information for display
     async function fetchUserData() {
       const response = await fetch("/user/data/self", {
         headers: {
@@ -61,15 +75,18 @@ function Account() {
       setLnameD(json.user[0].lname);
       setEmailD(json.user[0].email);
     }
-    
+
     fetchUserData();
     fetchLoyaltyPoints();
     fetchRecommendationAuto();
   }, []);
 
+  // Handle update profile form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
+    // Get token from cookie
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+    // Send update profile request
     const response = await fetch("/user/data/update", {
       method: "POST",
       headers: {
@@ -83,6 +100,7 @@ function Account() {
         pass_word: password
       })
     });
+    // If update profile request is successful, alert user and reload page
     if (response.ok) {
       alert("Updated information!");
       setFname("");
@@ -95,11 +113,15 @@ function Account() {
     }
   };
 
+  // Get first five recommendations
   const fiveRecommendations = data.slice(0, 5);
+
+  // if user is admin, redirect to admin page instead of customer
   if (roles.includes('admin')) {
     navigate("/admin/orders");
   }
 
+  // Truncate title text of recommendation if it is too long
   const truncateText = (text, maxLength) => {
     if (text.length <= maxLength) {
       return text;
@@ -120,12 +142,12 @@ function Account() {
           <form onSubmit={handleSubmit}>
             <label className="form-label">
               First Name:
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder={fnameD}
                 value={fname}
                 onChange={(event) => setFname(event.target.value)}
-                required 
+                required
               />
             </label>
             <br />
@@ -162,7 +184,7 @@ function Account() {
             <button type="submit" className="form-button">Update Profile</button>
           </form>
         </div>
-        
+
       </div>
       <div className="suggestions-container">
         <h1 className="home-title">Our Suggestions</h1>
@@ -176,10 +198,10 @@ function Account() {
                     <img src={book.image_location} alt="book" />
                   </div>
                   <div className="icon-info">
-                  <div className="icon-title" title={book.title}>
-                    {truncateText(book.title, 25)}
-                  </div>
-                   <div className="icon-price">${book.price}</div>
+                    <div className="icon-title" title={book.title}>
+                      {truncateText(book.title, 25)}
+                    </div>
+                    <div className="icon-price">${book.price}</div>
                   </div>
                 </Link>
               </li>

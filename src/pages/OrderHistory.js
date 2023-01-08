@@ -5,12 +5,17 @@ import SideNav from "../components/SideNav";
 import useLoginCheck from '../hooks/useLoginCheck';
 import './orderhistory.css';
 
+// OrderHistory page - displays all orders for a user in a table
+
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
 
+  // Check if user is logged in, if not, redirect to login page using useLoginCheck hook
   useLoginCheck("/order_history", "/login");
+
   useEffect(() => {
   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+  // Fetch user orders from FLASK API
   fetch(`/orders/all`, {
     headers: {
       "Authorization": `Bearer ${token}`
