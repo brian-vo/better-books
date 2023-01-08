@@ -253,7 +253,7 @@ def cart_delete():
 # book_order FUNCTIONS
 # ===========================================================
 
-# create new order
+# create new order, requires login
 @main.route('/order/create/', methods=['POST'])
 @login_required
 def new_order():
@@ -300,30 +300,36 @@ def new_order():
 def order_data(order_id):
     order_id = sanitize_input(order_id)
     exists = db.session.query(db.exists().where(Book_Order.order_id == order_id)).scalar()
-    
+
     if exists:
+        # select requested order
         order = db.session.query(Book_Order).filter(Book_Order.order_id == order_id).one()
+        # if user is admin or order was created by requesting user, return order data
         if(order.user_id == current_user.user_id or current_user.role_value == "admin"):
             orders = []
             items = []
             items_qty = []
             items_order = db.session.query(Isbns).filter(Isbns.order_id == order_id)
+            # store each item in order in items list
             for item in items_order:
                 items.append(item.isbn)
                 t = (item.isbn, item.amount)
                 items_qty.append(t)
             sum = order.getTotal(order.order_id)
+            # format dates
             if order.prepared_date != None:
                 order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
             if order.shipped_date != None:
                 order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
             if order.delivered_date != None:
                 order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
+            # store order data in orders list
             orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum, 'items' : items, 'items_qty' : items_qty, 'address' : order.shipping_address})      
     
-
+            # return order data stored in list as json object
             return jsonify({'order' : orders})
         else:
+            # else if user does not have permission to view order, return error
             return 'NOT PERMITTED', 404
     else:
         return 'Order does not exist', 404
@@ -332,91 +338,78 @@ def order_data(order_id):
 # wishhlist FUNCTIONS
 # ===========================================================
 
-# add an item to wishlist 
+# add an item to wishlist, checks if wishlist exists and creates if it does not. Requires login
 @main.route('/wishlist/add/', methods=['POST'])
 @cross_origin()
 @login_required
-# checks if wishlist exists for that user, and creates if does not 
 def add_wishlist():
     user_id = current_user.user_id
 
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+    # if wishlist does not exist, create new wishlist
     if not wishlist_exists:
         new_wishlist = Wishlist(user_id= user_id)
         db.session.add(new_wishlist)
         db.session.commit()
 
-        status, code = add_item_wishlist(user_id)
-        return status, code
-    else:
-        status, code = add_item_wishlist(user_id)
-        return status, code
+    # add item to wishlist
+    status, code = add_item_wishlist(user_id)
+    return status, code
 
-# adds item to stores relationship relative to wishlist
+# adds item to Includes relationship to store items in wishlist
 def add_item_wishlist(user_id):
     wishlist_data = request.get_json()
     isbn = sanitize_input(wishlist_data['isbn'])
+    # check if book already exists in wishlist
     wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
     wishlist_exists = db.session.query(db.exists().where(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == isbn)).scalar()
 
     if not wishlist_exists:
+        # add book to wishlist
         new_stores = Includes(wishlist_id = wishlist.wishlist_id, isbn = isbn )
         db.session.add(new_stores)
         db.session.commit()
         return 'Book ' + str(isbn) + ' added to wishlist', 200 
     else:
+        # if book already exists in wishlist, return error
         return 'Book ' + str(isbn) + ' already exists in wishlist', 400 
     
 
-# get existing wishlist data                                                                                                    
+# get existing wishlist data of own user, requires login                                                                                               
 @main.route('/wishlist/data')
 @cross_origin()
 @login_required
 def wishlist_data():
     user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+
     if wishlist_exists:
+        # get wishlist data
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
         all_includes = db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id)
         wishlist_items = []
-
+        # iterate through wishlist items and store in list
         for items in all_includes:
             wishlist_items.append({'isbn' : items.isbn})        
-
+        # return wishlist data as json object
         return jsonify({'wishlist_items' : wishlist_items})
     else:
         return 'USER DOES NOT HAVE A WISHLIST', 404
 
-# delete book from wishlist
+# delete a book from wishlist of own user, requires login
 @main.route('/wishlist/delete_item', methods=['POST'])
 @cross_origin()
 @login_required
 def wishlist_delete_item():
     user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
+    
     if wishlist_exists:
         wishlist_data = request.get_json()
         isbn = sanitize_input(wishlist_data['isbn'])
+        # query sql database to select wishlist, and respective Includes relationship, and deletes selected item
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
         db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id, Includes.isbn == isbn).delete()
-        db.session.commit()
-        
-        return 'DELETED', 200
-    else:
-        return 'NO CART', 404
-
-# delete wishlist + associated stores
-@main.route('/wishlist/delete')
-@login_required
-def wishlist_delete(user_id):
-    user_id = current_user.user_id
-    wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
-
-    if wishlist_exists:
-        wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
-
-        db.session.query(Includes).filter_by(wishlist_id = wishlist.wishlist_id).delete()
-        db.session.query(Wishlist).filter_by(user_id = wishlist.user_id).delete()
         db.session.commit()
         
         return 'DELETED', 200
