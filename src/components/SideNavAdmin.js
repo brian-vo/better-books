@@ -1,24 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+
+// SideNavAdmin component - used as a component to display a side navigation bar, curated for Admin users
 
 const SideNav = () => {
   const navigate = useNavigate();
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
 
-
+  // Handle logout
   const handleLogout = () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     navigate("/");
   };
 
+  // Handle update points
   const handleUpdatePoints = async (user_id, points) => {
     try {
+      // Call update points endpoint
       const response = await fetch(`/points/${user_id}/update`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        // Send points to update as JSON
         body: JSON.stringify({
           points: points,
         }),
@@ -30,12 +35,14 @@ const SideNav = () => {
     }
   };
 
+  // Handle update points form, pop up a prompt to enter user ID and points to update
   const handleFormLinkClick = (event) => {
     event.preventDefault();
-
+    
     const userId = prompt("Enter user ID:");
     const updatedPoints = prompt("Enter how many points to add:");
     const pattern = /[0-9]+/i;
+    // Check if user ID and points are valid (only numeric)
     if (!pattern.test(userId)) {
         alert("User ID must be only numbers.");
         return;

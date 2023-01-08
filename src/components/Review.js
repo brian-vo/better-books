@@ -1,5 +1,7 @@
 import Rating from '@mui/material/Rating';
 
+// Rating component - used as a component to display a rating, pass in review and displayUser as props
+
 const Review = ({ review, displayUser = true }) => {
   return (
     <div className="review">

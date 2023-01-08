@@ -1,6 +1,9 @@
 import { useNavigate } from "react-router-dom";
 
+// SearchBar component - used as a component to display a search bar
+
 const SearchBar = ({ placeholder }) => {
+  // Handle search when enter is pressed
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -11,9 +14,11 @@ const SearchBar = ({ placeholder }) => {
 
   const navigate = useNavigate();
 
+  // Handle search when search icon is clicked
   const handleSearch = (searchQuery) => {
     navigate(`/search?searchvalue=${searchQuery}`);
   };
+  
   return (
     <div className="search-bar">
       <input

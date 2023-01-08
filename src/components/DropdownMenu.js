@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './DropMenu.css';
 
+// DropMenu component - used as a component to display a dropdown menu for the Recommendation sidenav
+
 function DropMenu() {
   const [isOpen, setIsOpen] = useState(false);
 

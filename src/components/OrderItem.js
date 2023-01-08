@@ -1,3 +1,5 @@
+// OrderItem component - used as a component to display a single order item in the order history page, pass in order as props
+
 const OrderItem = ({ order }) => {
   return (
     <tr>

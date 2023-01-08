@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Button, Modal, Box, Typography } from '@mui/material';
 import { css } from '@emotion/react';
 
+// Recommendation component - used as a component to display a recommendation, pass in sender_id, recommend_num, and isSent as props
+
 const Recommendation = ({ sender_id, recommend_num, isSent }) => {
   const [wishlist_items, setWishlistItems] = useState([]);
   const [open, setOpen] = useState(false);
 
+  // Modal functions
   const handleOpen = () => {
     setOpen(true);
   };
@@ -13,7 +16,7 @@ const Recommendation = ({ sender_id, recommend_num, isSent }) => {
   const handleClose = () => {
     setOpen(false);
   };
-
+  // Modal styles
   const style = {
     position: 'absolute',
     top: '50%',
@@ -26,16 +29,17 @@ const Recommendation = ({ sender_id, recommend_num, isSent }) => {
     p: 4,
     color: 'white ',
   };
-
+  // Text styles for the Modal
   const textStyles = css({
     color: 'black',
   });
 
   useEffect(() => {
-    // Fetch the wishlist_items data from the API
+      // Fetch the wishlist_items data from the API
     const fetchWishlistItems = async () => {
       const response = await fetch(`/recommendation/view/${recommend_num}`);
       const data = await response.json();
+      // Set the wishlist_items state to the data fetched
       setWishlistItems(data.wishlist_items);
     };
     fetchWishlistItems();

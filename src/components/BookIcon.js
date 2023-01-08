@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import useFetch from "../hooks/useFetch";
 
+// BookIcon component - used as a component to display a book's information, pass in book and content as props
+
 const BookIcon = ({ book, content }) => {
   // Use useFetch hook to make a GET request to the "/book/<book_isbn>/data" route
   const { data, isLoading, error } = useFetch(`/book/${book.isbn}/data`);
@@ -14,7 +16,7 @@ const BookIcon = ({ book, content }) => {
     );
   }
 
-  // Check if an error occurred
+  // Check if an error occurred,
   if (error) {
     return (
       <div className="book-icon-small">
@@ -23,6 +25,7 @@ const BookIcon = ({ book, content }) => {
     );
   }
 
+  // If no error, display the book's information
   if (data) {
   return (
     <div className="book-icon-small">

@@ -2,19 +2,24 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import DropdownMenu from './DropdownMenu'; 
 
+// SideNav component - used as a component to display a side navigation bar
+
 const SideNav = () => {
   const navigate = useNavigate();
 
+  // Handle logout
   const handleLogout = () => {
+    // Replace token with null on logout
     const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
-
+    // call logout endpoint
     fetch('/logout', {
       headers: {
         'Authorization': `Token ${token}`
       }
     });
-
+    // delete token cookie
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    // reload page
     navigate("/");
     window.location.reload();
 

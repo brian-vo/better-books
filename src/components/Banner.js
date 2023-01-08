@@ -1,3 +1,4 @@
+// Banner component - used as a component to display a banner, pass in title and subtitle as props
 const Banner = ({ title, subtitle }) => {
   return (
     <div className="banner">
