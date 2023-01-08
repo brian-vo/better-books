@@ -7,7 +7,6 @@ function AdminReviews() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
   const [titles, setTitles] = useState({});
@@ -73,14 +72,13 @@ async function fetchTitleData(review) {
       return;
     }
 
-    const response = await fetch(`/book/${review.isbn}/title`);
+    const response = await fetch(`/book/${review.isbn}/data`);
     const data = await response.json();
 
-    setTitles((prevTitles) => ({ ...prevTitles, [review.isbn]: data.title }));
+    setTitles((prevTitles) => ({ ...prevTitles, [review.isbn]: data.books[0].title }));
 
     setFetchedIsbns((prevIsbns) => prevIsbns.add(review.isbn));
   }
-
 
 return (
     <div className="wishlist">

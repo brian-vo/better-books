@@ -1,16 +1,17 @@
 from flask import Blueprint, jsonify, request, session, current_app
-from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed, Principal, Permission, RoleNeed
 from .models import *
 from flask_jwt_extended import create_access_token
 from flask_cors import cross_origin
-
 import re
-main = Blueprint('main', __name__)
-admin_permission = Permission(RoleNeed('admin'))
+from . import db
 
+main = Blueprint('main', __name__)
+
+# define the admin_permission decorator using flask_principal
+admin_permission = Permission(RoleNeed('admin'))
 
 # sanitize inputs
 def sanitize_input(input_str: str) -> str:
@@ -27,6 +28,7 @@ def sanitize_input_email(input_str: str) -> str:
 
     # Return the sanitized string
     return sanitized
+
 # ===========================================================
 # BOOK FUNCTIONS
 # ===========================================================
@@ -34,72 +36,54 @@ def sanitize_input_email(input_str: str) -> str:
 # return all books 
 @main.route('/book/all_data')
 def books_all():
+    # query sql database for all books
     book_list = db.session.query(Book).all()
     books = []
+    # iterate through all books,  appending info into an list
     for book in book_list:
         authors = []
+        # query sql database for all authors that wrote the book
         book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
         for auth in book_writes:
+            # query sql database for author info
             author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
+            # append respective book author's info into an temporary 'author' list
             authors.append({'fname' : author.fname, 'lname' : author.lname})
+        # append all book info into a list, including author data
         books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})        
 
+    # return list as a json object
     return jsonify({'books' : books})
 
-# return all books 
-@main.route('/book/<isbn>/title')
-def book_title(isbn):
-    isbn = sanitize_input(isbn)
-    exists = db.session.query(db.exists().where(Book.isbn == isbn)).scalar()
-    if exists:
-        book = db.session.query(Book).filter(Book.isbn == isbn).one()
-    
-        return jsonify({'title' : book.title})
-  
-    else:
-        return 'Book does not exist', 404
-
-
-# return a specific book by isbn, specified in url
+# return data of specific book by isbn as json objec, specified in url
 @main.route('/book/<book_isbn>/data')
 def books_specific(book_isbn):
     book_isbn = sanitize_input(book_isbn)
     books = []
+    # check if book exists
     exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
 
     if exists:
-        book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
-        for book in book_list:
-            authors = []
-            book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
-            for auth in book_writes:
-                author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
-                authors.append({'fname' : author.fname, 'lname' : author.lname})
+        # query sql database for book
+        book = db.session.query(Book).filter(Book.isbn == book_isbn).one()
+        
+        authors = []
+        # query sql database for all authors that wrote the book
+        book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn).one()
+        # query sql database for author info
+        author = db.session.query(Author).filter(Author.author_id == book_writes.author_id).one()
+
+        # append respective book author's info into an temporary 'author' list, and append with rest of data to books list
+        authors.append({'fname' : author.fname, 'lname' : author.lname})
         books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn), 'number_reviews' : book.getNumberReviews(book.isbn)})          
 
+        # return book data stored in list as json object
         return jsonify({'books' : books})
   
     else:
         return 'Book does not exist', 404
 
-# return a specific book stock by isbn, specified in url
-@main.route('/book/<book_isbn>/stock')
-def book_stock(book_isbn):
-    book_isbn = sanitize_input(book_isbn)
-    books = []
-    exists = db.session.query(db.exists().where(Book.isbn == book_isbn)).scalar()
-
-    if exists:
-        book_list = db.session.query(Book).filter(Book.isbn == book_isbn)
-        for book in book_list:
-            books.append({'stock' : book.stock})      
-
-        return jsonify({'books' : books})
-  
-    else:
-        return 'Book does not exist', 404
-
-# add a book with data from flask HTTP method
+# add a book with data from flask HTTP method, requires admin role to call
 @main.route('/book/new', methods=['POST'])
 @login_required
 @admin_permission.require()
@@ -107,9 +91,11 @@ def add_book():
     book_isbn = sanitize_input(book_isbn)
     book_data = request.get_json()
 
+    # check if book already exists
     exists = db.session.query(db.exists().where(Book.isbn == book_data['isbn'])).scalar()
 
     if not exists:
+        # add book to database
         new_book = Book(isbn=book_data['isbn'], title=book_data['title'], description=book_data['description'], stock=book_data['stock'], price=book_data['price'], cover_type=book_data['cover_type'])
         db.session.add(new_book)
         db.session.commit()
@@ -122,28 +108,30 @@ def add_book():
 # SHOPPING_CART FUNCTIONS
 # ===========================================================
 
-# add an item to shopping_cart
+# add an item to shopping_cart, checks if cart exists for that user, and creates if does not exist. Requires login
 @main.route('/shopping_cart/add/', methods=['POST'])
 @cross_origin()
 @login_required
-# checks if cart exists for that user, and creates if does not 
 def add_cart():
     user_id = current_user.user_id
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
+    # if cart does not exist, create new cart for user
     if not cart_exists:
         new_cart = Shopping_Cart(user_id= user_id)
         db.session.add(new_cart)
         db.session.commit()
 
+    # call add_item_cart function to add requested items to cart
     status, value = add_item_cart(user_id)
     return status, value
 
-# adds item to stores relationship relative to cart
+# adds item to stores relationship/ updates quantity if already exists in cart
 def add_item_cart(user_id):
     cart_data = request.get_json()
     cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
     isbn = sanitize_input(cart_data['isbn'])
+    # check if cart already contains product
     item_exists_cart = db.session.query(db.exists().where(Stores.cart_id == cart.cart_id, Stores.isbn == isbn)).scalar()
 
     # if cart doesnt already store product, create stores
@@ -162,7 +150,7 @@ def add_item_cart(user_id):
 
     return 'ADDED ISBN'  + str(isbn) + ' TO USER ' + str(user_id) + ' CART', 200
 
-# get existing shopping cart data                                                                                                    
+# get existing shopping cart data, requires login                                                                                                    
 @main.route('/shopping_cart/data/')
 @login_required
 def cart_data():
@@ -172,21 +160,24 @@ def cart_data():
     if cart_exists:
         cart_list = []
         items = []
+        # query sql database for cart
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
 
+        # query sql database for all items in cart
         items_order = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id)
+        # iterate through items in cart, appending to temporary list 'items'
         for item in items_order:
             book = db.session.query(Book).filter(Book.isbn == item.isbn).one()
             items.append({'isbn' : item.isbn, 'title' : book.title, 'isbn' : book.isbn, 'price' : book.price, 'quantity' : item.amount, 'image_location' : book.image_location})
 
         total = cart.getTotal(cart.cart_id)
         cart_list.append({'sum' : total, 'items' : items})
-
+        # return book data stored in list as json object
         return jsonify({'books' : cart_list})
     else:
         return 'NO CART', 404
 
-# update quantity
+# update quantity of item in cart to any number, requires login
 @main.route('/shopping_cart/update/', methods=['POST'])
 @cross_origin()
 @login_required
@@ -196,21 +187,24 @@ def cart_update_item():
     quantity = sanitize_input(cart_data['quantity'])
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
 
+    # if cart exists, call add_to_cart function
     if cart_exists:
         add_to_cart(user_id, quantity)
 
-# adds item to stores relationship relative to cart
+# update item quantity in stores relationship
 def add_to_cart(user_id, quantity):
     cart_data = request.get_json()
     isbn = sanitize_input(cart_data['isbn'])
+    # select cart
     cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-
+    # select stores relationship
     current = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == isbn).one()
+    # update quantity
     current.amount = quantity
     db.session.commit()
 
 
-# delete book from cart
+# delete indiviudal book from cart, requires login
 @main.route('/shopping_cart/delete/', methods=['POST'])
 @cross_origin()
 @login_required
@@ -221,8 +215,9 @@ def cart_delete_item():
     if cart_exists:
         cart_data = request.get_json()
         isbn = sanitize_input(cart_data['isbn'])
+        # select cart, delete stores relationship storing requested isbn
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
-        stores = db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == isbn).delete()
+        db.session.query(Stores).filter(Stores.cart_id == cart.cart_id, Stores.isbn == isbn).delete()
         db.session.commit()
         
         return 'DELETED', 200
@@ -230,19 +225,21 @@ def cart_delete_item():
         return 'NO CART', 404
 
 
-# delete cart + associated stores
+# delete cart + associated stores, requires login
 @main.route('/shopping_cart/delete/all')
 @cross_origin()
 @login_required
 def cart_delete():
     user_id = current_user.user_id
     cart_exists = db.session.query(db.exists().where(Shopping_Cart.user_id == user_id)).scalar()
-
+    # if cart exists, delete cart and associated stores
     if cart_exists:
+        # query sql database for cart, and if derived from exists
         cart = db.session.query(Shopping_Cart).filter(Shopping_Cart.user_id == user_id).one()
         derived_exists = db.session.query(db.exists().where(Derived_From.cart_id == cart.user_id)).scalar()
         
         if derived_exists:
+            # delete derived from relationship (used for connecting an order to a cart, ERD diagram clarity)
             db.session.query(Derived_From).filter_by(cart_id = cart.cart_id).delete()
 
         db.session.query(Stores).filter_by(cart_id = cart.cart_id).delete()

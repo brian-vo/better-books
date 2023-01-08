@@ -56,10 +56,10 @@ const ReviewHistory = () => {
       return;
     }
 
-    const response = await fetch(`/book/${review.isbn}/title`);
+    const response = await fetch(`/book/${review.isbn}/data`);
     const data = await response.json();
 
-    setTitles((prevTitles) => ({ ...prevTitles, [review.isbn]: data.title }));
+    setTitles((prevTitles) => ({ ...prevTitles, [review.isbn]: data.books[0].title }));
 
     setFetchedIsbns((prevIsbns) => prevIsbns.add(review.isbn));
   }
