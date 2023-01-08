@@ -420,7 +420,7 @@ def wishlist_delete_item():
 # review FUNCTIONS
 # ===========================================================
 
-# add a review with data from flask HTTP method
+# add a review to a book, requires login
 @main.route('/book/<isbn>/review/new', methods=['POST'])
 @cross_origin()
 @login_required
@@ -429,20 +429,23 @@ def add_review(isbn):
     review_data = request.get_json()
     exists = db.session.query(db.exists().where(Review.user_id == current_user.user_id, Review.isbn == isbn )).scalar()
 
+    # check if user has already reviewed this book
     if not exists:
         message_title = sanitize_input(review_data['message_title'])
         message_body = sanitize_input(review_data['message_body'])
         rating = sanitize_input(review_data['rating'])
 
+        # add review to database
         new_review = Review(user_id=user_id, isbn=isbn, message_title=message_title, message_body=message_body, rating=rating)
         db.session.add(new_review)
         db.session.commit()
 
-        return 'Done', 201
+        return 'Review Created', 201
     else:
+        # if user has already reviewed this book, return error
         return 'User already has review on this product', 400
 
-# return all reviews created by user_id
+# return all reviews created by requesting user, requires login
 @main.route('/reviews/all')
 @cross_origin()
 @login_required
@@ -450,15 +453,18 @@ def all_review():
     user_id = current_user.user_id
     exists = db.session.query(db.exists().where(Review.user_id == user_id)).scalar()
 
+    # check if user has any reviews
     if exists:
         reviews = []
         reviews_list = db.session.query(Review).filter(Review.user_id == user_id)
+        # iterate through reviews and store in list
         for review in reviews_list:
             reviews.append({'isbn' : review.isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
-
+        # return reviews as json object
         return jsonify({'reviews' : reviews})
   
     else:
+        # if user has no reviews, return error
         return 'User has no reviews', 404
 
 # return all reviews created on isbn
@@ -468,36 +474,41 @@ def all_review_book(isbn):
     isbn = sanitize_input(isbn)
     exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
 
+    # check if book has any reviews
     if exists:
         reviews = []
         reviews_list = db.session.query(Review).filter(Review.isbn == isbn)
+        # iterate through reviews and store in list
         for review in reviews_list:
             reviews.append({'user_id' : review.user_id, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
-
+        # return reviews as json object
         return jsonify({'reviews' : reviews})
   
     else:
+        # if book has no reviews, return error
         return 'Book has no reviews', 404
 
-# return specific review data
+# return data of a review by a specific user on a specific book
 @main.route('/book/<isbn>/review/<user_id>')
 def specific_review(isbn, user_id):
     isbn = sanitize_input(isbn)
     user_id = sanitize_input(user_id)
     exists = db.session.query(db.exists().where(Review.isbn == isbn, Review.user_id == user_id )).scalar()
 
+    # check if such a review exists
     if exists:
         reviews = []
         reviews_list = db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id)
+        # iterate through reviews and store in list
         for review in reviews_list:
             reviews.append({'user_id' : user_id, 'isbn' : isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
-
+        # return reviews as json object
         return jsonify({'reviews' : reviews})
   
     else:
         return 'This review does not exist', 404
 
-# delete review
+# delete review, requires login
 @main.route('/book/<isbn>/review/delete')
 @cross_origin()
 @login_required
@@ -505,8 +516,9 @@ def review_delete(isbn):
     isbn = sanitize_input(isbn)
     user_id = current_user.user_id
     exists = db.session.query(db.exists().where(Review.isbn == isbn, Review.user_id == user_id )).scalar()
-
+    # check if review exists and is created by requesting user
     if exists:
+        # delete review
         db.session.query(Review).filter(Review.isbn == isbn, Review.user_id == user_id).delete()
         db.session.commit()
         
@@ -518,20 +530,23 @@ def review_delete(isbn):
 # user FUNCTIONS
 # ===========================================================
 
-# add a user with data from flask HTTP method
+# add a user to the database
 @main.route('/register/new', methods=['POST'])
 def add_user():
     user_data = request.get_json()
     email = sanitize_input_email(user_data['email'])
     exists = db.session.query(db.exists().where(User.email == email)).scalar()
 
+    # check if a user already exists with same email
     if not exists:
         fname = sanitize_input(user_data['fname'])
         lname = sanitize_input(user_data['lname'])
+        # add user to database
         new_user = User(fname=fname, lname=lname, email=email,  role_value="customer", pass_word=generate_password_hash(user_data['pass_word'], method='sha256'))
         db.session.add(new_user)
         db.session.commit()
 
+        # add user to customer relation by calling add_customer function
         db.session.add(add_customer(email))
         db.session.commit()
 
@@ -551,17 +566,19 @@ def user_data_self():
     user_id = current_user.user_id
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
+    # check if user exists
     if exists:
         users = []
+        # get user info and append to list
         user_list = db.session.query(User).filter(User.user_id == user_id).one()
         users.append({'fname' : user_list.fname, 'lname' : user_list.lname, 'email' : user_list.email})      
-
+        # return user info as json object
         return jsonify({'user' : users})
   
     else:
         return 'User does not exist', 404
 
-# return a specific user by id, specified in url
+# return a specific user data by id, requires admin permission
 @main.route('/user/data/<user_id>')
 @login_required
 @admin_permission.require()
@@ -569,83 +586,92 @@ def user_data(user_id):
     user_id = sanitize_input(user_id)
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
+    # check if user exists
     if exists:
         users = []
         user_list = db.session.query(User).filter(User.user_id == user_id).one()
+        # append user info to list
         users.append({'fname' : user_list.fname, 'lname' : user_list.lname, 'email' : user_list.email})      
-
+        # return user info as json object
         return jsonify({'user' : users})
   
     else:
         return 'User does not exist', 404
 
-# retrieve the email and password of a user and see if it matches user inputs
+# login user, by checking if user exists and password is correct
 @main.route('/login', methods = ['POST'])
 def log_in():
     user_data = request.get_json()
     email = sanitize_input_email(user_data['email'])
     user = db.session.query(User).filter(User.email == email).one()
-
+    # if user does not exist, or password hash does not match, return error
     if not user or not check_password_hash(user.pass_word, user_data['pass_word']):
         return 'Incorrect username or password', 401
-
-    login_user(user)
-    identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
-    access_token = create_access_token(identity=user.user_id)
-
-    return jsonify(access_token=access_token), 200
+    else:
+        # login user
+        login_user(user)
+        identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
+        # create access token
+        access_token = create_access_token(identity=user.user_id)
+        # return access token
+        return jsonify(access_token=access_token), 200
 
 # logout user
 @main.route('/logout')
 @login_required
 def logout():
     logout_user()
-
+    # clear session
     for key in ('identity.name', 'identity.auth_type'):
         session.pop(key, None)
-
+    # clear identity
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
     return 'LOGGED OUT', 200
 
-# return all orders from specific user_id
+# return all orders created by requesting user
 @main.route('/orders/all')
 @login_required
 def user_orders():
     user_id = current_user.user_id
-    exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
 
+    exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
+    # check if user exists
     if exists:
         orders = []
+        # get all orders created by user
         order_list = db.session.query(Book_Order).filter(Book_Order.user_id == user_id)
+        # iterate through orders and append to list
         for order in order_list:
             sum = order.getTotal(order.order_id)
+            # format dates
             if order.prepared_date != None:
                 order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
             if order.shipped_date != None:
                 order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
             if order.delivered_date != None:
                 order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
+            # append order info to list
             orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum})      
-
+        # return order info as json object
         return jsonify({'orders' : orders})
   
     else:
         return 'User does not exist', 404
 
-# update user
+# update user data, requires login
 @main.route('/user/data/update', methods=['POST'])
 @cross_origin()
 @login_required
 def update_order():
     user_id = current_user.user_id
     update_data = request.get_json()
-    
+    # get current user info
     user  = db.session.query(User).filter(User.user_id == user_id).one()
     fname = user.fname
     lname = user.lname
     email = user.email
     password = user.pass_word
-
+    # check if passed user data is null, if so then do not change current data
     if (update_data['fname'] != None):
         fname = sanitize_input(update_data['fname'])
     if (update_data['lname'] != None):
@@ -653,9 +679,11 @@ def update_order():
     if (update_data['email'] != None):
         email = sanitize_input_email(update_data['email'])
     if (update_data['pass_word'] != None):
+        # hash password
         password = update_data['pass_word']
         user.pass_word = generate_password_hash(password, method='sha256')
 
+    # update user info, and commit to database
     user.fname = fname
     user.lname = lname
     user.email = email
@@ -663,7 +691,7 @@ def update_order():
 
     return 'UPDATED USER', 201
 
-# return current user roles
+# return current user roles, requires login
 @main.route('/api/roles')
 @cross_origin()
 @login_required
