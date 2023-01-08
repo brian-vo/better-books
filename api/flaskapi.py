@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, session, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from flask_principal import Principal, Identity, AnonymousIdentity, identity_changed, Principal, Permission, RoleNeed
+from flask_principal import Identity, AnonymousIdentity, identity_changed, Permission, RoleNeed
 from .models import *
 from flask_jwt_extended import create_access_token
 from flask_cors import cross_origin
@@ -903,24 +903,26 @@ def recommend_auto():
 # customer FUNCTIONS
 # ===========================================================
 
-# return current  user's points
+# return current user's points, requires login
 @main.route('/user/points/')
 @login_required
 def user_points_data():
     user_id = current_user.user_id
     exists = db.session.query(db.exists().where(User.user_id == user_id)).scalar()
-
+    # check if user exists
     if exists:
         users = []
+        # get user's points
         customer_list = db.session.query(Customer).filter(Customer.user_id == user_id).one()
         users.append({'points' : customer_list.loyalty_points})      
-
+        # return points of user as json object
         return jsonify({'user' : users})
   
     else:
+        # return error if user does not exist
         return 'User does not exist', 404
 
-# updates loyalty points
+# updates loyalty points to any amount, requires admin permission
 @main.route('/points/<user_id>/update', methods = ['POST'])
 @login_required
 @admin_permission.require()
@@ -928,7 +930,7 @@ def update_points(user_id):
     points_data = request.get_json()
     user_id = sanitize_input(user_id)
     points = sanitize_input(points_data['points'])
-
+    # check if selected customer exists
     customer_exists = db.session.query(db.exists().where(Customer.user_id == user_id)).scalar()
     
     # if customer exists, update points
@@ -937,7 +939,7 @@ def update_points(user_id):
         customer.loyalty_points+=int(points)
         db.session.commit()
         return 'UPDATED POINTS', 200
-    # if customer does not exist
+    # if customer does not exist, return error
     else:
         return 'CUSTOMER DOES NOT EXIST', 404
 
@@ -946,77 +948,80 @@ def update_points(user_id):
 # admin FUNCTIONS
 # ===========================================================
 
-# return a specific admin start date
+# return a specific admin start date, requires admin permission
 @main.route('/admin/<user_id>')
 @login_required
 @admin_permission.require()
 def start_date(user_id):
     user_id = sanitize_input(user_id)
-    exists = (
-        db.session.query(db.exists().where(Admin.user_id == user_id))
-        .scalar()
-    )
+    exists = db.session.query(db.exists().where(Admin.user_id == user_id)).scalar()
+    # check if admin exists
     if exists:
         admins = []
         admin = db.session.query(Admin).filter(Admin.user_id == user_id).one()
         admins.append({'start_date' : admin.Start_date.strftime('%Y-%m-%d')})      
-
+        # return start date of admin as json object
         return jsonify({'admin' : admins})
   
     else:
+        # return error if admin does not exist
         return 'Admin does not exist', 404
 
-# return all orders
+# return all orders in database, requires admin permission
 @main.route('/admin/orders/all')
 @login_required
 @admin_permission.require()
 def all_orders():
         orders = []
+        # get all orders
         order_list = db.session.query(Book_Order).all()
+        # iterate through all orders and append to list
         for order in order_list:
+            # get sum of order
             sum = order.getTotal(order.order_id)
+            # format dates
             if order.prepared_date != None:
                 order.prepared_date = order.prepared_date.strftime('%Y-%m-%d')
             if order.shipped_date != None:
                 order.shipped_date = order.shipped_date.strftime('%Y-%m-%d')
             if order.delivered_date != None:
                 order.delivered_date = order.delivered_date.strftime('%Y-%m-%d')
+            # append order to list
             orders.append({'order_id' : order.order_id, 'order_date' : order.order_date.strftime('%Y-%m-%d'), 'status' : order.STATUS, 'prepared_date' : order.prepared_date, 'shipping_date' : order.shipped_date, 'delivered_date' : order.delivered_date, 'payment_method' : order.payment_method, 'sum' : sum})      
-
+        # return list of orders as json object
         return jsonify({'orders' : orders})
   
   
-# return all reviews
+# return all reviews, requires admin permission
 @main.route('/admin/reviews/all')
 @cross_origin()
 @login_required
 @admin_permission.require()
 def all_admin_review():
         reviews = []
-        reviews_list = db.session.query(Review)
+        reviews_list = db.session.query(Review).all()
+        # iterate through all reviews and append to list
         for review in reviews_list:
             reviews.append({'user_id' : review.user_id, 'isbn' : review.isbn, 'message_title' : review.message_title, 'message_body' : review.message_body, 'post_date' : review.post_date.strftime('%Y-%m-%d'), 'rating' : review.rating })      
-
+        # return list of reviews as json object
         return jsonify({'reviews' : reviews})
 
-# delete review
+# delete any review by isbn and user_id, requires admin permission
 @main.route('/admin/review/<isbn>/<user_id>/delete')
 @cross_origin()
 @login_required
 def review_delete_admin(isbn, user_id):
         isbn = sanitize_input(isbn)
         user_id = sanitize_input(user_id)
-        query = (
-        db.session.query(Review)
-        .filter(Review.isbn == isbn)
-        .filter(Review.user_id == user_id)
-        )
 
-        query = query.params(isbn=isbn, user_id=user_id)
-
-        query.delete()
-        db.session.commit()
+        review = db.session.query(Review).filter(Review.isbn == isbn).filter(Review.user_id == user_id).scalar()
         
+        if review:
+            db.session.delete(review)
+            db.session.commit()
+            return 'REVIEW DELETED', 200
+        else:
+            return 'REVIEW DOES NOT EXIST', 404     
 # ===========================================================
 # search FUNCTIONS
 # ===========================================================
@@ -1028,36 +1033,38 @@ def search():
     search_input = data['search']
     search_input = sanitize_input(search_input)
     authors = []
-    
     books = []
+    # search for books with similar fname to requested string
     sim_auth_fname = (
         db.session.query(Author)
         .filter(Author.fname.ilike(f'%{search_input}%'))
         .all()
     )
-
+    # search for books with similar lname to requested string
     sim_auth_lname = (
         db.session.query(Author)
         .filter(Author.lname.ilike(f'%{search_input}%'))
         .all()
     )
-
+    # append both to a list, and remove duplicates
     sim_auth = list(dict.fromkeys(sim_auth_fname + sim_auth_lname))
+    # iterate through list of authors and append their associated books to list
     for authors in sim_auth:
         written_author = db.session.query(Writes).filter(Writes.author_id == authors.author_id)
         for written in written_author:
             book = db.session.query(Book).filter(Book.isbn == written.isbn).one()
             books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
 
-
+    # search for books with similar title to requested string
     book_list_title = db.session.query(Book).filter(Book.title.ilike(f'%{search_input}%')).all()
-
+    # iterate through list of books and append to list
     for book in book_list_title:
         books.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'cover_type' : book.cover_type, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})      
 
     book_no_dup = []
+    # remove duplicates from list
     [book_no_dup.append(x) for x in books if x not in book_no_dup]
 
-
+    # return list of books as json object
     return jsonify({'books' : book_no_dup})
-  
+
