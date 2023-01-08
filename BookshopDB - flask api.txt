@@ -1,0 +1,538 @@
+﻿BookshopDB Flask API - only has documentation on calls used directly 
+
+
+RETURN ALL BOOKS
+ROUTE - '/book/all_data'
+INPUT - n/a
+RETURNS EXAMPLE
+    "books": [
+        {
+            "authors": [
+                {
+                    "fname": "Ted",
+                    "lname": "Elliott"
+                }
+            ],
+            "average_rating": "5.0",
+            "description": null,
+            "image_location": "/img/hooked.jpg",
+            "isbn": "1374063041667",
+            "price": 7,
+            "stock": 998,
+            "title": "Hooked"
+        },
+
+
+
+
+RETURN SPECIFIC BOOK DATA
+ROUTE - '/book/<book_isbn>/data'
+INPUT - n/a
+RETURNS EXAMPLE
+ "books": [
+        {
+            "authors": [
+                {
+                    "fname": "Ted",
+                    "lname": "Elliott"
+                }
+            ],
+            "average_rating": "5.0",
+            "description": null,
+            "image_location": "/img/hooked.jpg",
+            "isbn": "1374063041667",
+            "number_reviews": 1,
+            "price": 7,
+            "stock": 998,
+            "title": "Hooked"
+        }
+    ]
+
+
+
+
+SHOPPING_CART FUNCTIONS
+
+
+ADD ITEM TO CART
+ROUTE -'/shopping_cart/add/', methods=['POST']
+INPUT - {‘“isbn” : “isbn”}
+RETURNS EXAMPLE - n/a
+Note - creates shopping_cart if user does not have cart already + if isbn already exists in cart increments amount of that isbn in STORES
+
+
+GET SHOPPING_CART DATA
+ROUTE -'/shopping_cart/data/>'
+INPUT - n/a
+RETURNS EXAMPLE 
+    "books": [
+        {
+            "items": [
+                {
+                    "image_location": "/img/fineprint.jpg",
+                    "isbn": "7018452427578",
+                    "price": 6,
+                    "quantity": 1,
+                    "title": "The Fine Print"
+                }
+            ],
+            "sum": 6
+        }
+    ]
+
+
+UPDATE QUANTITY OF BOOK IN CART
+ROUTE - ‘/shopping_cart/update/’ methods=['POST']
+INPUT - {“isbn” : isbn, “quantity” : quantity}
+RETURNS EXAMPLE  - n/a
+
+
+
+
+DELETE ISBN FROM CART (decreases by one, deletes if 0)
+ROUTE - ‘/shopping_cart/delete/’ methods=['POST']
+INPUT - {“isbn” : isbn}
+RETURNS EXAMPLE  - n/a
+
+
+DELETE CART + ASSOCIATED DERIVED_FROM if exists
+ROUTE - '/shopping_cart/delete/all'
+INPUT - n/a
+RETURNS EXAMPLE  - n/a
+
+
+
+
+BOOK_ORDER FUNCTIONS
+
+
+CREATE ORDER - need cart with items already
+ROUTE - '/order/create/'
+INPUT -{"shipping_address": address, "payment_method" : method}
+RETURNS EXAMPLE  - n/a
+NOTE - updates user loyalty points by 10x the total price of order
+
+
+GET ORDER DATA
+ROUTE - '/order/<order_id>/data'
+INPUT - n/a
+RETURNS EXAMPLE
+ "order": [
+        {
+            "address": "John Doe",
+            "delivered_date": null,
+            "items": [
+                "1777133692241",
+                "2378446085332",
+                "3296389830024",
+                "3934082997736"
+            ],
+            "items_qty": [
+                [
+                    "1777133692241",
+                    2
+                ],
+                [
+                    "2378446085332",
+                    1
+                ],
+                [
+                    "3296389830024",
+                    1
+                ],
+                [
+                    "3934082997736",
+                    1
+                ]
+            ],
+            "order_date": "2023-01-07",
+            "order_id": 30,
+            "payment_method": "Mastercard",
+            "prepared_date": null,
+            "shipping_date": null,
+            "status": "UNFULFILLED",
+            "sum": 62
+        }
+    ]
+
+
+
+
+WISHLIST FUNCTIONS
+
+
+ADD ITEM TO WISHLIST - creates wishlist if not exist
+ROUTE - '/wishlist/add/', methods=['POST']
+INPUT - {“isbn” : isbn}
+RETURNS EXAMPLE  - n/a
+
+
+GET WISHLIST DATA
+ROUTE - '/wishlist/data'
+INPUT - n/a
+RETURNS EXAMPLE 
+"wishlist_items": [
+        {
+            "isbn": "3296389830024"
+        },
+        {
+            "isbn": "4684536450026"
+        },
+        {
+            "isbn": "4919612262648"
+        },
+        {
+            "isbn": "5880606495172"
+        },
+        {
+            "isbn": "6931871780962"
+        },
+        {
+            "isbn": "7632537100609"
+        },
+        {
+            "isbn": "9454144122432"
+        }
+    ]
+
+
+DELETE BOOK FROM WISHLIST
+ROUTE - '/wishlist/delete_item', methods=['POST']
+INPUT - {“isbn” : isbn}
+RETURNS EXAMPLE  - n/a
+
+
+REVIEW FUNCTIONS
+
+
+ADD REVIEW 
+ROUTE - '/book/<isbn_input>/review/new', methods=['POST']
+INPUT - {“message_title” : “message_title”, “message_body” : “message_body”, “rating” : rating}
+RETURNS EXAMPLE  - n/a
+
+
+
+
+RETURN ALL REVIEWS CREATED BY USER
+ROUTE - '/reviews/all'
+INPUT - n/a
+RETURNS EXAMPLE  -
+    "reviews": [
+        {
+            "isbn": "3934082997736",
+            "message_body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam commodo cursus tincidunt. Quisque pretium congue fringilla. Donec sed purus at tellus hendrerit vestibulum.",
+            "message_title": "Lorem ipsum dolor sit amet",
+            "post_date": "2022-05-10",
+            "rating": "4.0"
+        }
+    ]
+
+
+RETURN ALL REVIEWS ON ISBN
+ROUTE - '/book/<isbn>/review_all'
+INPUT - n/a
+RETURNS EXAMPLE  -
+"reviews": [
+        {
+            "message_body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam commodo cursus tincidunt. Quisque pretium congue fringilla. Donec sed purus at tellus hendrerit vestibulum.",
+            "message_title": "Vivamus libero eros",
+            "post_date": "2022-11-24",
+            "rating": "2.0",
+            "user_id": 2
+        },
+        {
+            "message_body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam commodo cursus tincidunt. Quisque pretium congue fringilla. Donec sed purus at tellus hendrerit vestibulum.",
+            "message_title": "Vivamus libero eros",
+            "post_date": "2022-11-24",
+            "rating": "2.0",
+            "user_id": 11
+        }
+    ]
+
+
+DELETE REVIEW 
+ROUTE -'/book/<isbn>/review/<user_id>/delete'
+INPUT - n/a
+RETURNS EXAMPLE  - n/a
+
+
+USER FUNCTIONS
+
+
+REGISTER USER - by default adds them to customer
+ROUTE - '/register/new', methods=['POST'])
+INPUT - {“fname” : “fname”, “lname” : “lname”, “email” : “email”, “pass_word” : “pass_word”}
+RETURNS EXAMPLE  - n/a
+
+
+RETURN USER DATA
+ROUTE - '/user/data/self'
+ROUTE - '/user/data/<user_id>’ - requires admin role
+INPUT - n/a
+RETURNS EXAMPLE
+    "user": [
+        {
+            "email": "wyatt.vandervort@gmail.com",
+            "fname": "Antony",
+            "lname": "Watson"
+        }
+    ]
+
+
+USER LOGIN
+ROUTE - '/login'
+INPUT - {“email” : “email”, “pass_word” : “pass_word”}
+RETURNS EXAMPLE - n/a
+
+
+USER LOGOUT - REQUIRES USER TO BE LOGGED IN
+ROUTE - '/logout'
+INPUT - n/a
+RETURNS EXAMPLE - n/a
+
+
+
+
+RETURN ALL ORDERS FROM USER
+ROUTE - '/orders/all’'
+INPUT - n/a
+RETURNS EXAMPLE
+"orders": [
+        {
+            "delivered_date": "2022-10-05",
+            "order_date": "2022-09-28",
+            "order_id": 1,
+            "payment_method": "Visa",
+            "prepared_date": "2022-09-29",
+            "shipping_date": "2022-09-30",
+            "status": "COMPLETE",
+            "sum": 90
+        },
+        {
+            "delivered_date": null,
+            "order_date": "2022-11-03",
+            "order_id": 2,
+            "payment_method": "Mastercard",
+            "prepared_date": null,
+            "shipping_date": null,
+            "status": "UNFULFILLED",
+            "sum": 10
+        },
+        {
+            "delivered_date": null,
+            "order_date": "2022-11-04",
+            "order_id": 8,
+            "payment_method": "Mastercard",
+            "prepared_date": null,
+            "shipping_date": null,
+            "status": "UNFULFILLED",
+            "sum": 73
+        }
+    ]
+
+
+UPDATE USER INFO
+ROUTE -'/user/data/update', methods=['POST']
+INPUT - {“fname” : “fname”, “lname” : “lname”, “email” : “email”, “pass_word” : “pass_word”}
+* Input value(s) as null if not updating
+RETURNS EXAMPLE  - n/a
+
+
+
+
+RECOMMENDATION FUNCTIONS
+
+
+ADD RECOMMENDATION
+ROUTE - '/recommendation/new', methods=['POST']
+INPUT - {“recipient_id” : “recipient_id”, “isbns” : [“value”, “value”], “author_names” : [“value”, “value”]}
+RETURNS EXAMPLE  - n/a
+
+
+DELETE Recommendation
+ROUTE -'/recommendation/delete', methods = ['POST']
+INPUT - {“recommend_id” : “recommend_id”}
+RETURNS EXAMPLE  - n/a
+
+
+RETURN ALL RECOMMENDATIONS SENT TO USER
+ROUTE -'/recommendation/user/all/'
+INPUT - n/a
+RETURNS EXAMPLE 
+ "recommendations": [
+        {
+            "recommend_id": 1,
+            "sender_id": 5
+        },
+        {
+            "recommend_id": 2,
+            "sender_id": 3
+        },
+        {
+            "recommend_id": 3,
+            "sender_id": 6
+        },
+    ]
+
+
+
+
+RETURN ALL RECOMMENDATIONS SENT BY USER
+ROUTE -'/recommendation/user/all/sent'
+INPUT - n/a
+RETURNS EXAMPLE 
+"recommendations": [
+             {
+            "recipient_id": 6,
+            "recommend_id": 11
+        },
+        {
+            "recipient_id": 11,
+            "recommend_id": 12
+        }
+    ]
+
+
+
+
+RETURN DATA OF SPECIFIC RECOMMENDATION
+ROUTE -'/recommendation/view/<recommend_id>'
+INPUT - n/a
+RETURNS EXAMPLE 
+"wishlist_items": [
+        {
+            "isbn": "1777133692241"
+        },
+        {
+            "isbn": "4919612262648"
+        },
+        {
+            "isbn": "7500610199250"
+        },
+        {
+            "author_ids": 4
+        },
+        {
+            "author_ids": 5
+        }
+    ]
+
+
+RETURN ‘AUTO’ GENERATED RECOMMENDATION
+ROUTE -'/recommendation/auto'
+INPUT - n/a
+RETURNS EXAMPLE 
+ "wishlist_items": [
+        {
+            "authors": [
+                {
+                    "fname": "Jacob",
+                    "lname": "Farrell"
+                }
+            ],
+            "average_rating": null,
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi convallis ullamcorper purus, sed condimentum velit dapibus in. Aliquam bibendum metus quis aliquet sollicitudin. Ut sollicitudin at diam eget pellentesque.",
+            "image_location": "/img/inheritancegame.jpg",
+            "isbn": "1777133692241",
+            "price": 6,
+            "stock": 996,
+            "title": "The Inheritance Games (Inheritance Games Series #1)"
+        },
+Note - This works based off a user’s wishlist - books with a similar genre/author are recommended
+
+
+CUSTOMER FUNCTIONS
+
+
+GET USER POINTS
+ROUTE - '/user/points/’
+INPUT - n/a
+RETURNS EXAMPLE  
+    "user": [
+        {
+            "points": 677
+        }
+    ]
+
+
+ADMIN FUNCTIONS - requires admin permission to execute
+
+
+ADD RETURN DATE
+ROUTE -'/admin/<user_id>'
+INPUT - n/a
+RETURNS EXAMPLE 
+    "admin": [
+        {
+            "start_date": "2020-10-03"
+        }
+    ]
+
+
+ADD LOYALTY POINTS
+ROUTE -’/points/<user_id>/update', methods = ['POST']
+INPUT - {“points” : value}
+RETURNS EXAMPLE  - n/a
+
+
+RETURN ALL ORDERS IN DB
+ROUTE -’/admin/orders/all’'
+INPUT - n/a
+RETURNS EXAMPLE 
+ "orders": [
+        {
+            "delivered_date": "2022-10-05",
+            "order_date": "2022-09-28",
+            "order_id": 1,
+            "payment_method": "Visa",
+            "prepared_date": "2022-09-29",
+            "shipping_date": "2022-09-30",
+            "status": "COMPLETE",
+            "sum": 90
+        },
+
+
+
+
+RETURN ALL REVIEWS IN DB
+ROUTE -’admin/reviews/all’'
+INPUT - n/a
+RETURNS EXAMPLE
+ "reviews": [
+        {
+            "isbn": "4181687194052",
+            "message_body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam commodo cursus tincidunt. Quisque pretium congue fringilla. Donec sed purus at tellus hendrerit vestibulum.",
+            "message_title": "Fusce sed maximus elit,",
+            "post_date": "2022-10-17",
+            "rating": "4.0",
+            "user_id": 2
+        },
+
+
+DELETE ANY REVIEW
+ROUTE -’/admin/review/<isbn>/<user_id>/delete’'
+INPUT - n/a
+RETURNS EXAMPLE - n/a
+
+
+
+
+SEARCH FUNCTION
+
+
+Search - returns any books where search value is similar to title or auth fname/lname
+ROUTE -'/search/', methods=['POST']
+INPUT - {“search”: “search”}
+RETURNS EXAMPLE 
+ "books": [
+        {
+            "average_rating": null,
+            "cover_type": "HARDCOVER",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi convallis ullamcorper purus, sed condimentum velit dapibus in. Aliquam bibendum metus quis aliquet sollicitudin. Ut sollicitudin at diam eget pellentesque.",
+            "image_location": null,
+            "isbn": "6931871780962",
+            "price": 10,
+            "stock": 25,
+            "title": "It Starts with Us: A Novel"
+        }
+    ]
