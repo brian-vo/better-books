@@ -703,7 +703,7 @@ def get_roles():
 # Recommendation FUNCTIONS
 # ===========================================================
 
-# add new recommendation
+# add new recommendation, requires login
 @main.route('/recommendation/new', methods=['POST'])
 @login_required
 def add_recommendation():
@@ -711,40 +711,52 @@ def add_recommendation():
     recommendation_data = request.get_json()
     recipient_id = sanitize_input(recommendation_data['recipient_id'])
     user_exists = db.session.query(db.exists().where(User.user_id == recipient_id)).scalar()
+    # check if user exists, return error if not
     if not user_exists:
-        return "bad", 491
+        return "User does not exist, unable to create recommendation", 491
+
+    # create new recommendation and commit to database
     new_recommendation = Recommendation(recipient_id=recipient_id, user_id=user_id)
     db.session.add(new_recommendation)
     db.session.commit()
 
-    recommend = db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).one()
-
+    # check if recommendation contains any books, if so then add to database
     if(recommendation_data['isbns'] != None):
+        # iterate through requested isbns and check if they exist in database
         for isbns in recommendation_data['isbns']:
             isbn_exist = db.session.query(db.exists().where(Book.isbn == isbns)).scalar()
+            # if isbn does not exist, delete recommendation and return error
             if not isbn_exist:
                 db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).delete()                
                 db.session.commit()         
-                return "bad", 492
-            isbns = sanitize_input(isbns)
-            new_sends = Sends(recommend_id = new_recommendation.recommend_id, isbn = isbns )
-            db.session.add(new_sends)
-            db.session.commit()
+                return "A suggested ISBN does not exist, unable to create recommendation", 492
+            else:
+                # if isbn does exist, create Sends object and commit to database
+                isbns = sanitize_input(isbns)
+                new_sends = Sends(recommend_id = new_recommendation.recommend_id, isbn = isbns )
+                db.session.add(new_sends)
+                db.session.commit()
+
+    # check if recommendation contains any authors, if so then add to database
     if(recommendation_data['author_names'] != None):
+        # iterate through requested authors and check if they exist in database
         for authors in recommendation_data['author_names']:
             author_exist = db.session.query(db.exists().where(Author.author_id == authors)).scalar()
+            # if author does not exist, delete recommendation and return error
             if not author_exist:
                 db.session.query(Recommendation).filter(Recommendation.recommend_id == new_recommendation.recommend_id).delete()                
                 db.session.commit()         
-                return "bad", 493
-            authors = sanitize_input(authors)
-            new_author = Author_Names(recommend_id = new_recommendation.recommend_id, author_id = authors)
-            db.session.add(new_author)
-            db.session.commit()
-
+                return "A suggested author does not exist, unable to create recommendation", 493
+            else:
+                # if author does exist, create Author_Names object and commit to database
+                authors = sanitize_input(authors)
+                new_author = Author_Names(recommend_id = new_recommendation.recommend_id, author_id = authors)
+                db.session.add(new_author)
+                db.session.commit()
+    # return success
     return 'Created New Recommendation', 201
 
-# delete recommendation + associated tables
+# delete recommendation + associated tables, requires login
 @main.route('/recommendation/delete', methods = ['POST'])
 @login_required
 def recommend_delete():
@@ -752,21 +764,25 @@ def recommend_delete():
     recommendation_data = request.get_json()
     recommendation_id = sanitize_input(recommendation_data['recommend_id'])
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommendation_id)).scalar()
-
+    # check if recommendation exists
     if recommendation_exists:
+        # check if user is the one who created the recommendation, if so then delete
         Recommendation = db.session.qury(Recommendation).filter(Recommendation.recommend_id == recommendation_id).one()
         if (Recommendation.user_id == user_id):
+            # delete all associated tables
             db.session.query(Sends).filter_by(recommend_id = recommendation_id).delete()
             db.session.query(Author_Names).filter_by(recommend_id = recommendation_id).delete()
             db.session.query(Recommendation).filter_by(recommend_id = recommendation_id).delete()
             db.session.commit()
         else:
+            # if user is not the one who created the recommendation, return error
             return 'NOT PERMITTED', 401
+        # return success
         return 'DELETED', 200
     else:
         return 'RECOMMENDATION DOES NOT EXIST', 404
 
-# return all recommendation to specific user_id
+# return all recieved recommendation, requires login
 @main.route('/recommendation/user/all/')
 @cross_origin()
 @login_required
@@ -774,18 +790,21 @@ def recieved_recommendations():
     user_id = current_user.user_id
     exists = db.session.query(db.exists().where(Recommendation.recipient_id == user_id)).scalar()
 
+    # check if user has any recommendations
     if exists:
         recommendations = []
         recommendations_list = db.session.query(Recommendation).filter(Recommendation.recipient_id == user_id)
+        # iterate through recommendations and append to list
         for recommendation in recommendations_list:
             recommendations.append({'recommend_id' : recommendation.recommend_id, 'sender_id' : recommendation.user_id })      
-
+        # return list of recommendations as json object
         return jsonify({'recommendations' : recommendations})
   
     else:
+        # return error if user has no recommendations
         return 'User has no recommendations', 404
 
-# return all recommendation to specific user_id
+# return all recommendations sent by user, requires login
 @main.route('/recommendation/user/all/sent')
 @cross_origin()
 @login_required
@@ -793,83 +812,91 @@ def sent_recommendations():
     user_id = current_user.user_id
     exists = db.session.query(db.exists().where(Recommendation.user_id == user_id)).scalar()
 
+    # check if user has any recommendations
     if exists:
         recommendations = []
         recommendations_list = db.session.query(Recommendation).filter(Recommendation.user_id == user_id)
+        # iterate through recommendations and append to list
         for recommendation in recommendations_list:
             recommendations.append({'recommend_id' : recommendation.recommend_id, 'recipient_id' : recommendation.recipient_id })      
-
+        # return list of recommendations as json object
         return jsonify({'recommendations' : recommendations})
   
     else:
+        # return error if user has no recommendations
         return 'User has no recommendations', 404
 
-# get existing recommendation data                                                                                                    
+# get data about a specific recommendation, requires login                                                                                                    
 @main.route('/recommendation/view/<recommend_id>')
 @cross_origin()
 @login_required
 def recommendation_data(recommend_id):
     recommend_id = sanitize_input(recommend_id)
     recommendation_exists = db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id)).scalar()
-    recommendation_exists = (
-        db.session.query(db.exists().where(Recommendation.recommend_id == recommend_id))
-        .scalar()
-    )
 
+    # check if recommendation exists
     if recommendation_exists:
         recommendation_info = []
         all_sends = db.session.query(Sends).filter(Sends.recommend_id == recommend_id)
         all_authors = db.session.query(Author_Names).filter(Author_Names.recommend_id == recommend_id)
 
+        # iterate through sends (ISBN) and authors (AUTHOR_ID) and append to list
         for send in all_sends:
             recommendation_info.append({'isbn' : send.isbn})       
         for author in  all_authors:
             recommendation_info.append({'author_ids' : author.author_id})       
-
+        # return list of recommendations as json object
         return jsonify({'wishlist_items' : recommendation_info})
     else:
+        # return error if recommendation does not exist
         return 'RECOMMENDATION DOES NOT EXIST', 404
 
-# auto-give recommendations, based on wishlist                                                                                                    
+# provide automatically generated recommendations, based on genre of wishlist items, requires login                                                                                                    
 @main.route('/recommendation/auto')
 @cross_origin()
 @login_required
 def recommend_auto():
     user_id = current_user.user_id
     wishlist_exists = db.session.query(db.exists().where(Wishlist.user_id == user_id)).scalar()
-
+    # check if wishlist exists
     if wishlist_exists:
         wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
         includes_exists = db.session.query(db.exists().where(Includes.wishlist_id == wishlist.wishlist_id)).scalar()
+        # check if wishlist has any items
         if includes_exists:
             genres = []
             books_gen = []
             book_ret = []
+            # get all items in wishlist
             wishlist = db.session.query(Wishlist).filter(Wishlist.user_id == user_id).one()
             includes = db.session.query(Includes).filter(Includes.wishlist_id == wishlist.wishlist_id).all()
 
+            # get all genres of items in wishlist
             for books in includes:
                 book = db.session.query(Book).filter(Book.isbn == books.isbn).one()
                 genre = db.session.query(Genres).filter(Genres.isbn == book.isbn).one()
                 genres.append(genre)
-            
+            # get all books of the same genre as items in wishlist
             for genre in genres:
                 recommend_genre = db.session.query(Genres).filter(Genres.genre == genre.genre)
                 for books in recommend_genre:
                     book = db.session.query(Book).filter(Book.isbn == books.isbn).one()
                     books_gen.append(book)
-        
+            # iterate through all suggested books and append to list with their authors
             for book in books_gen:
                 authors = []
                 book_writes = db.session.query(Writes).filter(Writes.isbn == book.isbn)
                 for auth in book_writes:
                     author = db.session.query(Author).filter(Author.author_id == auth.author_id).one()
                     authors.append({'fname' : author.fname, 'lname' : author.lname})
-                book_ret.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})          
+                book_ret.append({'isbn' : book.isbn, 'title' : book.title, 'description' : book.description, 'stock' : book.stock, 'price' : book.price, 'authors' : authors, 'image_location' : book.image_location, 'average_rating' : book.getAverageRating(book.isbn)})       
+                # return list of recommendations as json object   
             return jsonify({'wishlist_items' : book_ret})
         else:
+            # return error if wishlist is empty
             return 'No recommendations avaliable at this time', 481
     else:
+        # return error if wishlist does not exist
         return 'No recommendations avaliable at this time', 481
 
 # ===========================================================
