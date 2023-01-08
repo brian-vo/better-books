@@ -4,6 +4,8 @@ from statistics import mean
 from flask_login import UserMixin
 
 Base = automap_base()
+
+# reflect each table in DB as a class for SQLAlchemy usage
 class Admin(Base):
     __tablename__ = 'admin'
 
@@ -16,6 +18,7 @@ class Author_Names(Base):
 class Book(Base):
     __tablename__ = 'book'
 
+    # get average rating for a book, based on all its reviews
     @classmethod
     def getAverageRating(self, isbn):
         exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
@@ -30,6 +33,7 @@ class Book(Base):
             return round((mean(ratings)), 1)
         return None
         
+    # get number of reviews for a book
     @classmethod
     def getNumberReviews(self, isbn):
         exists = db.session.query(db.exists().where(Review.isbn == isbn)).scalar()
@@ -43,6 +47,7 @@ class Book(Base):
 class Book_Order(Base):
     __tablename__ = 'book_order'
 
+    # get total price of an order
     @classmethod
     def getTotal(self, order_id):
         isbns = db.session.query(Isbns).filter(Isbns.order_id == order_id)
@@ -87,6 +92,7 @@ class Sends(Base):
 class Shopping_Cart(Base):
     __tablename__ = 'shopping_cart'
 
+    # get total price of a cart
     @classmethod
     def getTotal(self, cart_id):
         stores = db.session.query(Stores).filter(Stores.cart_id == cart_id)
@@ -109,6 +115,7 @@ class Stores(Base):
 class User(Base, UserMixin):
     __tablename__ = 'user'
 
+    # get user id for flask-login
     def get_id(self):
         return self.user_id
 
