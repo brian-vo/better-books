@@ -8,7 +8,7 @@ function AdminReviews() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [reviews, setReviews] = useState([]);
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [titles, setTitles] = useState({});
   const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
 
@@ -42,7 +42,7 @@ function AdminReviews() {
       });
       fetchReviews();
 
-  }, []);
+  });
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -54,7 +54,7 @@ function AdminReviews() {
 
 const deleteReview = async (isbn, user_id, token) => {
   try {
-    const response = await fetch(`/admin/review/${isbn}/${user_id}/delete`, {
+    await fetch(`/admin/review/${isbn}/${user_id}/delete`, {
       headers: {
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"

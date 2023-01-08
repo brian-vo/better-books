@@ -9,7 +9,6 @@ const Search = () => {
   // Parse the query string to get the `isbn` value
   const params = new URLSearchParams(queryString);
   const query = params.get("searchvalue");
-  const location = useLocation();
 
   const searchData = {
     search: query,

@@ -7,11 +7,11 @@ function AdminOrders() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState([]);
-  const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
     fetch('/api/roles')
       .then((response) => response.json())
       .then((data) => {

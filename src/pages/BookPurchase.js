@@ -9,7 +9,6 @@ const BookPurchase = () => {
   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviews, setReviews] = useState([]); // Store the reviews in state
-  const [error, setError] = useState(null); // Initialize the error state variable
 
   const queryString = useLocation().search;
 
@@ -108,7 +107,6 @@ const BookPurchase = () => {
       });
       response.json().then((responseData) => {
         if (responseData.status === 400) {
-          setError("You have already left a review on this product!.");
           return;
         }
       });
@@ -135,7 +133,7 @@ const BookPurchase = () => {
   const handleShowReviewForm = () => {
     setShowReviewForm(true);
   };
-  console.log(book)
+  
   return (
     <div className="purchase-container">
       <div className="purchase-content">

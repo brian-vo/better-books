@@ -1,8 +1,6 @@
   import React, { useState, useEffect } from 'react';
   import './Checkout.css';
   import { useNavigate } from 'react-router-dom';
-  import BookIcon from "../components/BookIcon";
-
 
   const Checkout = () => {
     const [address, setAddress] = useState('');

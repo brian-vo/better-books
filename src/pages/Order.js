@@ -25,28 +25,29 @@ function Order() {
     if (!data || !data.order || !data.order[0] || !data.order[0].items) {
       return;
     }
-
+  
     if (!books) {
       setBooks([]);
     }
-
-    const requests = data.order[0].items.map(isbn => {
+  
+    async function fetchBookData(isbn) {
       if (fetchedBooks.has(isbn)) {
         return;
       }
-    
+  
       setFetchedBooks(prevFetchedBooks => prevFetchedBooks.add(isbn));
-    
-      return fetch(`/book/${isbn}/data`)
-        .then(response => response.json())
-        .then(response => {
-          if (response.books && Array.isArray(response.books) && response.books.length > 0) {
-            setBooks(books.concat(response.books));
-    
-            setUniqueBooks(prevUniqueBooks => prevUniqueBooks.add(response.books[0]));
-          }
-        });
-    });
+  
+      const response = await fetch(`/book/${isbn}/data`);
+      const data = await response.json();
+  
+      if (data.books && Array.isArray(data.books) && data.books.length > 0) {
+        setBooks(books.concat(data.books));
+  
+        setUniqueBooks(prevUniqueBooks => prevUniqueBooks.add(data.books[0]));
+      }
+    }
+  
+    data.order[0].items.map(isbn => fetchBookData(isbn));
   }, [data, books, fetchedBooks]);
 
   if (!data) {
@@ -77,17 +78,17 @@ function Order() {
         </thead>
         <tbody>
   {Array.from(uniqueBooks).map(book => {
-      const itemQuantity = data.order[0].items_qty.find(item => item[0] === book.isbn);
-    return (
-      <tr key={book.ISBN}>
-        <th scope="row">{book.title}</th>
-        <td>{book.isbn}</td>
-        <td>${book.price}</td>
-        <td>{itemQuantity[1]}</td>
-        <td>${book.price * itemQuantity[1]}</td>
-      </tr>
-    );
-  })}
+  const itemQuantity = data.order[0].items_qty.find(item => item[0] === book.isbn);
+  return (
+    <tr key={book.ISBN}>
+      <th scope="row">{book.title}</th>
+      <td>{book.isbn}</td>
+      <td>${book.price}</td>
+      <td>{itemQuantity[1]}</td>
+      <td>${book.price * itemQuantity[1]}</td>
+    </tr>
+  );
+})}
 </tbody>
       </table>
     </div>

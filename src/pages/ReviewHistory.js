@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SideNav from "../components/SideNav";
 import Review from "../components/Review";
@@ -11,17 +11,9 @@ const ReviewHistory = () => {
   const [titles, setTitles] = useState({});
   const [fetchedIsbns, setFetchedIsbns] = useState(new Set());
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    } else {
-      fetchReviews();
-    }
-  }, [token]);
-
-  const fetchReviews = async () => {
+ 
+  const fetchReviews = useCallback(async () => {
     try {
-
       const response = await fetch('/reviews/all', {
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -30,11 +22,19 @@ const ReviewHistory = () => {
       });
       const data = await response.json();
       setReviews(data.reviews);
-
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [token]);
+
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    } else {
+      fetchReviews();
+    }
+  }, [token, fetchReviews, navigate]);
 
   const deleteReview = async (isbn, token) => {
     try {
