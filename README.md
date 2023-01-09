@@ -16,6 +16,7 @@ The backend of BetterBooks is powered by a MySQL database, which is accessed thr
 - JavaScript
 - Python
 - CSS
+- SQL
 
 ### Frameworks Used
 - React
