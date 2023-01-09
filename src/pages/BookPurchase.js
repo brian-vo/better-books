@@ -35,12 +35,13 @@ const BookPurchase = () => {
             "Content-Type": "application/json"
           },
         });
-        const data1 = await response1.json();
-        // set reviews
-        setReviews(data1.reviews);
-      } catch (error) {
-        console.error(error);
-      }
+        // Check if the response was successful
+        if (response1.status !== 404) {
+          const data1 = await response1.json();
+          // set reviews
+          setReviews(data1.reviews);
+        }
+      } catch (error) { }
     };
     fetchBook();
   }, [isbn]);
@@ -169,15 +170,18 @@ const BookPurchase = () => {
               <br />
             </>
           ) : null}
-
-          <span>By: {book.authors ? book.authors.map(author => <strong>{author.fname} {author.lname}</strong>) : null}</span>
-          <p>
-            <br />
-            <h2>${book.price}</h2>
-            <div>
-              {book.description ? <strong>About:</strong> : null} <br /> {book.description}
-            </div>
-          </p>
+          <span>
+            By:
+            {book.authors
+              ? book.authors.map((author, index) => (
+                <strong key={index}>{author.fname} {author.lname}</strong>
+              ))
+              : null}
+          </span>            <br />
+          <h2>${book.price}</h2>
+          <div>
+            {book.description ? <strong>About:</strong> : null} <br /> {book.description}
+          </div>
           <div className="purchase-btns">
             <button className="pbutton" onClick={() => handleAddToWishlist(isbn, token)} >
               Add to Wishlist
@@ -213,8 +217,9 @@ const BookPurchase = () => {
       <div className="review-content">
         <h1>Reviews</h1>
         {reviews.map((review) => (
-          <Review review={review} />
+          <Review key={review.id} review={review} />
         ))}
+        {reviews.length === 0 ? <p>There are currently no reviews on this product</p> : null}
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ const FeaturedBookList = () => {
       {!isLoading &&
         data.books.map((book) => {
           return (
-            <li className="book-icon">
+            <li className="book-icon" key={book.isbn}>
               <Link to={"/book?isbn=" + book.isbn}>
                 <div className="icon-container">
                   <img src={book.image_location} alt="book" />

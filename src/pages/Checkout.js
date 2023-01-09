@@ -108,7 +108,7 @@ const Checkout = () => {
             <label htmlFor="card">Card Type:</label>
             <select id="card" name="card" onChange={handleCardChange} value={card}>
               {cardOptions.map((option) => (
-                <option value={option}>{option}</option>
+                <option key={option} value={option}>{option}</option>
               ))}
             </select>
             <br />
@@ -155,9 +155,9 @@ const Checkout = () => {
                 </div>
               </div>
               {books.map((book) => (
-                <div>
+                <div key={book.id}>
                   {book.items.map((item) => (
-                    <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div key={item.id} style={{ display: "flex", flexDirection: "row" }}>
                       <div style={{ width: "33.33%" }}>
                         <p>{item.title}</p>
                       </div>
@@ -173,7 +173,7 @@ const Checkout = () => {
               ))}
 
               <div style={{ display: "flex", flexDirection: "row", marginTop: 20, "borderTop": "1px solid black", "paddingTop": "10px" }}>
-                <div class="line" style={{ width: "66.66%" }}>
+                <div className="line" style={{ width: "66.66%" }}>
                   <h5>Subtotal:</h5>
                 </div>
                 <div style={{ width: "33.33%" }}>
@@ -187,7 +187,5 @@ const Checkout = () => {
     </div>
   );
 };
-
-
 
 export default Checkout;
